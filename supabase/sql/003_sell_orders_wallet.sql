@@ -1,0 +1,2 @@
+-- Supprime volontairement: les dossiers vendeur et la cagnotte ne font pas partie du schema simplifie.
+-- Voir 001_init.sql pour le schema actif.
