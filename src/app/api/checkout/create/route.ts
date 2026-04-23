@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getMerchantPaymentSettings } from "@/lib/admin-settings";
+import { getMerchantPaymentSettings, getTwintRuntimeSettings } from "@/lib/admin-settings";
 import {
   createOrderDraft,
   markOrderCancelled,
@@ -10,7 +10,7 @@ import {
   saveProviderSession,
 } from "@/lib/checkout";
 import { log } from "@/lib/logger";
-import { getProviderByName } from "@/lib/payments";
+import { getProviderInstance } from "@/lib/payments";
 import { getProductsByIds } from "@/lib/products";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -31,17 +31,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const provider = getProviderByName(parsed.data.provider);
+  const paymentSettings = await getMerchantPaymentSettings();
+  const twintRuntime = await getTwintRuntimeSettings();
+  const provider = getProviderInstance(parsed.data.provider);
   if (!provider) {
     return NextResponse.json({ error: "Payment provider not available" }, { status: 400 });
   }
 
-  const paymentSettings = await getMerchantPaymentSettings();
-  if (provider.name === "stripe" && !paymentSettings.card_payments_enabled) {
-    return NextResponse.json({ error: "Card payments are disabled" }, { status: 400 });
-  }
-  if (provider.name === "twint" && !paymentSettings.twint_payments_enabled) {
-    return NextResponse.json({ error: "TWINT payments are disabled" }, { status: 400 });
+  const providerEnabled =
+    provider.name === "stripe"
+      ? provider.isEnabled() && paymentSettings.card_payments_enabled
+      : provider.name === "twint"
+        ? twintRuntime.enabled
+        : provider.isEnabled();
+
+  if (!providerEnabled) {
+    return NextResponse.json({ error: "Payment provider not available" }, { status: 400 });
   }
 
   const ids = [...new Set(parsed.data.items.map((item) => item.productId))];

@@ -22,6 +22,10 @@ export function getEnabledProviders() {
   return providers.filter((provider) => provider.isEnabled());
 }
 
+export function getProviderInstance(name: string) {
+  return providers.find((provider) => provider.name === name) ?? null;
+}
+
 export function getProviderByName(name: string) {
   return providers.find((provider) => provider.name === name && provider.isEnabled()) ?? null;
 }

@@ -1,13 +1,14 @@
 import { CartClient } from "@/components/cart-client";
-import { getMerchantPaymentSettings } from "@/lib/admin-settings";
+import { getMerchantPaymentSettings, getTwintRuntimeSettings } from "@/lib/admin-settings";
 import { getCheckoutProviderOptions, getDefaultProviderName } from "@/lib/payments";
 import type { PaymentProviderName } from "@/lib/types";
 
 export default async function CheckoutPage() {
   const paymentSettings = await getMerchantPaymentSettings();
+  const twintRuntime = await getTwintRuntimeSettings();
   const providers = getCheckoutProviderOptions().map((provider) => {
     if (provider.name === "stripe") return { ...provider, enabled: provider.enabled && paymentSettings.card_payments_enabled };
-    if (provider.name === "twint") return { ...provider, enabled: provider.enabled && paymentSettings.twint_payments_enabled };
+    if (provider.name === "twint") return { ...provider, enabled: twintRuntime.enabled };
     return provider;
   });
   const fallback = providers.find((provider) => provider.enabled)?.name ?? providers[0]?.name ?? "stripe";

@@ -1,3 +1,4 @@
+import { getTwintRuntimeSettings } from "@/lib/admin-settings";
 import { env } from "@/lib/env";
 import type { CheckoutSessionResult, CreateCheckoutInput, PaymentProvider, PaymentWebhookEvent } from "@/lib/payments/provider";
 import { createStripeCheckoutSession, StripeProvider } from "@/lib/payments/stripe";
@@ -20,20 +21,21 @@ export class TwintProvider implements PaymentProvider {
       });
     }
 
-    if (!env.twintApiBaseUrl || !env.twintMerchantId || !env.twintApiKey) {
+    const runtimeSettings = await getTwintRuntimeSettings();
+    if (!runtimeSettings.enabled) {
       throw new Error("TWINT is not configured.");
     }
 
     const total = input.items.reduce((sum, item) => sum + item.quantity * item.unitAmountCents, 0);
-    const response = await fetch(`${env.twintApiBaseUrl.replace(/\/$/, "")}/checkout/sessions`, {
+    const response = await fetch(`${runtimeSettings.apiBaseUrl.replace(/\/$/, "")}/checkout/sessions`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${env.twintApiKey}`,
+        Authorization: `Bearer ${runtimeSettings.apiKey}`,
         "Content-Type": "application/json",
         "Idempotency-Key": `checkout_twint_${input.orderId}`,
       },
       body: JSON.stringify({
-        merchant_id: env.twintMerchantId,
+        merchant_id: runtimeSettings.merchantId,
         order_id: input.orderId,
         amount: {
           value: total,

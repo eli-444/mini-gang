@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-
-export default function LegacyCompteLayout() {
-  redirect("/mon-compte");
+export default function LegacyCompteLayout({ children }: { children: React.ReactNode }) {
+  return children;
 }
