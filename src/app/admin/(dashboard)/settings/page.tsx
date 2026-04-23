@@ -1,24 +1,11 @@
 import { env } from "@/lib/env";
-import { getMerchantPaymentSettings, getTwintRuntimeSettings } from "@/lib/admin-settings";
-import { PaymentSettingsForm } from "@/components/admin/payment-settings-form";
-import { toChf } from "@/lib/utils";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { formatMoney } from "@/lib/utils";
+import { PayoutMarkPaidButton } from "@/components/admin/payout-mark-paid-button";
 
 export default async function AdminSettingsPage() {
-  const paymentSettings = await getMerchantPaymentSettings();
-  const twintRuntime = await getTwintRuntimeSettings();
-  const cardStatus = !env.enableStripe
-    ? "Desactive dans l'env"
-    : paymentSettings.card_payments_enabled
-      ? "Active"
-      : "Desactive dans le panel";
-  const klarnaStatus = env.enableKlarna ? "Active" : "Desactive dans l'env";
-  const twintStatus = !env.enableTwint
-    ? "Desactive dans l'env"
-    : twintRuntime.enabled
-      ? "Active"
-      : paymentSettings.twint_payments_enabled
-        ? "Configuration incomplete"
-        : "Desactive dans le panel";
+  const supabase = createSupabaseAdminClient();
+  const { data: payouts } = await supabase.from("payout_requests").select("*").order("requested_at", { ascending: false }).limit(20);
 
   return (
     <div className="space-y-5">
@@ -30,39 +17,20 @@ export default async function AdminSettingsPage() {
       <section className="admin-card p-4">
         <h2 className="text-sm font-semibold uppercase text-slate-500">Paiements</h2>
         <dl className="mt-3 grid gap-2 text-sm md:grid-cols-2">
-          <div className="rounded-md bg-slate-50 p-2">
-            <dt className="text-slate-500">Carte bancaire</dt>
-            <dd className="font-semibold">{cardStatus}</dd>
+          <div className="rounded-md v-slate-50 p-2">
+            <dt className="text-slate-500">Stripe</dt>
+            <dd className="font-semibold">{env.enableStripe ? "Active" : "Desactive"}</dd>
           </div>
           <div className="rounded-md bg-slate-50 p-2">
             <dt className="text-slate-500">Klarna</dt>
-            <dd className="font-semibold">{klarnaStatus}</dd>
-          </div>
-          <div className="rounded-md bg-slate-50 p-2">
-            <dt className="text-slate-500">TWINT</dt>
-            <dd className="font-semibold">{twintStatus}</dd>
-          </div>
-          <div className="rounded-md bg-slate-50 p-2">
-            <dt className="text-slate-500">IBAN enregistre</dt>
-            <dd className="font-semibold">{paymentSettings.merchant_iban_last4 ? `**** ${paymentSettings.merchant_iban_last4}` : "Non renseigne"}</dd>
-          </div>
-          <div className="rounded-md bg-slate-50 p-2">
-            <dt className="text-slate-500">Livraison Suisse</dt>
-            <dd className="font-semibold">{toChf(paymentSettings.shipping_fee_cents)}</dd>
+            <dd className="font-semibold">{env.enableKlarna ? "Active" : "Desactive"}</dd>
           </div>
         </dl>
-        <p className="mt-3 text-xs text-slate-500">
-          Les champs TWINT du panel alimentent maintenant le checkout. La cle API reste lue via la variable
-          d&apos;environnement nommee dans <code>twint_api_key_reference</code>.
-        </p>
-        <PaymentSettingsForm initialSettings={paymentSettings} />
       </section>
 
       <section className="admin-card p-4">
         <h2 className="text-sm font-semibold uppercase text-slate-500">Webhooks Health</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Les paiements carte, Klarna et TWINT mettent a jour la table commandes via leurs webhooks respectifs.
-        </p>
+        <p className="mt-2 text-sm text-slate-600">Voir les derniers evenements via la table `payments_events` dans Supabase.</p>
       </section>
 
       <section className="admin-card p-4">
@@ -71,15 +39,24 @@ export default async function AdminSettingsPage() {
       </section>
 
       <section className="admin-card p-4">
-        <h2 className="text-sm font-semibold uppercase text-slate-500">Base de donnees</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Tables verifiees: utilisateurs, vetements, photos_vetements, commandes, articles_commande, admin_settings,
-          shipments et returns.
-        </p>
-        <p className="mt-2 text-sm text-slate-600">
-          Les modules vendeur historiques ne font pas partie du schema Supabase actuel: aucune table
-          <code>sell_orders</code> ou <code>payouts</code> n&apos;est presente aujourd&apos;hui.
-        </p>
+        <h2 className="text-sm font-semibold uppercase text-slate-500">Payout requests</h2>
+        {payouts && payouts.length > 0 ? (
+          <div className="mt-3 space-y-2">
+            {payouts.map((payout) => (
+              <div key={payout.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 p-2 text-sm">
+                <div>
+                  <p className="font-semibold">{payout.id.slice(0, 8)}</p>
+                  <p className="text-xs text-slate-500">
+                    {payout.status} - {formatMoney(payout.amount_cents, "EUR")} - {new Date(payout.requested_at).toLocaleDateString("fr-FR")}
+                  </p>
+                </div>
+                <PayoutMarkPaidButton payoutId={payout.id} disabled={!["requested", "approved"].includes(payout.status)} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-slate-600">Aucune demande de retrait.</p>
+        )}
       </section>
     </div>
   );

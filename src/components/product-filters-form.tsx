@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ageRangeOptions } from "@/lib/age-options";
+import { sizeOptions } from "@/lib/size-options";
 
 interface ProductFiltersFormProps {
   values: Record<string, string | undefined>;
@@ -25,7 +26,7 @@ export function ProductFiltersForm({ values }: ProductFiltersFormProps) {
   };
 
   return (
-    <form onSubmit={submit} className="mt-5 grid gap-2 md:grid-cols-6">
+    <form onSubmit={submit} className="mt-5 grid gap-2 md:grid-cols-7">
       <input
         name="q"
         defaultValue={values.q}
@@ -62,6 +63,18 @@ export function ProductFiltersForm({ values }: ProductFiltersFormProps) {
         {ageRangeOptions.map((age) => (
           <option key={age} value={age}>
             {age}
+          </option>
+        ))}
+      </select>
+      <select
+        name="size_label"
+        defaultValue={values.size_label}
+        className="rounded-xl border border-[var(--mg-ring)] bg-white px-3 py-2 text-sm"
+      >
+        <option value="">Taille</option>
+        {sizeOptions.map((size) => (
+          <option key={size} value={size}>
+            {size}
           </option>
         ))}
       </select>
