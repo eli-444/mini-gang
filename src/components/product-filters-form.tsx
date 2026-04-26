@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { ageRangeOptions } from "@/lib/age-options";
-import { sizeOptions } from "@/lib/size-options";
 
 interface ProductFiltersFormProps {
   values: Record<string, string | undefined>;
@@ -26,7 +25,8 @@ export function ProductFiltersForm({ values }: ProductFiltersFormProps) {
   };
 
   return (
-    <form onSubmit={submit} className="mt-5 grid gap-2 md:grid-cols-7">
+    <form onSubmit={submit} className="mt-5 grid gap-2 md:grid-cols-6">
+      {values.shop_section ? <input type="hidden" name="shop_section" value={values.shop_section} /> : null}
       <input
         name="q"
         defaultValue={values.q}
@@ -67,27 +67,13 @@ export function ProductFiltersForm({ values }: ProductFiltersFormProps) {
         ))}
       </select>
       <select
-        name="size_label"
-        defaultValue={values.size_label}
-        className="rounded-xl border border-[var(--mg-ring)] bg-white px-3 py-2 text-sm"
-      >
-        <option value="">Taille</option>
-        {sizeOptions.map((size) => (
-          <option key={size} value={size}>
-            {size}
-          </option>
-        ))}
-      </select>
-      <select
         name="genre"
         defaultValue={values.genre}
         className="rounded-xl border border-[var(--mg-ring)] bg-white px-3 py-2 text-sm"
       >
         <option value="">Genre</option>
-        <option value="mixte">Mixte</option>
-        <option value="femme">Femme</option>
-        <option value="homme">Homme</option>
-        <option value="enfant">Enfant</option>
+        <option value="femme">Fille</option>
+        <option value="homme">Garcon</option>
       </select>
       <button type="submit" className="rounded-xl bg-[var(--mg-ink)] px-3 py-2 text-sm font-bold text-white">
         Filtrer

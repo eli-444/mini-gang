@@ -18,6 +18,9 @@ export default async function BoutiquePage({
   const parsed = productFiltersSchema.safeParse(flat);
   const filters = parsed.success ? parsed.data : { sort: "newest" as const, limit: 24 };
   const { products, nextCursor, hasMore, total } = await listProducts(filters);
+  const shopSection = parsed.success ? parsed.data.shop_section : undefined;
+  const pageTitle = shopSection === "merche" ? "Merche" : shopSection === "vetements" ? "Vetements" : "Boutique";
+  const pageEyebrow = shopSection === "merche" ? "Selection" : "Catalogue";
 
   const createFilterUrl = (updates: Record<string, string>) => {
     const url = new URLSearchParams(flat as Record<string, string>);
@@ -33,8 +36,8 @@ export default async function BoutiquePage({
       <header className="mg-shell overflow-hidden bg-[linear-gradient(130deg,#fff,#fff4e7)] p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--mg-accent-strong)]">Catalogue</p>
-            <h1 className="font-display text-4xl leading-none">Boutique</h1>
+            <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--mg-accent-strong)]">{pageEyebrow}</p>
+            <h1 className="font-display text-4xl leading-none">{pageTitle}</h1>
           </div>
           <p className="rounded-full border border-[var(--mg-ring)] bg-white px-3 py-1.5 text-sm font-semibold">{total} articles</p>
         </div>

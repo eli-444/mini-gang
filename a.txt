@@ -1,0 +1,3 @@
+dans boutique sur la barre de nav, faire un  menu deroulant -> vetements ; merche 
+pouvoir creer un" event " (image + texte ) depuis le panel admin a afficher sur la page principale 
+voir les 3 derniers postes Insta dans A propos (si faisable)

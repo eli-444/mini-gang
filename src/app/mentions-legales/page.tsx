@@ -1,7 +1,7 @@
 export default function MentionsLegalesPage() {
   return (
     <section className="mx-auto max-w-3xl py-6 md:py-10">
-      <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--mg-pop-sun)]">Impressum</p>
+      <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--mg-pop-sun)]">Mentions-légales</p>
       <h1 className="mt-6 text-4xl font-black leading-tight text-[var(--mg-ink)] md:text-5xl">Mentions legales</h1>
       <div className="mt-8 space-y-4 text-sm leading-6 text-[var(--mg-ink)]/75">
         <article className="rounded-lg border border-[var(--mg-ring)] bg-white p-5">

@@ -13,7 +13,7 @@ export function Footer() {
             <Link href="/cgv">CGV</Link>
             <Link href="/retours">Retours</Link>
             <Link href="/confidentialite">Confidentialite</Link>
-            <Link href="/mentions-legales">Impressum</Link>
+            <Link href="/mentions-legales">Mentions-légales</Link>
           </div>
         </div>
       </div>

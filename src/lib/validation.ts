@@ -3,15 +3,20 @@ import { ageRangeOptions } from "@/lib/age-options";
 
 const ageRangeSchema = z.enum(ageRangeOptions);
 const emptyStringToUndefined = (value: unknown) => (value === "" ? undefined : value);
+const urlOrAbsolutePathSchema = z
+  .string()
+  .trim()
+  .refine((value) => value.startsWith("/") || /^https?:\/\//.test(value), "URL invalide");
 
 export const productFiltersSchema = z.object({
   q: z.preprocess(emptyStringToUndefined, z.string().trim().max(120).optional()),
+  shop_section: z.preprocess(emptyStringToUndefined, z.enum(["vetements", "merche"]).optional()),
   categorie: z.preprocess(
     emptyStringToUndefined,
     z.enum(["haut", "bas", "robe", "veste", "manteau", "chaussures", "accessoire", "autre"]).optional(),
   ),
   age_range: z.preprocess(emptyStringToUndefined, ageRangeSchema.optional()),
-  genre: z.preprocess(emptyStringToUndefined, z.enum(["femme", "homme", "enfant", "mixte"]).optional()),
+  genre: z.preprocess(emptyStringToUndefined, z.enum(["femme", "homme"]).optional()),
   brand: z.preprocess(emptyStringToUndefined, z.string().trim().max(80).optional()),
   condition: z.preprocess(emptyStringToUndefined, z.enum(["neuf", "tres_bon", "bon", "correct"]).optional()),
   size_label: z.preprocess(emptyStringToUndefined, z.string().trim().max(30).optional()),
@@ -27,7 +32,7 @@ export const checkoutItemSchema = z.object({
 });
 
 export const checkoutCreateSchema = z.object({
-  provider: z.enum(["stripe", "klarna", "twint"]),
+  provider: z.enum(["stripe", "twint"]),
   email: z.string().email(),
   items: z.array(checkoutItemSchema).min(1).max(20),
   shipping: z.object({
@@ -58,6 +63,15 @@ export const adminPaymentSettingsSchema = z.object({
   twint_api_base_url: z.string().trim().url().optional().or(z.literal("")),
   twint_api_key_reference: z.string().trim().max(160).optional().or(z.literal("")),
   shipping_fee_cents: z.coerce.number().int().min(0).max(5000).default(790),
+});
+
+export const siteContentSettingsSchema = z.object({
+  home_event_enabled: z.boolean().default(false),
+  home_event_title: z.string().trim().max(160).optional().or(z.literal("")),
+  home_event_text: z.string().trim().max(2000).optional().or(z.literal("")),
+  home_event_image_path: z.string().trim().max(400).optional().or(z.literal("")),
+  home_event_cta_label: z.string().trim().max(80).optional().or(z.literal("")),
+  home_event_cta_url: urlOrAbsolutePathSchema.optional().or(z.literal("")),
 });
 
 export const adminProductSchema = z.object({

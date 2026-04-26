@@ -1,8 +1,10 @@
 export const ageRangeOptions = [
+  "Naissance",
   "3 mois",
   "6 mois",
   "9 mois",
   "12 mois",
+  "18 mois",
   "2 ans",
   "3 ans",
   "4 ans",

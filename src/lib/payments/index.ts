@@ -5,6 +5,7 @@ import { StripeProvider } from "@/lib/payments/stripe";
 import { TwintProvider } from "@/lib/payments/twint";
 
 const providers: PaymentProvider[] = [new StripeProvider(), new KlarnaProvider(), new TwintProvider()];
+const checkoutProviderNames = new Set(["stripe", "twint"]);
 
 const providerLabels = {
   stripe: "Carte bancaire",
@@ -31,16 +32,18 @@ export function getProviderByName(name: string) {
 }
 
 export function getCheckoutProviderOptions() {
-  return providers.map((provider) => ({
+  return providers
+    .filter((provider) => checkoutProviderNames.has(provider.name))
+    .map((provider) => ({
     name: provider.name,
     label: providerLabels[provider.name],
     description: providerDescriptions[provider.name],
     enabled: provider.isEnabled(),
-  }));
+    }));
 }
 
 export function getDefaultProviderName() {
-  const enabled = getEnabledProviders();
+  const enabled = providers.filter((provider) => checkoutProviderNames.has(provider.name) && provider.isEnabled());
   if (enabled.length === 0) return null;
   const found = enabled.find((provider) => provider.name === env.paymentProviderDefault);
   return found?.name ?? enabled[0].name;
