@@ -85,7 +85,7 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Merc
           className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
         />
         <span className="text-xs font-normal text-slate-500">
-          Ajoute une ligne separee au checkout carte/TWINT. Exemple: 790 = CHF 7.90.
+          Ajoute une ligne separee au checkout carte/TWINT. Exemple: 790 = CHF 7.90. La livraison est offerte des CHF 80.
         </span>
       </label>
 

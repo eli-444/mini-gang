@@ -10,6 +10,14 @@ export interface SiteContentSettings {
   home_event_image_path: string;
   home_event_cta_label: string;
   home_event_cta_url: string;
+  sell_service_enabled: boolean;
+  sell_closed_message: string;
+  sell_conditions_text: string;
+  sell_refused_brands_text: string;
+  sell_explanation_text: string;
+  orders_enabled: boolean;
+  orders_closed_message: string;
+  orders_reopen_date: string;
 }
 
 const defaultSiteContentSettings: SiteContentSettings = {
@@ -19,6 +27,14 @@ const defaultSiteContentSettings: SiteContentSettings = {
   home_event_image_path: "",
   home_event_cta_label: "",
   home_event_cta_url: "",
+  sell_service_enabled: false,
+  sell_closed_message: "Le service de rachat est temporairement ferme. Nous rouvrirons prochainement les demandes d'envoi de vetements.",
+  sell_conditions_text: "",
+  sell_refused_brands_text: "",
+  sell_explanation_text: "",
+  orders_enabled: true,
+  orders_closed_message: "Les commandes sont temporairement suspendues pendant nos vacances. La boutique rouvrira bientot.",
+  orders_reopen_date: "",
 };
 
 function sanitizeSettings(input: Partial<SiteContentSettings> | null | undefined): SiteContentSettings {
@@ -29,6 +45,14 @@ function sanitizeSettings(input: Partial<SiteContentSettings> | null | undefined
     home_event_image_path: String(input?.home_event_image_path ?? "").trim(),
     home_event_cta_label: String(input?.home_event_cta_label ?? "").trim(),
     home_event_cta_url: String(input?.home_event_cta_url ?? "").trim(),
+    sell_service_enabled: input?.sell_service_enabled ?? defaultSiteContentSettings.sell_service_enabled,
+    sell_closed_message: String(input?.sell_closed_message ?? defaultSiteContentSettings.sell_closed_message).trim(),
+    sell_conditions_text: String(input?.sell_conditions_text ?? "").trim(),
+    sell_refused_brands_text: String(input?.sell_refused_brands_text ?? "").trim(),
+    sell_explanation_text: String(input?.sell_explanation_text ?? "").trim(),
+    orders_enabled: input?.orders_enabled ?? defaultSiteContentSettings.orders_enabled,
+    orders_closed_message: String(input?.orders_closed_message ?? defaultSiteContentSettings.orders_closed_message).trim(),
+    orders_reopen_date: String(input?.orders_reopen_date ?? "").trim(),
   };
 }
 

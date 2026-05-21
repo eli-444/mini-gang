@@ -32,7 +32,7 @@ export function ReturnRequestForm({ orderId }: { orderId: string }) {
   };
 
   return (
-    <form onSubmit={submit} className="mt-3 grid gap-3">
+    <form onSubmit={submit} className="mt-4 grid gap-5">
       <input
         value={reason}
         onChange={(event) => setReason(event.target.value)}
@@ -40,7 +40,7 @@ export function ReturnRequestForm({ orderId }: { orderId: string }) {
         minLength={5}
         maxLength={120}
         placeholder="Motif: taille, defaut, colis, autre"
-        className="rounded-lg border border-[var(--mg-ring)] px-3 py-2 text-sm"
+        className="border-0 border-b-2 border-[var(--mg-ring)] bg-transparent px-0 py-3 text-base font-semibold outline-none transition placeholder:text-[var(--mg-ink)]/40 focus:border-[var(--mg-ink)]"
       />
       <textarea
         value={message}
@@ -49,12 +49,12 @@ export function ReturnRequestForm({ orderId }: { orderId: string }) {
         minLength={10}
         rows={4}
         placeholder="Expliquez le probleme. Ajoutez les details utiles."
-        className="rounded-lg border border-[var(--mg-ring)] px-3 py-2 text-sm"
+        className="border-0 border-b-2 border-[var(--mg-ring)] bg-transparent px-0 py-3 text-base font-semibold outline-none transition placeholder:text-[var(--mg-ink)]/40 focus:border-[var(--mg-ink)]"
       />
-      <button type="submit" disabled={busy} className="w-fit rounded-full bg-[var(--mg-ink)] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60">
+      <button type="submit" disabled={busy} className="w-fit rounded-full bg-[var(--mg-ink)] px-6 py-3 text-base font-black text-white disabled:opacity-60">
         Envoyer la demande
       </button>
-      {status ? <p className="text-xs font-semibold text-[var(--mg-ink)]/65">{status}</p> : null}
+      {status ? <p className="text-base font-semibold text-[var(--mg-ink)]/65">{status}</p> : null}
     </form>
   );
 }

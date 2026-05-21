@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { ageRangeOptions } from "@/lib/age-options";
+import { productCategoryOptions } from "@/lib/product-categories";
+import { productConditionOptions, productSeasonOptions, productStatusOptions } from "@/lib/product-options";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 interface ApiErrorPayload {
@@ -29,20 +31,23 @@ export function NewProductForm() {
     title: "",
     description: "",
     price_cents: 1000,
+    compare_at_price_cents: 0,
     brand: "",
     condition: "bon",
-    categorie: "haut",
+    categorie: "tee_shirts",
+    saison: "toutes_saisons",
     age_range: "3 mois",
     size_label: "",
     sex: "mixte",
     couleur: "",
     matiere: "",
-    status: "disponible",
+    stock_location: "",
+    status: "brouillon",
     mis_en_avant: false,
   });
 
   const onImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextFiles = Array.from(event.target.files ?? []).slice(0, 3);
+    const nextFiles = Array.from(event.target.files ?? []).slice(0, 6);
     setImages(nextFiles);
   };
 
@@ -130,7 +135,11 @@ export function NewProductForm() {
 
       try {
         const uploadedCount = await uploadImages(productId, images);
-        setStatus(`Vetement cree: ${productId}${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`);
+        setStatus(
+          form.status === "disponible"
+            ? `Vetement cree et visible en boutique: ${productId}${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`
+            : `Vetement cree en ${form.status}. Il ne sera visible en boutique qu'avec le statut En ligne.${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`,
+        );
       } catch (uploadError) {
         const uploadMessage = uploadError instanceof Error ? uploadError.message : "Erreur upload images.";
         setStatus(`Vetement cree: ${productId}. ${uploadMessage}`);
@@ -175,21 +184,38 @@ export function NewProductForm() {
           placeholder="Prix en centimes"
           className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
         />
+        <input
+          type="number"
+          min={0}
+          step={1}
+          value={form.compare_at_price_cents}
+          onChange={(event) => setForm((prev) => ({ ...prev, compare_at_price_cents: Number(event.target.value) }))}
+          placeholder="Prix neuf barre (centimes)"
+          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        />
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
         <select
           value={form.categorie}
           onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))}
           className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
         >
-          <option value="haut">Haut</option>
-          <option value="bas">Bas</option>
-          <option value="robe">Robe</option>
-          <option value="veste">Veste</option>
-          <option value="manteau">Manteau</option>
-          <option value="chaussures">Chaussures</option>
-          <option value="accessoire">Accessoire</option>
-          <option value="autre">Autre</option>
+          {productCategoryOptions.map((category) => (
+            <option key={category.value} value={category.value}>
+              {category.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={form.saison}
+          onChange={(event) => setForm((prev) => ({ ...prev, saison: event.target.value }))}
+          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        >
+          {productSeasonOptions.map((season) => (
+            <option key={season.value} value={season.value}>
+              {season.label}
+            </option>
+          ))}
         </select>
         <select
           value={form.age_range}
@@ -238,22 +264,33 @@ export function NewProductForm() {
         onChange={(event) => setForm((prev) => ({ ...prev, condition: event.target.value }))}
         className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
       >
-        <option value="neuf">Neuf</option>
-        <option value="tres_bon">Tres bon</option>
-        <option value="bon">Bon</option>
-        <option value="correct">Correct</option>
+        {productConditionOptions.map((condition) => (
+          <option key={condition.value} value={condition.value}>
+            {condition.label}
+          </option>
+        ))}
       </select>
+      <input
+        value={form.stock_location}
+        onChange={(event) => setForm((prev) => ({ ...prev, stock_location: event.target.value }))}
+        placeholder="Emplacement: Etagere A / Bac 3 / Ref MG-00045"
+        className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+      />
       <select
         value={form.status}
         onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
         className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
       >
-        <option value="disponible">Disponible</option>
-        <option value="brouillon">Brouillon</option>
-        <option value="reserve">Reserve</option>
-        <option value="vendu">Vendu</option>
-        <option value="archive">Archive</option>
+        {productStatusOptions.map((statusOption) => (
+          <option key={statusOption.value} value={statusOption.value}>
+            {statusOption.label}
+          </option>
+        ))}
       </select>
+      <p className="text-xs text-slate-500">
+        Visibilite boutique: seul le statut <strong>En ligne</strong> affiche la fiche sur le site. Les brouillons restent
+        uniquement dans l&apos;admin.
+      </p>
       <label className="flex items-center gap-2 text-sm text-slate-700">
         <input
           type="checkbox"
@@ -264,9 +301,9 @@ export function NewProductForm() {
       </label>
 
       <div className="rounded-xl border border-slate-200 p-3">
-        <label className="mb-2 block text-sm font-semibold text-slate-900">Images vetement (max 3)</label>
+        <label className="mb-2 block text-sm font-semibold text-slate-900">Images vetement (recto, verso, details)</label>
         <input type="file" accept="image/*" multiple onChange={onImagesChange} className="w-full text-sm" />
-        <p className="mt-2 text-xs text-slate-500">{images.length}/3 image(s) selectionnee(s)</p>
+        <p className="mt-2 text-xs text-slate-500">{images.length}/6 image(s) selectionnee(s). Les deux premieres servent de recto/verso.</p>
       </div>
 
       <button type="submit" disabled={isSubmitting} className="w-fit rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white disabled:opacity-60">

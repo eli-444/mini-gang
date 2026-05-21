@@ -18,9 +18,6 @@ export default async function BoutiquePage({
   const parsed = productFiltersSchema.safeParse(flat);
   const filters = parsed.success ? parsed.data : { sort: "newest" as const, limit: 24 };
   const { products, nextCursor, hasMore, total } = await listProducts(filters);
-  const shopSection = parsed.success ? parsed.data.shop_section : undefined;
-  const pageTitle = shopSection === "merche" ? "Merche" : shopSection === "vetements" ? "Vetements" : "Boutique";
-  const pageEyebrow = shopSection === "merche" ? "Selection" : "Catalogue";
 
   const createFilterUrl = (updates: Record<string, string>) => {
     const url = new URLSearchParams(flat as Record<string, string>);
@@ -32,29 +29,40 @@ export default async function BoutiquePage({
   };
 
   return (
-    <div className="space-y-6">
-      <header className="mg-shell overflow-hidden bg-[linear-gradient(130deg,#fff,#fff4e7)] p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--mg-accent-strong)]">{pageEyebrow}</p>
-            <h1 className="font-display text-4xl leading-none">{pageTitle}</h1>
+    <div className="bg-[var(--mg-bg)] pb-20 pt-9 text-[var(--mg-on-dark)] md:pb-28 md:pt-14">
+      <div className="mg-container grid gap-9 lg:grid-cols-[305px_minmax(0,1fr)] lg:gap-12">
+        <aside className="lg:pt-32">
+          <ProductFiltersForm values={flat as Record<string, string | undefined>} />
+        </aside>
+
+        <section>
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <p className="mg-hand-title text-3xl text-[var(--mg-pop-rose)] md:text-4xl">CATALOGUE</p>
+              <h1 className="text-[2.7rem] font-black leading-none text-[var(--mg-on-dark)] md:text-7xl">Boutique</h1>
+            </div>
+            <p className="pb-2 text-base font-black md:pb-3 md:text-xl">{total} articles</p>
           </div>
-          <p className="rounded-full border border-[var(--mg-ring)] bg-white px-3 py-1.5 text-sm font-semibold">{total} articles</p>
-        </div>
-        <ProductFiltersForm values={flat as Record<string, string | undefined>} />
-      </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+          {products.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3 xl:gap-9">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <p className="mt-8 max-w-2xl text-base font-black text-[var(--mg-on-dark-muted)] md:mt-10 md:text-2xl">
+              Aucun article en ligne pour le moment. Les fiches publiees depuis le dashboard apparaitront ici.
+            </p>
+          )}
+
+          {hasMore && nextCursor ? (
+            <Link href={createFilterUrl({ cursor: nextCursor })} className="mg-button mg-button-yellow mt-10 text-base md:text-lg">
+              Charger plus
+            </Link>
+          ) : null}
+        </section>
       </div>
-
-      {hasMore && nextCursor ? (
-        <Link href={createFilterUrl({ cursor: nextCursor })} className="inline-flex rounded-full border border-[var(--mg-ring)] bg-white px-5 py-2 text-sm font-semibold">
-          Charger plus
-        </Link>
-      ) : null}
     </div>
   );
 }

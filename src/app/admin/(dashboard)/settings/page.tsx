@@ -52,7 +52,15 @@ export default async function AdminSettingsPage() {
           </div>
           <div className="rounded-md bg-slate-50 p-2">
             <dt className="text-slate-500">Livraison Suisse</dt>
-            <dd className="font-semibold">{toChf(paymentSettings.shipping_fee_cents)}</dd>
+            <dd className="font-semibold">{toChf(paymentSettings.shipping_fee_cents)} puis offerte des CHF 80</dd>
+          </div>
+          <div className="rounded-md bg-slate-50 p-2">
+            <dt className="text-slate-500">Commandes</dt>
+            <dd className="font-semibold">{siteContentSettings.orders_enabled ? "Ouvertes" : "Fermees"}</dd>
+          </div>
+          <div className="rounded-md bg-slate-50 p-2">
+            <dt className="text-slate-500">Rachat</dt>
+            <dd className="font-semibold">{siteContentSettings.sell_service_enabled ? "Ouvert" : "Ferme"}</dd>
           </div>
         </dl>
         <PaymentSettingsForm initialSettings={paymentSettings} />

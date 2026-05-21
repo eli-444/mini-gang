@@ -1,20 +1,33 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Anitype Journal";
+  src: url("/fonts/AnitypeJournal-1.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Anitype Journal Alt";
+  src: url("/fonts/AnitypeJournal-4.otf") format("opentype");
+  font-display: swap;
+}
+
 :root {
-  --mg-bg: #215732;
-  --mg-bg-soft: #3f704b;
-  --mg-surface: #fff8ea;
-  --mg-ink: #1b2012;
-  --mg-on-dark: #fff8ea;
-  --mg-on-dark-muted: rgba(255, 248, 234, 0.72);
-  --mg-pop-rose: #f3a6ad;
-  --mg-pop-sun: #f6d978;
-  --mg-accent: #3f704b;
-  --mg-accent-strong: #215732;
+  --mg-bg: #164f31;
+  --mg-bg-soft: #1c5a38;
+  --mg-cream: #f6eadf;
+  --mg-surface: #fff4ec;
+  --mg-ink: #164f31;
+  --mg-on-dark: #fff4ec;
+  --mg-on-dark-muted: rgba(255, 244, 236, 0.82);
+  --mg-pop-rose: #e77fba;
+  --mg-pop-sun: #ffc533;
+  --mg-accent: #164f31;
+  --mg-accent-strong: #164f31;
   --mg-accent-soft: #dce9df;
-  --mg-sun: #c7d06f;
+  --mg-sun: #ffc533;
   --mg-rose: #bd846f;
-  --mg-rose-soft: #ecd6cd;
+  --mg-rose-soft: #fff0e8;
   --mg-lilac: #ccc5b4;
   --mg-ring: rgba(27, 32, 18, 0.16);
   --mg-muted: var(--mg-on-dark-muted);
@@ -22,7 +35,8 @@
   --mg-green: var(--mg-accent-strong);
   --mg-beige: #efe8d8;
   --mg-yellow: var(--mg-sun);
-  --font-display: Helvetica, Arial, sans-serif;
+  --font-display: "Anitype Journal", Helvetica, Arial, sans-serif;
+  --font-hand: "Anitype Journal Alt", "Anitype Journal", Helvetica, Arial, sans-serif;
   --font-body: Helvetica, Arial, sans-serif;
   --admin-bg: #f6f0e6;
   --admin-bg-alt: #efe6d8;
@@ -48,10 +62,7 @@ body {
   min-height: 100vh;
   color: var(--mg-on-dark);
   font-family: var(--font-body);
-  background:
-    radial-gradient(circle at 10% 0%, rgba(255, 248, 226, 0.22) 0, transparent 34%),
-    radial-gradient(circle at 88% 10%, rgba(133, 184, 144, 0.2) 0, transparent 36%),
-    linear-gradient(180deg, #4f8359 0%, var(--mg-bg-soft) 38%, var(--mg-bg) 100%);
+  background: var(--mg-bg);
 }
 
 *,
@@ -67,12 +78,135 @@ textarea {
   font-family: var(--font-display);
 }
 
+.font-hand {
+  font-family: var(--font-hand);
+}
+
+.site-main {
+  background: var(--mg-bg);
+}
+
+.site-page-light {
+  background: var(--mg-cream);
+  color: var(--mg-ink);
+}
+
+.site-page-green {
+  background: var(--mg-bg);
+  color: var(--mg-on-dark);
+}
+
+.mg-container {
+  width: min(100% - 4rem, 1420px);
+  margin-inline: auto;
+}
+
+.mg-wordmark {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 0.78;
+  letter-spacing: 0;
+}
+
+.mg-hand-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.9;
+}
+
+.mg-underline {
+  display: inline-block;
+  border-bottom: 0.14em solid var(--mg-pop-rose);
+  border-radius: 999px;
+  padding-bottom: 0.02em;
+}
+
+.mg-yellow-underline {
+  display: inline-block;
+  border-bottom: 0.14em solid var(--mg-pop-sun);
+  border-radius: 999px;
+  padding-bottom: 0.02em;
+}
+
+.mg-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  border-radius: 999px;
+  padding: 0.5rem 1.55rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.mg-button-pink {
+  background: var(--mg-pop-rose);
+  color: var(--mg-ink);
+}
+
+.mg-button-yellow {
+  background: var(--mg-pop-sun);
+  color: var(--mg-ink);
+}
+
+.mg-page-copy {
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.mg-footer-line {
+  position: relative;
+  height: 2rem;
+}
+
+.mg-footer-line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 18rem;
+  top: 0.85rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: var(--mg-pop-sun);
+}
+
+.mg-footer-line::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 24rem;
+  height: 2rem;
+  background: url("data:image/svg+xml,%3Csvg width='430' height='40' viewBox='0 0 430 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 22 C35 22 35 22 70 22 C88 22 88 8 106 8 C124 8 124 32 142 32 C160 32 160 6 182 6 C204 6 204 28 230 28 C258 28 258 22 286 22 C324 22 324 34 362 34 C394 34 402 31 430 28' stroke='%23FFC533' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+}
+
 .mg-shell {
   color: var(--mg-ink);
   background: var(--mg-surface);
   border: 1px solid var(--mg-ring);
   border-radius: 1.5rem;
   box-shadow: 0 14px 40px rgba(45, 34, 64, 0.06);
+}
+
+@media (max-width: 768px) {
+  .mg-container {
+    width: min(100% - 1.5rem, 1420px);
+  }
+
+  .mg-button {
+    min-height: 2.2rem;
+    padding: 0.42rem 1.1rem;
+  }
+
+  .mg-footer-line::before {
+    right: 0;
+  }
+
+  .mg-footer-line::after {
+    display: none;
+  }
 }
 
 .mg-chip {
@@ -183,7 +317,9 @@ textarea {
 .admin-theme .admin-status.paid,
 .admin-theme .admin-status.active,
 .admin-theme .admin-status.delivered,
-.admin-theme .admin-status.sold {
+.admin-theme .admin-status.sold,
+.admin-theme .admin-status.disponible,
+.admin-theme .admin-status.vendu {
   color: #191510;
   border-color: rgba(34, 29, 24, 0.3);
   background: rgba(255, 255, 255, 0.72);
@@ -193,7 +329,9 @@ textarea {
 .admin-theme .admin-status.requested,
 .admin-theme .admin-status.approved,
 .admin-theme .admin-status.reserved,
-.admin-theme .admin-status.shipped {
+.admin-theme .admin-status.shipped,
+.admin-theme .admin-status.reserve,
+.admin-theme .admin-status.brouillon {
   color: #5d5041;
   border-color: rgba(118, 102, 81, 0.34);
   background: rgba(244, 233, 216, 0.9);
@@ -202,7 +340,9 @@ textarea {
 .admin-theme .admin-status.cancelled,
 .admin-theme .admin-status.refunded,
 .admin-theme .admin-status.rejected,
-.admin-theme .admin-status.closed {
+.admin-theme .admin-status.closed,
+.admin-theme .admin-status.hors_ligne,
+.admin-theme .admin-status.archive {
   color: #f4ece0;
   border-color: rgba(31, 26, 21, 0.6);
   background: rgba(31, 26, 21, 0.9);

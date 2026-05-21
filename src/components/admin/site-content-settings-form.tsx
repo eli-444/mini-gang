@@ -134,7 +134,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
         </label>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr),260px]">
+      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_260px]">
         <label className="grid gap-1 text-sm font-semibold text-slate-700">
           Texte de l&apos;event
           <textarea
@@ -166,6 +166,86 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
           ) : (
             <div className="rounded-xl border border-dashed border-slate-200 p-4 text-xs text-slate-500">Aucune image d&apos;event chargee.</div>
           )}
+        </div>
+      </div>
+
+      <div className="border-t border-slate-200 pt-4">
+        <h3 className="text-sm font-semibold uppercase text-slate-500">Rachat / depot</h3>
+        <label className="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-sm font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            checked={form.sell_service_enabled}
+            onChange={(event) => setForm((prev) => ({ ...prev, sell_service_enabled: event.target.checked }))}
+          />
+          Service de rachat ouvert
+        </label>
+        <label className="mt-3 grid gap-1 text-sm font-semibold text-slate-700">
+          Message quand le rachat est ferme
+          <textarea
+            value={form.sell_closed_message}
+            onChange={(event) => setForm((prev) => ({ ...prev, sell_closed_message: event.target.value }))}
+            className="min-h-20 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+          />
+        </label>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          <label className="grid gap-1 text-sm font-semibold text-slate-700">
+            Conditions de reprise
+            <textarea
+              value={form.sell_conditions_text}
+              onChange={(event) => setForm((prev) => ({ ...prev, sell_conditions_text: event.target.value }))}
+              placeholder="Minimum 10 vetements, maximum 50, etats acceptes..."
+              className="min-h-32 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            />
+          </label>
+          <label className="grid gap-1 text-sm font-semibold text-slate-700">
+            Marques refusees
+            <textarea
+              value={form.sell_refused_brands_text}
+              onChange={(event) => setForm((prev) => ({ ...prev, sell_refused_brands_text: event.target.value }))}
+              placeholder="Liste a integrer plus tard"
+              className="min-h-32 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            />
+          </label>
+          <label className="grid gap-1 text-sm font-semibold text-slate-700">
+            Explications clients
+            <textarea
+              value={form.sell_explanation_text}
+              onChange={(event) => setForm((prev) => ({ ...prev, sell_explanation_text: event.target.value }))}
+              placeholder="Comment preparer le colis, criteres, delais..."
+              className="min-h-32 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="border-t border-slate-200 pt-4">
+        <h3 className="text-sm font-semibold uppercase text-slate-500">Commandes</h3>
+        <label className="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-sm font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            checked={form.orders_enabled}
+            onChange={(event) => setForm((prev) => ({ ...prev, orders_enabled: event.target.checked }))}
+          />
+          Commandes ouvertes
+        </label>
+        <div className="mt-3 grid gap-3 md:grid-cols-[1fr_220px]">
+          <label className="grid gap-1 text-sm font-semibold text-slate-700">
+            Message quand les commandes sont fermees
+            <textarea
+              value={form.orders_closed_message}
+              onChange={(event) => setForm((prev) => ({ ...prev, orders_closed_message: event.target.value }))}
+              className="min-h-20 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            />
+          </label>
+          <label className="grid gap-1 text-sm font-semibold text-slate-700">
+            Date de reouverture
+            <input
+              type="date"
+              value={form.orders_reopen_date}
+              onChange={(event) => setForm((prev) => ({ ...prev, orders_reopen_date: event.target.value }))}
+              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            />
+          </label>
         </div>
       </div>
 

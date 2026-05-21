@@ -22,7 +22,9 @@ export async function POST(request: Request) {
       nom: parsed.data.title,
       description: parsed.data.description || null,
       prix_centimes: parsed.data.price_cents,
+      prix_neuf_centimes: parsed.data.compare_at_price_cents || null,
       categorie: parsed.data.categorie,
+      saison: parsed.data.saison || null,
       age: parsed.data.age_range,
       taille: parsed.data.size_label || "Unique",
       marque: parsed.data.brand || null,
@@ -31,6 +33,7 @@ export async function POST(request: Request) {
       genre: parsed.data.sex,
       etat: parsed.data.condition,
       statut: parsed.data.status,
+      emplacement_stock: parsed.data.stock_location || null,
       mis_en_avant: parsed.data.mis_en_avant,
       cree_par: auth.user.id,
     })

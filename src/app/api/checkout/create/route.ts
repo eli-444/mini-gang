@@ -13,6 +13,8 @@ import { log } from "@/lib/logger";
 import { getProviderInstance } from "@/lib/payments";
 import { getProductsByIds } from "@/lib/products";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { FREE_SHIPPING_THRESHOLD_CENTS } from "@/lib/shop-config";
+import { getSiteContentSettings } from "@/lib/site-content-settings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { checkoutCreateSchema } from "@/lib/validation";
 
@@ -31,7 +33,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const paymentSettings = await getMerchantPaymentSettings();
+  const [paymentSettings, siteSettings] = await Promise.all([getMerchantPaymentSettings(), getSiteContentSettings()]);
+  if (!siteSettings.orders_enabled) {
+    return NextResponse.json(
+      { error: siteSettings.orders_closed_message || "Les commandes sont temporairement suspendues." },
+      { status: 403 },
+    );
+  }
   const twintRuntime = await getTwintRuntimeSettings();
   const provider = getProviderInstance(parsed.data.provider);
   if (!provider) {
@@ -70,12 +78,14 @@ export async function POST(request: Request) {
 
     await reserveProductsOrThrow(ids);
     reservedIds = ids;
+    const itemsTotalCents = products.reduce((sum, product) => sum + product.price_cents, 0);
+    const shippingFeeCents = itemsTotalCents >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : paymentSettings.shipping_fee_cents;
 
     const order = await createOrderDraft({
       userId: user.id,
       email: parsed.data.email,
       provider: provider.name,
-      shippingFeeCents: paymentSettings.shipping_fee_cents,
+      shippingFeeCents,
       items: products.map((product) => ({
         id: product.id,
         title: product.title,
@@ -96,11 +106,11 @@ export async function POST(request: Request) {
         unitAmountCents: product.price_cents,
         quantity: 1,
       })).concat(
-        paymentSettings.shipping_fee_cents > 0
+        shippingFeeCents > 0
           ? [
               {
                 title: "Livraison Suisse",
-                unitAmountCents: paymentSettings.shipping_fee_cents,
+                unitAmountCents: shippingFeeCents,
                 quantity: 1,
               },
             ]

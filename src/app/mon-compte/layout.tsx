@@ -1,27 +1,22 @@
-import Link from "next/link";
+import { AccountNav } from "@/components/account/account-nav";
 import { requireUser } from "@/lib/auth";
-
-const navItems = [
-  { href: "/mon-compte/profil", label: "Profil" },
-  { href: "/mon-compte/commandes", label: "Commandes" },
-  { href: "/retours", label: "Retours" },
-];
 
 export default async function MonCompteLayout({ children }: { children: React.ReactNode }) {
   await requireUser("/auth/login");
 
   return (
-    <div className="space-y-5 pb-10">
-      <header className="mg-shell rounded-[18px] bg-white p-4">
-        <p className="text-xs uppercase tracking-[0.14em] text-[var(--mg-accent-strong)]">Espace client</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[var(--mg-ink)]">Mon compte Mini Gang</h1>
-        <nav className="mt-3 flex flex-wrap gap-2">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="rounded-full border border-[var(--mg-ring)] px-3 py-1 text-xs font-semibold text-[var(--mg-ink)]">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+    <div className="mg-container py-9 md:py-12 lg:py-14">
+      <header className="mb-7 border-b border-white/18 pb-6 md:mb-9 md:flex md:items-end md:justify-between md:gap-10 md:pb-8">
+        <div className="max-w-2xl">
+          <p className="text-base font-black uppercase tracking-[0.12em] text-[var(--mg-pop-sun)]">Espace client</p>
+          <h1 className="mt-2 text-4xl font-black leading-none text-white md:text-6xl">Mon compte</h1>
+          <p className="mt-4 max-w-xl text-base font-semibold leading-7 text-white/78 md:text-lg">
+            Retrouvez vos informations et vos commandes dans un espace plus simple a parcourir.
+          </p>
+        </div>
+        <div className="mt-6 md:mt-0">
+          <AccountNav />
+        </div>
       </header>
       {children}
     </div>

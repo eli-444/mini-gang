@@ -3,6 +3,7 @@ export const SHOP_CURRENCY_LOWER = "chf";
 export const SHOP_COUNTRY_CODE = "CH";
 export const SHOP_COUNTRY_LABEL = "Suisse";
 export const SHIPPING_FEE_CENTS_DEFAULT = 790;
+export const FREE_SHIPPING_THRESHOLD_CENTS = 8000;
 export const RESERVATION_TTL_MINUTES = 20;
 export const SUPPORT_EMAIL = "hello@leminigang.com";
 

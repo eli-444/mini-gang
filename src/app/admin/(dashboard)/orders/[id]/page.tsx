@@ -20,7 +20,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Order Details</p>
         <h1 className="mt-1 text-3xl font-bold text-slate-900">Commande {order.id.slice(0, 8)}</h1>
       </div>
-      <section className="grid gap-4 lg:grid-cols-[1.5fr,1fr]">
+      <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
         <article className="admin-card p-4">
           <h2 className="text-sm font-semibold uppercase text-slate-500">Articles</h2>
           <div className="mt-3 space-y-2">
@@ -55,7 +55,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </article>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1fr,1fr]">
+      <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
         <article className="admin-card p-4">
           <h2 className="text-sm font-semibold uppercase text-slate-500">Livraison</h2>
           <div className="mt-3 space-y-2 text-sm">

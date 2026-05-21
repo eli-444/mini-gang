@@ -13,11 +13,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     return <main className="min-h-screen">{children}</main>;
   }
 
+  const isLightRoute = pathname.startsWith("/contact");
+
   return (
-    <>
+    <div className={isLightRoute ? "site-page-light min-h-screen" : "site-page-green min-h-screen"}>
       <Header />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
-      <Footer />
-    </>
+      <main className={`${isLightRoute ? "site-page-light" : "site-page-green"} w-full flex-1`}>{children}</main>
+      <Footer variant={isLightRoute ? "light" : "dark"} />
+    </div>
   );
 }

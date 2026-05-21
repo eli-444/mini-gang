@@ -2,91 +2,87 @@ import Image from "next/image";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { listProducts } from "@/lib/products";
-import { getSiteContentImageUrl, getSiteContentSettings } from "@/lib/site-content-settings";
+import { getSiteContentSettings } from "@/lib/site-content-settings";
 
 export const revalidate = 300;
 
 export default async function HomePage() {
   const [{ products }, siteContent] = await Promise.all([
-    listProducts({ limit: 8, sort: "newest", shop_section: "vetements" }),
+    listProducts({ limit: 4, sort: "newest", shop_section: "vetements" }),
     getSiteContentSettings(),
   ]);
 
-  const eventImageUrl = getSiteContentImageUrl(siteContent.home_event_image_path);
-  const eventCtaHref = siteContent.home_event_cta_url || "/contact";
-  const eventCtaLabel = siteContent.home_event_cta_label || "En savoir plus";
-
   return (
-    <div className="-mt-8 space-y-10">
-      <section className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen overflow-hidden bg-[#faf5ec]">
-        <div className="relative min-h-[100svh] w-full">
-          <Image src="/brand/hero-alt.avif" alt="Mini Gang" fill priority className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-black/40" />
-          <div className="absolute inset-y-0 right-0 flex w-full items-center justify-end px-6 md:px-10 lg:px-16">
-            <h1 className="max-w-[780px] text-right font-sans text-4xl font-extrabold leading-[0.98] text-white md:text-6xl">
-              <span className="text-[var(--mg-pop-rose)]">Acheter</span> et revendre
+    <div className="bg-[var(--mg-bg)] text-[var(--mg-on-dark)]">
+      <section className="relative min-h-[500px] overflow-hidden bg-[#7ec9f0] md:min-h-[690px]">
+        <Image src="/brand/hero-alt.avif" alt="Mini Gang" fill priority className="object-cover" sizes="100vw" />
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-y-0 left-5 right-5 flex items-center md:left-auto md:right-[7vw] md:w-[48rem] md:max-w-[58vw]">
+          <div>
+            <h1 className="text-[2.25rem] font-black leading-[0.95] text-white md:text-7xl">
+              Acheter et revendre
               <br />
               des vetements
               <br />
-              d&apos;enfants,
-              <span className="font-display text-[var(--mg-pop-sun)]"> AUTREMENT.</span>
+              d&apos;enfants, <span className="mg-hand-title text-[var(--mg-pop-sun)]">AUTREMENT</span>
             </h1>
+            <Link href="/boutique" className="mg-button mg-button-pink mt-5 text-xl md:mt-6 md:text-3xl">
+              call to action
+            </Link>
           </div>
         </div>
       </section>
 
-      {siteContent.home_event_enabled && (siteContent.home_event_title || siteContent.home_event_text || eventImageUrl) ? (
-        <section className="overflow-hidden rounded-[2rem] border border-[var(--mg-ring)] bg-[linear-gradient(135deg,#fff7ef,#fff)]">
-          <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr),420px]">
-            <div className="space-y-4 p-6 md:p-8">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--mg-pop-rose)]">Event Mini Gang</p>
-              <h2 className="font-display text-4xl font-black leading-none text-[var(--mg-ink)]">
-                {siteContent.home_event_title || "Nouvel event a venir"}
-              </h2>
-              <p className="max-w-2xl text-sm font-semibold leading-7 text-[var(--mg-ink)]/72 md:text-base">
-                {siteContent.home_event_text || "Ajoute ici une annonce d'evenement depuis le panel admin."}
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link href={eventCtaHref} className="rounded-full bg-[var(--mg-ink)] px-5 py-2 text-sm font-bold text-white">
-                  {eventCtaLabel}
-                </Link>
-                <Link href="/a-propos" className="rounded-full border border-[var(--mg-ring)] px-5 py-2 text-sm font-bold text-[var(--mg-ink)]">
-                  A propos
-                </Link>
-              </div>
-            </div>
-            <div className="relative min-h-[280px] bg-[#f6eadf]">
-              {eventImageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={eventImageUrl} alt={siteContent.home_event_title || "Event Mini Gang"} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full items-center justify-center p-8 text-center text-sm font-semibold text-[var(--mg-ink)]/55">
-                  Ajoute une image d&apos;event depuis le panel admin.
-                </div>
-              )}
-            </div>
+      {!siteContent.orders_enabled ? (
+        <section className="mg-container pt-8">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-950">
+            <p className="text-sm font-bold">{siteContent.orders_closed_message || "Les commandes sont temporairement suspendues."}</p>
+            {siteContent.orders_reopen_date ? <p className="mt-1 text-xs font-semibold">Reouverture prevue: {siteContent.orders_reopen_date}</p> : null}
           </div>
         </section>
       ) : null}
 
-      <section className="space-y-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-display text-3xl font-black">
-              Nouveautes <span className="text-[var(--mg-pop-rose)]">Mini Gang</span>
-            </h2>
-            <p className="text-sm font-bold text-[var(--mg-on-dark-muted)]">
-              Selection fraiche de <span className="text-[var(--mg-pop-sun)]">pieces secondes mains</span> pour enfants.
-            </p>
+      <section className="mg-container py-9 md:py-14">
+        <div className="mb-7">
+          <h2 className="mg-hand-title mg-underline text-[2.9rem] text-[var(--mg-pop-sun)] md:text-8xl">NOUVEAUTES</h2>
+          <p className="mt-2 text-base font-black md:mt-3 md:text-xl">Selection de pepites pour vos kids</p>
+        </div>
+
+        {products.length > 0 ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-7">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
-          <Link href="/boutique?shop_section=vetements" className="text-sm font-semibold text-[var(--mg-sun)]">
-            Voir tout
+        ) : (
+            <p className="max-w-xl text-sm font-black text-[var(--mg-on-dark-muted)] md:text-xl">
+            Les nouveautes seront affichees ici des que les fiches produits seront publiees depuis le dashboard.
+          </p>
+        )}
+
+        <Link href="/boutique?shop_section=vetements" className="mg-button mg-button-yellow mt-7 text-base md:mt-9 md:text-xl">
+          Voir plus de vetements
+        </Link>
+      </section>
+
+      <section className="mg-container relative grid gap-8 overflow-hidden pb-16 pt-4 md:pb-24 md:pt-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+        <div className="relative z-10 max-w-4xl">
+          <h2 className="text-[1.75rem] font-black leading-none text-[var(--mg-pop-rose)] md:text-6xl">
+            Et si la seconde main devenait le
+            <br />
+            premier reflexe des familles ?
+          </h2>
+          <p className="mt-8 max-w-3xl text-[1.45rem] font-black leading-[1.03] md:mt-16 md:text-5xl">
+            Mini Gang est une plateforme dediee aux vetements de seconde main pour enfants de 0 a 12 ans, pensee pour
+            simplifier le quotidien des familles d&apos;aujourd&apos;hui. Parce que les enfants grandissent vite, nous
+            proposons une alternative a la fois pratique, accessible et plus responsable.
+          </p>
+          <Link href="/a-propos" className="mg-button mg-button-pink mt-6 text-base md:mt-8 md:text-xl">
+            Lire plus
           </Link>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+        <div className="relative min-h-[260px] md:min-h-[420px]">
+          <Image src="/brand/design/flower-pink.png" alt="" fill className="object-contain object-right-bottom" sizes="45vw" />
         </div>
       </section>
     </div>

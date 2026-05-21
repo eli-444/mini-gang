@@ -1,88 +1,84 @@
 import Image from "next/image";
 import Link from "next/link";
-import { InstagramEmbed } from "@/components/instagram-embed";
-
-const roseAccent = "text-[var(--mg-pop-rose)]";
-const sunAccent = "text-[var(--mg-pop-sun)]";
 
 export default function AboutPage() {
   return (
-    <div className="relative mx-auto max-w-5xl overflow-visible py-6 md:py-10">
-      <div className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-screen -translate-x-1/2 lg:block">
-        <div className="absolute left-[-2rem] top-8 h-[22rem] w-[15rem] rotate-[-4deg] opacity-70 xl:left-0 xl:w-[17rem]">
-          <Image src="/brand/salopette.png" alt="" fill aria-hidden className="object-contain object-left" sizes="18rem" />
-        </div>
-        <div className="absolute right-[-2.5rem] top-[12rem] h-[25rem] w-[17rem] rotate-[5deg] opacity-78 xl:right-[-0.5rem] xl:w-[19rem]">
-          <Image src="/brand/hero-skate.png" alt="" fill aria-hidden className="object-contain object-right" sizes="20rem" />
-        </div>
-        <div className="absolute left-[1.5rem] top-[34rem] h-[13rem] w-[9.5rem] rotate-[-10deg] opacity-62 xl:left-[4rem] xl:w-[10.5rem]">
-          <Image src="/brand/tee-shirt.png" alt="" fill aria-hidden className="object-contain object-left" sizes="11rem" />
-        </div>
-        <div className="absolute right-[1rem] top-[48rem] h-[16rem] w-[11rem] rotate-[8deg] opacity-68 xl:right-[4rem] xl:w-[12rem]">
-          <Image src="/brand/tee-shirt.png" alt="" fill aria-hidden className="object-contain object-right" sizes="12rem" />
-        </div>
-      </div>
+    <div className="overflow-hidden bg-[var(--mg-bg)] text-[var(--mg-on-dark)]">
+      <section className="mg-container relative grid gap-10 py-14 md:grid-cols-[1fr_0.92fr] md:gap-12 md:py-28">
+        <div className="relative z-10">
+          <h1 className="mg-hand-title mg-underline mb-7 text-[2.65rem] md:mb-10 md:text-7xl">A PROPOS</h1>
+          <div className="mg-page-copy max-w-[48rem] text-[1.65rem] md:text-[3.35rem]">
+            <p>
+              Nous sommes <span className="text-[var(--mg-pop-rose)]">Nicole</span> et{" "}
+              <span className="text-[var(--mg-pop-rose)]">Celia</span>, les fondatrices du Mini Gang. Amies et anciennes
+              collegues, nous nous sommes rencontrees en travaillant toutes les deux comme{" "}
+              <span className="text-[var(--mg-pop-sun)]">visual merchandisers</span>, apres avoir ete formees au metier
+              de <span className="text-[var(--mg-pop-rose)]">couturiere</span>.
+            </p>
 
-      <section className="relative z-10 max-w-4xl">
-        <p className={`text-xs font-black uppercase tracking-[0.24em] ${sunAccent}`}>A propos</p>
-        <div className="mt-8 space-y-8 text-2xl font-black leading-[1.12] tracking-[-0.04em] text-[var(--mg-on-dark)] md:text-4xl md:leading-[1.08]">
+            <p className="mt-8 md:mt-12">
+              Aujourd&apos;hui, nous sommes aussi mamans, et{" "}
+              <span className="text-[var(--mg-pop-sun)]">
+                les vetements d&apos;enfants qui deviennent trop petits a la vitesse de l&apos;eclair
+              </span>
+              , on connait bien. C&apos;est de la qu&apos;est nee l&apos;idee du Mini Gang : une{" "}
+              <span className="text-[var(--mg-pop-rose)]">plateforme de seconde main</span> pour les enfants de 0 a 12
+              ans, simple, pratique et pensee pour les familles d&apos;aujourd&apos;hui.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative min-h-[330px] md:min-h-[660px]">
+          <Image src="/brand/design/founders-framed.png" alt="Nicole et Celia, fondatrices de Mini Gang" fill priority className="object-contain object-center" sizes="50vw" />
+        </div>
+      </section>
+
+      <section className="mg-container relative grid gap-8 py-8 md:grid-cols-[0.82fr_1fr] md:py-16">
+        <div className="relative min-h-[260px] md:min-h-[430px]">
+          <Image src="/brand/design/salopette-yellow.png" alt="" fill className="object-contain object-left-bottom" sizes="42vw" />
+        </div>
+        <div className="mg-page-copy max-w-[49rem] self-center text-[1.55rem] md:text-[3.15rem]">
           <p>
-            Nous sommes <span className={roseAccent}>Nicole et Celia</span>, les fondatrices du Mini Gang. Amies et anciennes collegues, nous nous sommes rencontrees en travaillant toutes les deux comme <span className={sunAccent}>visual merchandiser</span>, apres avoir ete formees au metier de couturiere.
+            Nous adorons imaginer des univers, des lieux et des moments qui rassemblent. C&apos;est cette envie de creer de
+            beaux moments qui nourrit aussi les evenements Mini Gang.
           </p>
-          <p>
-            Aujourd&apos;hui, nous sommes aussi <span className={roseAccent}>mamans</span>, et les vetements d&apos;enfants qui deviennent trop petits a la vitesse de l&apos;eclair, on connait bien. C&apos;est de la qu&apos;est nee l&apos;idee du Mini Gang: une plateforme de <span className={sunAccent}>seconde main</span> pour les enfants de 0 a 12 ans, simple, pratique et pensee pour les familles d&apos;aujourd&apos;hui.
-          </p>
-          <p>
-            Nous adorons imaginer des <span className={roseAccent}>univers</span>, des lieux et des moments qui rassemblent. C&apos;est cette envie de <span className={sunAccent}>creer de beaux moments</span> qui nourrit aussi les evenements Mini Gang.
-          </p>
-          <p>
-            Nous croyons profondement en une consommation plus locale, au soutien des <span className={roseAccent}>createurs et des artisans</span>, et a des alternatives plus douces et durables au quotidien. Avec le Mini Gang, notre reve est simple: faire de la seconde main le <span className={sunAccent}>premier reflexe des familles</span>.
+          <p className="mt-8 md:mt-12">
+            Nous croyons profondement en une consommation plus{" "}
+            <span className="text-[var(--mg-pop-sun)]">locale</span>, au soutien des createurs et des artisans, et a des
+            alternatives plus <span className="text-[var(--mg-pop-rose)]">douces et durables</span> au quotidien. Avec le
+            Mini Gang, notre reve est simple : faire de{" "}
+            <span className="text-[var(--mg-pop-rose)]">la seconde main le premier reflexe des familles</span>.
           </p>
         </div>
       </section>
 
-      <section className="relative z-10 mt-12 border-t border-white/24 pt-8 md:mt-16 md:pt-10">
-        <div className="grid gap-6 md:grid-cols-[minmax(0,1fr),auto] md:items-end">
-          <div className="max-w-3xl">
-            <p className={`text-xs font-black uppercase tracking-[0.24em] ${sunAccent}`}>Notre vision</p>
-            <h1 className="mt-4 text-4xl font-black leading-none tracking-[-0.05em] text-[var(--mg-on-dark)] md:text-6xl">
-              Faire de la <span className={roseAccent}>seconde main</span> le premier reflexe des familles.
-            </h1>
-            <p className="mt-5 max-w-2xl text-base font-bold leading-7 text-[var(--mg-on-dark-muted)] md:text-lg">
-              Avec Le Mini Gang, nous voulons aider les familles a mieux consommer, sans renoncer ni au <span className={sunAccent}>style</span>, ni a la simplicite.
-            </p>
-          </div>
+      <section className="relative h-[220px] overflow-hidden md:h-[390px]">
+        <Image src="/brand/design/skatepark-wide.jpeg" alt="Enfant au skatepark" fill className="object-cover" sizes="100vw" />
+      </section>
 
-          <div className="flex flex-wrap gap-3">
-            <Link href="/vendre" className="rounded-full bg-[var(--mg-pop-sun)] px-5 py-2.5 text-sm font-black text-[var(--mg-ink)]">
+      <section className="mg-container relative py-14 md:py-24">
+        <div className="max-w-[72rem]">
+          <h2 className="mg-hand-title mg-yellow-underline text-[2.4rem] md:text-6xl">NOTRE VISION</h2>
+          <p className="mt-6 max-w-[70rem] text-[1.5rem] font-black leading-[1.02] md:mt-8 md:text-5xl">
+            Faire de la seconde main le premier reflexe des familles. Avec Le Mini Gang, nous voulons aider les familles
+            a mieux consommer, sans renoncer ni au style, ni a la simplicite.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-4 md:mt-10 md:gap-6">
+            <Link href="/vendre" className="mg-button mg-button-pink text-base md:text-lg">
               Vendre avec Mini Gang
             </Link>
-            <Link href="/boutique?shop_section=vetements" className="rounded-full border border-white/45 px-5 py-2.5 text-sm font-black text-[var(--mg-on-dark)]">
+            <Link href="/boutique" className="mg-button mg-button-yellow text-base md:text-lg">
               Voir les pieces
             </Link>
           </div>
         </div>
-      </section>
-
-      <section className="relative z-10 mt-12 border-t border-white/24 pt-8 md:mt-16 md:pt-10">
-        <div className="mb-6">
-          <p className={`text-xs font-black uppercase tracking-[0.24em] ${sunAccent}`}>Dans le gang</p>
-          <h2 className="mt-3 text-3xl font-black leading-none tracking-[-0.04em] text-[var(--mg-on-dark)] md:text-5xl">
-            Nos derniers <span className={roseAccent}>posts</span>
-          </h2>
-        </div>
-
-        <div className="max-w-xl">
-          <article className="rounded-lg border border-white/24 bg-white p-3 text-[var(--mg-ink)]">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h3 className="text-sm font-black uppercase tracking-[0.14em]">Instagram</h3>
-              <Link href="https://www.instagram.com/leminigang/" target="_blank" rel="noreferrer" className="text-xs font-black underline">
-                @leminigang
-              </Link>
-            </div>
-            <InstagramEmbed />
-          </article>
-        </div>
+        <Image
+          src="/brand/design/tee-shirt-blue.png"
+          alt=""
+          width={360}
+          height={503}
+          className="absolute -right-20 top-0 hidden w-[26rem] rotate-6 md:block"
+        />
       </section>
     </div>
   );

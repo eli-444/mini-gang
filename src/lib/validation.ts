@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { ageRangeOptions } from "@/lib/age-options";
+import { productCategoryValues } from "@/lib/product-categories";
 
 const ageRangeSchema = z.enum(ageRangeOptions);
+const productCategorySchema = z.enum(productCategoryValues);
+export const productConditionSchema = z.enum(["beaucoup_aime", "bon", "tres_bon", "comme_neuf", "neuf_etiquettes", "neuf", "correct"]);
+export const productStatusSchema = z.enum(["brouillon", "disponible", "hors_ligne", "reserve", "vendu", "archive"]);
+export const productSeasonSchema = z.enum(["printemps", "ete", "automne", "hiver", "toutes_saisons"]);
 const emptyStringToUndefined = (value: unknown) => (value === "" ? undefined : value);
 const urlOrAbsolutePathSchema = z
   .string()
@@ -13,12 +18,13 @@ export const productFiltersSchema = z.object({
   shop_section: z.preprocess(emptyStringToUndefined, z.enum(["vetements", "merche"]).optional()),
   categorie: z.preprocess(
     emptyStringToUndefined,
-    z.enum(["haut", "bas", "robe", "veste", "manteau", "chaussures", "accessoire", "autre"]).optional(),
+    productCategorySchema.optional(),
   ),
   age_range: z.preprocess(emptyStringToUndefined, ageRangeSchema.optional()),
   genre: z.preprocess(emptyStringToUndefined, z.enum(["femme", "homme"]).optional()),
   brand: z.preprocess(emptyStringToUndefined, z.string().trim().max(80).optional()),
-  condition: z.preprocess(emptyStringToUndefined, z.enum(["neuf", "tres_bon", "bon", "correct"]).optional()),
+  condition: z.preprocess(emptyStringToUndefined, productConditionSchema.optional()),
+  saison: z.preprocess(emptyStringToUndefined, productSeasonSchema.optional()),
   size_label: z.preprocess(emptyStringToUndefined, z.string().trim().max(30).optional()),
   min_price: z.preprocess(emptyStringToUndefined, z.coerce.number().int().min(0).optional()),
   max_price: z.preprocess(emptyStringToUndefined, z.coerce.number().int().min(0).optional()),
@@ -72,22 +78,33 @@ export const siteContentSettingsSchema = z.object({
   home_event_image_path: z.string().trim().max(400).optional().or(z.literal("")),
   home_event_cta_label: z.string().trim().max(80).optional().or(z.literal("")),
   home_event_cta_url: urlOrAbsolutePathSchema.optional().or(z.literal("")),
+  sell_service_enabled: z.boolean().default(false),
+  sell_closed_message: z.string().trim().max(1000).optional().or(z.literal("")),
+  sell_conditions_text: z.string().trim().max(5000).optional().or(z.literal("")),
+  sell_refused_brands_text: z.string().trim().max(5000).optional().or(z.literal("")),
+  sell_explanation_text: z.string().trim().max(5000).optional().or(z.literal("")),
+  orders_enabled: z.boolean().default(true),
+  orders_closed_message: z.string().trim().max(1000).optional().or(z.literal("")),
+  orders_reopen_date: z.string().trim().max(40).optional().or(z.literal("")),
 });
 
 export const adminProductSchema = z.object({
   title: z.string().trim().min(3).max(140),
   description: z.string().trim().max(3000).optional().or(z.literal("")),
   price_cents: z.coerce.number().int().min(50).max(50000),
+  compare_at_price_cents: z.coerce.number().int().min(0).max(100000).optional().or(z.literal("")),
   brand: z.string().trim().max(80).optional().or(z.literal("")),
-  condition: z.enum(["neuf", "tres_bon", "bon", "correct"]),
-  categorie: z.enum(["haut", "bas", "robe", "veste", "manteau", "chaussures", "accessoire", "autre"]),
+  condition: productConditionSchema,
+  categorie: productCategorySchema,
+  saison: productSeasonSchema.optional().or(z.literal("")),
   age_range: ageRangeSchema,
   size_label: z.string().trim().max(30).optional().or(z.literal("")),
   sex: z.enum(["femme", "homme", "enfant", "mixte"]),
   couleur: z.string().trim().max(60).optional().or(z.literal("")),
   matiere: z.string().trim().max(80).optional().or(z.literal("")),
+  stock_location: z.string().trim().max(160).optional().or(z.literal("")),
   mis_en_avant: z.boolean().default(false),
-  status: z.enum(["brouillon", "disponible", "reserve", "vendu", "archive"]).default("disponible"),
+  status: productStatusSchema.default("disponible"),
 });
 
 export const adminOrderStatusSchema = z.object({
@@ -136,7 +153,7 @@ export const sellOrderCreateSchema = z.object({
     city: z.string().trim().min(2).max(100),
     country: z.string().trim().min(2).max(2).default("CH"),
   }),
-  items: z.array(sellOrderItemSchema).min(1).max(80),
+  items: z.array(sellOrderItemSchema).min(10, "Minimum 10 vetements par colis").max(50, "Maximum 50 vetements par colis"),
 });
 
 export const sellOrderTrackingSchema = z.object({

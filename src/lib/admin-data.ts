@@ -16,7 +16,10 @@ type AdminProductRow = {
   age?: string | null;
   etat: string;
   prix_centimes: number;
+  prix_neuf_centimes?: number | null;
   statut: string;
+  saison?: string | null;
+  emplacement_stock?: string | null;
   cree_le: string;
   photos_vetements?: Array<{ url: string }>;
 };
@@ -60,6 +63,7 @@ export async function getDashboardMetrics(periodDays = 30) {
   const soldProducts = products.filter((product) => product.statut === "vendu").length;
   const reservedProducts = products.filter((product) => product.statut === "reserve").length;
   const draftProducts = products.filter((product) => product.statut === "brouillon").length;
+  const offlineProducts = products.filter((product) => product.statut === "hors_ligne").length;
   const archivedProducts = products.filter((product) => product.statut === "archive").length;
 
   return {
@@ -77,6 +81,7 @@ export async function getDashboardMetrics(periodDays = 30) {
       reserved: reservedProducts,
       sold: soldProducts,
       draft: draftProducts,
+      offline: offlineProducts,
       archived: archivedProducts,
     },
     alerts: {
@@ -106,10 +111,11 @@ export async function listAdminProducts(input: {
   const from = (input.page - 1) * input.pageSize;
   const to = from + input.pageSize - 1;
 
-  const runQuery = async (includeAge: boolean) => {
+  const runQuery = async (includeAge: boolean, includeExpansion: boolean) => {
+    const expansionColumns = includeExpansion ? "prix_neuf_centimes,saison,emplacement_stock," : "";
     let query = supabase
       .from("vetements")
-      .select(`id,nom,marque,taille,categorie,${includeAge ? "age," : ""}etat,prix_centimes,statut,cree_le,photos_vetements(url)`, {
+      .select(`id,nom,marque,taille,categorie,${includeAge ? "age," : ""}etat,prix_centimes,${expansionColumns}statut,cree_le,photos_vetements(url)`, {
         count: "exact",
       })
       .order("cree_le", { ascending: false })
@@ -120,9 +126,15 @@ export async function listAdminProducts(input: {
     return query;
   };
 
-  let { data, count, error } = await runQuery(true);
+  let { data, count, error } = await runQuery(true, true);
+  if (error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock")) {
+    ({ data, count, error } = await runQuery(true, false));
+  }
   if (error?.message?.toLowerCase().includes("vetements.age")) {
-    ({ data, count, error } = await runQuery(false));
+    ({ data, count, error } = await runQuery(false, true));
+    if (error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock")) {
+      ({ data, count, error } = await runQuery(false, false));
+    }
   }
   if (error) throw new Error(error.message);
 
@@ -138,8 +150,11 @@ export async function listAdminProducts(input: {
       categorie: product.categorie,
       condition: product.etat,
       price_cents: product.prix_centimes,
+      compare_at_price_cents: product.prix_neuf_centimes ?? null,
       currency: SHOP_CURRENCY,
       status: product.statut,
+      season: product.saison ?? null,
+      stock_location: product.emplacement_stock ?? null,
       created_at: product.cree_le,
       product_images: product.photos_vetements,
     })),

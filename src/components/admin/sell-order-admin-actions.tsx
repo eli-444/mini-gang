@@ -109,7 +109,7 @@ export function SellOrderAdminActions({
             <p className="font-semibold">
               {item.category} {item.brand ? `- ${item.brand}` : ""}
             </p>
-            <div className="mt-2 grid gap-2 md:grid-cols-[180px,180px,1fr]">
+            <div className="mt-2 grid gap-2 md:grid-cols-[180px_180px_1fr]">
               <select
                 value={formItems[index].decision}
                 onChange={(event) =>

@@ -21,7 +21,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   if (parsed.data.title !== undefined) updates.nom = parsed.data.title;
   if (parsed.data.description !== undefined) updates.description = parsed.data.description || null;
   if (parsed.data.price_cents !== undefined) updates.prix_centimes = parsed.data.price_cents;
+  if (parsed.data.compare_at_price_cents !== undefined) updates.prix_neuf_centimes = parsed.data.compare_at_price_cents || null;
   if (parsed.data.categorie !== undefined) updates.categorie = parsed.data.categorie;
+  if (parsed.data.saison !== undefined) updates.saison = parsed.data.saison || null;
   if (parsed.data.age_range !== undefined) updates.age = parsed.data.age_range;
   if (parsed.data.size_label !== undefined) updates.taille = parsed.data.size_label || "Unique";
   if (parsed.data.brand !== undefined) updates.marque = parsed.data.brand || null;
@@ -30,6 +32,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   if (parsed.data.sex !== undefined) updates.genre = parsed.data.sex;
   if (parsed.data.condition !== undefined) updates.etat = parsed.data.condition;
   if (parsed.data.status !== undefined) updates.statut = parsed.data.status;
+  if (parsed.data.stock_location !== undefined) updates.emplacement_stock = parsed.data.stock_location || null;
   if (parsed.data.mis_en_avant !== undefined) updates.mis_en_avant = parsed.data.mis_en_avant;
 
   const { data, error } = await supabase

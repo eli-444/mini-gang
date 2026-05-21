@@ -23,6 +23,14 @@ export async function PATCH(request: Request) {
       home_event_image_path: parsed.data.home_event_image_path ?? "",
       home_event_cta_label: parsed.data.home_event_cta_label ?? "",
       home_event_cta_url: parsed.data.home_event_cta_url ?? "",
+      sell_service_enabled: parsed.data.sell_service_enabled,
+      sell_closed_message: parsed.data.sell_closed_message ?? "",
+      sell_conditions_text: parsed.data.sell_conditions_text ?? "",
+      sell_refused_brands_text: parsed.data.sell_refused_brands_text ?? "",
+      sell_explanation_text: parsed.data.sell_explanation_text ?? "",
+      orders_enabled: parsed.data.orders_enabled,
+      orders_closed_message: parsed.data.orders_closed_message ?? "",
+      orders_reopen_date: parsed.data.orders_reopen_date ?? "",
     });
     return NextResponse.json({ settings, updated_by: auth.user.id });
   } catch (error) {

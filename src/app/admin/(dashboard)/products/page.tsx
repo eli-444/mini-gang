@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { listAdminProducts } from "@/lib/admin-data";
+import { getProductCategoryLabel } from "@/lib/product-categories";
+import { adminProductStatusOptions, getProductConditionLabel, getProductSeasonLabel, getProductStatusLabel } from "@/lib/product-options";
 import { toChf } from "@/lib/utils";
 
 export default async function AdminProductsPage({
@@ -24,16 +26,16 @@ export default async function AdminProductsPage({
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Catalogue</p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-900">Produits</h1>
+          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Stock</p>
+          <h1 className="mt-1 text-3xl font-bold text-slate-900">Vetements</h1>
         </div>
         <Link href="/admin/products/new" className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white">
-          Nouveau produit
+          Ajouter une fiche
         </Link>
       </div>
 
       <form className="admin-card p-3">
-        <div className="grid gap-2 md:grid-cols-[1fr,180px,auto]">
+        <div className="grid gap-2 md:grid-cols-[1fr_180px_auto]">
           <input
             name="q"
             defaultValue={query}
@@ -42,11 +44,11 @@ export default async function AdminProductsPage({
           />
           <select name="status" defaultValue={status} className="rounded-md border border-slate-200 px-3 py-2 text-sm">
             <option value="">Tous statuts</option>
-            <option value="disponible">Disponible</option>
-            <option value="reserve">Reserve</option>
-            <option value="vendu">Vendu</option>
-            <option value="brouillon">Brouillon</option>
-            <option value="archive">Archive</option>
+            {adminProductStatusOptions.map((statusOption) => (
+              <option key={statusOption.value} value={statusOption.value}>
+                {statusOption.label}
+              </option>
+            ))}
           </select>
           <button type="submit" className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white">
             Filtrer
@@ -61,6 +63,9 @@ export default async function AdminProductsPage({
               <th className="px-3 py-2">Produit</th>
               <th className="px-3 py-2">Marque</th>
               <th className="px-3 py-2">Taille/Age</th>
+              <th className="px-3 py-2">Categorie</th>
+              <th className="px-3 py-2">Saison</th>
+              <th className="px-3 py-2">Emplacement</th>
               <th className="px-3 py-2">Etat</th>
               <th className="px-3 py-2">Prix</th>
               <th className="px-3 py-2">Statut</th>
@@ -76,10 +81,13 @@ export default async function AdminProductsPage({
                 <td className="px-3 py-2">
                   {product.size_label ?? "-"} / {product.age_range ?? "-"}
                 </td>
-                <td className="px-3 py-2">{product.condition}</td>
+                <td className="px-3 py-2">{getProductCategoryLabel(product.categorie)}</td>
+                <td className="px-3 py-2">{getProductSeasonLabel(product.season)}</td>
+                <td className="px-3 py-2">{product.stock_location ?? "-"}</td>
+                <td className="px-3 py-2">{getProductConditionLabel(product.condition)}</td>
                 <td className="px-3 py-2">{toChf(product.price_cents)}</td>
                 <td className="px-3 py-2">
-                  <span className={`admin-status ${product.status}`}>{product.status}</span>
+                  <span className={`admin-status ${product.status}`}>{getProductStatusLabel(product.status)}</span>
                 </td>
                 <td className="px-3 py-2">{new Date(product.created_at).toLocaleDateString("fr-FR")}</td>
                 <td className="px-3 py-2">

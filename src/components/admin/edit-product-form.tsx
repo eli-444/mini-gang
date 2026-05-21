@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ageRangeOptions } from "@/lib/age-options";
+import { productCategoryOptions } from "@/lib/product-categories";
+import { adminProductStatusOptions, productConditionOptions, productSeasonOptions } from "@/lib/product-options";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 interface AdminProductEditInput {
@@ -17,8 +19,11 @@ interface AdminProductEditInput {
   genre: string;
   statut: string;
   prix_centimes: number;
+  prix_neuf_centimes?: number | null;
   couleur: string | null;
   matiere: string | null;
+  saison?: string | null;
+  emplacement_stock?: string | null;
   mis_en_avant: boolean;
   photos_vetements?: Array<{
     id: string;
@@ -54,20 +59,23 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
     if (a.principale !== b.principale) return a.principale ? -1 : 1;
     return a.position - b.position;
   });
-  const remainingImageSlots = Math.max(0, 3 - currentImages.length);
+  const remainingImageSlots = Math.max(0, 6 - currentImages.length);
   const [images, setImages] = useState<File[]>([]);
   const [form, setForm] = useState({
     title: product.nom,
     description: product.description ?? "",
     price_cents: product.prix_centimes,
+    compare_at_price_cents: product.prix_neuf_centimes ?? 0,
     brand: product.marque ?? "",
     condition: product.etat,
     categorie: product.categorie,
+    saison: product.saison ?? "toutes_saisons",
     age_range: product.age ?? "3 mois",
     size_label: product.taille,
     sex: product.genre,
     couleur: product.couleur ?? "",
     matiere: product.matiere ?? "",
+    stock_location: product.emplacement_stock ?? "",
     status: product.statut,
     mis_en_avant: product.mis_en_avant,
   });
@@ -203,22 +211,42 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           placeholder="Prix en centimes"
           className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
         />
+        <input
+          type="number"
+          min={0}
+          step={1}
+          value={form.compare_at_price_cents}
+          onChange={(event) => setForm((prev) => ({ ...prev, compare_at_price_cents: Number(event.target.value) }))}
+          placeholder="Prix neuf barre (centimes)"
+          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        />
       </div>
 
-      <div className="grid gap-2 md:grid-cols-4">
+      <div className="grid gap-2 md:grid-cols-5">
         <select
           value={form.categorie}
           onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))}
           className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
         >
-          <option value="haut">Haut</option>
-          <option value="bas">Bas</option>
-          <option value="robe">Robe</option>
-          <option value="veste">Veste</option>
-          <option value="manteau">Manteau</option>
-          <option value="chaussures">Chaussures</option>
-          <option value="accessoire">Accessoire</option>
-          <option value="autre">Autre</option>
+          {productCategoryOptions.map((category) => (
+            <option key={category.value} value={category.value}>
+              {category.label}
+            </option>
+          ))}
+          {!productCategoryOptions.some((category) => category.value === form.categorie) ? (
+            <option value={form.categorie}>{form.categorie}</option>
+          ) : null}
+        </select>
+        <select
+          value={form.saison}
+          onChange={(event) => setForm((prev) => ({ ...prev, saison: event.target.value }))}
+          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        >
+          {productSeasonOptions.map((season) => (
+            <option key={season.value} value={season.value}>
+              {season.label}
+            </option>
+          ))}
         </select>
         <select
           value={form.age_range}
@@ -264,29 +292,40 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         />
       </div>
 
+      <input
+        value={form.stock_location}
+        onChange={(event) => setForm((prev) => ({ ...prev, stock_location: event.target.value }))}
+        placeholder="Emplacement: Etagere A / Bac 3 / Ref MG-00045"
+        className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+      />
+
       <div className="grid gap-2 md:grid-cols-2">
         <select
           value={form.condition}
           onChange={(event) => setForm((prev) => ({ ...prev, condition: event.target.value }))}
           className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
         >
-          <option value="neuf">Neuf</option>
-          <option value="tres_bon">Tres bon</option>
-          <option value="bon">Bon</option>
-          <option value="correct">Correct</option>
+          {productConditionOptions.map((condition) => (
+            <option key={condition.value} value={condition.value}>
+              {condition.label}
+            </option>
+          ))}
         </select>
         <select
           value={form.status}
           onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
           className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
         >
-          <option value="disponible">Disponible</option>
-          <option value="brouillon">Brouillon</option>
-          <option value="reserve">Reserve</option>
-          <option value="vendu">Vendu</option>
-          <option value="archive">Archive</option>
+          {adminProductStatusOptions.map((statusOption) => (
+            <option key={statusOption.value} value={statusOption.value}>
+              {statusOption.label}
+            </option>
+          ))}
         </select>
       </div>
+      <p className="text-xs text-slate-500">
+        Visibilite boutique: seul le statut <strong>En ligne</strong> affiche la fiche sur le site.
+      </p>
 
       <label className="flex items-center gap-2 text-sm text-slate-700">
         <input
@@ -301,7 +340,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-semibold text-slate-900">Images</h3>
-            <p className="text-xs text-slate-500">{currentImages.length}/3 image(s) enregistree(s)</p>
+            <p className="text-xs text-slate-500">{currentImages.length}/6 image(s) enregistree(s). Image 1: recto, image 2: verso.</p>
           </div>
           {remainingImageSlots > 0 ? (
             <p className="text-xs text-slate-500">{remainingImageSlots} emplacement(s) restant(s)</p>

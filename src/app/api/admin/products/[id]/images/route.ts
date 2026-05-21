@@ -28,8 +28,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     .limit(3);
 
   if (countError) return NextResponse.json({ error: countError.message }, { status: 500 });
-  if ((existingImages ?? []).length >= 3) {
-    return NextResponse.json({ error: "Un vetement peut avoir 3 images maximum." }, { status: 400 });
+  if ((existingImages ?? []).length >= 6) {
+    return NextResponse.json({ error: "Un vetement peut avoir 6 images maximum." }, { status: 400 });
   }
 
   const shouldBeMain = parsed.data.principale || (existingImages ?? []).length === 0;
