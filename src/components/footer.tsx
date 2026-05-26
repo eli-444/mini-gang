@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 
 type FooterVariant = "dark" | "light";
 
@@ -26,11 +27,7 @@ export function Footer({ variant = "dark" }: { variant?: FooterVariant }) {
         <div className="mg-footer-line mb-6 md:mb-8" />
         <div className="grid gap-10 md:grid-cols-[1fr_1fr_1fr] md:items-start">
           <div className="space-y-10 md:space-y-16">
-            <Link href="/" className={`mg-wordmark block text-4xl md:text-5xl ${isLight ? "text-[var(--mg-ink)]" : "text-[var(--mg-pop-rose)]"}`}>
-              MINI
-              <br />
-              GANG
-            </Link>
+            <BrandLogo imageClassName="w-24 md:w-32" />
             <p className="text-sm font-black md:text-lg">(c) 2026 Le Mini Gang</p>
           </div>
 

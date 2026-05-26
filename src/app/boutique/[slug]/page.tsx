@@ -1,18 +1,30 @@
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import { FavoriteButton } from "@/components/favorite-button";
 import { ProductImageCarousel } from "@/components/product-image-carousel";
+import { ShopClosedPage } from "@/components/shop-closed-page";
+import { getAuthenticatedUser } from "@/lib/auth";
+import { isFavoriteProduct } from "@/lib/favorites";
 import { getProductCategoryLabel } from "@/lib/product-categories";
 import { getProductById } from "@/lib/products";
 import { getProductConditionLabel, getProductSeasonLabel } from "@/lib/product-options";
+import { getSiteContentSettings } from "@/lib/site-content-settings";
 import { toChf } from "@/lib/utils";
 
-export const revalidate = 120;
+export const revalidate = 0;
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const settings = await getSiteContentSettings();
+  if (!settings.shop_enabled) {
+    return <ShopClosedPage message={settings.shop_closed_message} reopenDate={settings.shop_reopen_date} />;
+  }
+
   const { slug } = await params;
   const product = await getProductById(slug);
   if (!product) notFound();
 
+  const { user } = await getAuthenticatedUser();
+  const isFavorite = user ? await isFavoriteProduct(user.id, product.id) : false;
   const images = product.product_images ?? [];
 
   return (
@@ -53,7 +65,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 </span>
               ) : null}
             </div>
-            <AddToCartButton productId={product.id} />
+            <div className="flex flex-wrap items-center gap-3">
+              <FavoriteButton productId={product.id} initialIsFavorite={isFavorite} variant="detail" />
+              <AddToCartButton productId={product.id} />
+            </div>
           </div>
         </section>
       </div>

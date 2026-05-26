@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 
 type MiniGangErrorPageProps = {
   eyebrow?: string;
@@ -54,6 +55,7 @@ export function MiniGangErrorPage({
       />
 
       <div className="relative z-10 mx-auto flex min-h-[58vh] max-w-4xl flex-col items-center justify-center text-center">
+        <BrandLogo className="mb-7 block" imageClassName="w-24 md:w-32" priority />
         <p className="font-display text-3xl font-black uppercase leading-none text-[var(--mg-pop-rose)] md:text-5xl">{eyebrow}</p>
         <h1 className="mt-4 max-w-3xl text-5xl font-black leading-[0.95] text-[var(--mg-ink)] md:text-7xl">{title}</h1>
         <p className="mt-6 max-w-2xl text-2xl font-black leading-tight text-[var(--mg-ink)] md:text-4xl">

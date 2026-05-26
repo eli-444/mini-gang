@@ -173,6 +173,17 @@ create table public.photos_vetements (
 create index photos_vetements_vetement_id_idx on public.photos_vetements(vetement_id);
 create unique index une_photo_principale_par_vetement on public.photos_vetements(vetement_id) where principale = true;
 
+create table public.favoris_vetements (
+  id uuid primary key default gen_random_uuid(),
+  utilisateur_id uuid not null references public.utilisateurs(id) on delete cascade,
+  vetement_id uuid not null references public.vetements(id) on delete cascade,
+  cree_le timestamptz not null default now(),
+  unique (utilisateur_id, vetement_id)
+);
+
+create index favoris_vetements_utilisateur_id_idx on public.favoris_vetements(utilisateur_id);
+create index favoris_vetements_vetement_id_idx on public.favoris_vetements(vetement_id);
+
 create table public.commandes (
   id uuid primary key default gen_random_uuid(),
   utilisateur_id uuid not null references public.utilisateurs(id) on delete restrict,
@@ -297,6 +308,7 @@ create index returns_status_idx on public.returns(status);
 alter table public.utilisateurs enable row level security;
 alter table public.vetements enable row level security;
 alter table public.photos_vetements enable row level security;
+alter table public.favoris_vetements enable row level security;
 alter table public.commandes enable row level security;
 alter table public.articles_commande enable row level security;
 alter table public.admin_settings enable row level security;
@@ -343,6 +355,15 @@ for update to authenticated using (public.est_admin()) with check (public.est_ad
 
 create policy "photos_vetements_admin_suppression" on public.photos_vetements
 for delete to authenticated using (public.est_admin());
+
+create policy "favoris_client_voir_ses_favoris_ou_admin" on public.favoris_vetements
+for select to authenticated using (utilisateur_id = auth.uid() or public.est_admin());
+
+create policy "favoris_client_ajouter" on public.favoris_vetements
+for insert to authenticated with check (utilisateur_id = auth.uid());
+
+create policy "favoris_client_supprimer" on public.favoris_vetements
+for delete to authenticated using (utilisateur_id = auth.uid() or public.est_admin());
 
 create policy "commandes_client_voir_ses_commandes_ou_admin" on public.commandes
 for select to authenticated using (utilisateur_id = auth.uid() or public.est_admin());

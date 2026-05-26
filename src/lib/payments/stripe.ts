@@ -6,7 +6,17 @@ interface StripeCheckoutOptions {
   currency: string;
   idempotencyKey: string;
   paymentMethodTypes: string[];
+  uiMode?: "hosted" | "embedded";
 }
+
+type StripeErrorPayload = {
+  error?: {
+    message?: string;
+    param?: string;
+    type?: string;
+    code?: string;
+  };
+};
 
 function parseStripeSignature(signatureHeader: string) {
   const parts = signatureHeader.split(",").map((part) => part.trim());
@@ -53,11 +63,18 @@ export async function createStripeCheckoutSession(
   const formData = new URLSearchParams({
     mode: "payment",
     customer_email: input.email,
-    success_url: `${input.successUrl}?order_id=${input.orderId}`,
-    cancel_url: `${input.cancelUrl}?order_id=${input.orderId}`,
     client_reference_id: input.orderId,
-    metadata: JSON.stringify({ orderId: input.orderId }),
+    "metadata[orderId]": input.orderId,
+    "payment_intent_data[metadata][orderId]": input.orderId,
   });
+
+  if (options.uiMode === "embedded") {
+    formData.append("ui_mode", "embedded");
+    formData.append("return_url", `${input.successUrl}?order_id=${input.orderId}&session_id={CHECKOUT_SESSION_ID}`);
+  } else {
+    formData.append("success_url", `${input.successUrl}?order_id=${input.orderId}`);
+    formData.append("cancel_url", `${input.cancelUrl}?order_id=${input.orderId}`);
+  }
 
   options.paymentMethodTypes.forEach((method, index) => {
     formData.append(`payment_method_types[${index}]`, method);
@@ -80,12 +97,30 @@ export async function createStripeCheckoutSession(
   });
 
   if (!response.ok) {
-    throw new Error(`Stripe checkout creation failed with status ${response.status}`);
+    const payload = (await response.json().catch(() => null)) as StripeErrorPayload | null;
+    const stripeError = payload?.error;
+    const details = [
+      stripeError?.message,
+      stripeError?.param ? `param: ${stripeError.param}` : null,
+      stripeError?.code ? `code: ${stripeError.code}` : null,
+    ]
+      .filter(Boolean)
+      .join(" | ");
+
+    throw new Error(`Stripe checkout creation failed (${response.status})${details ? `: ${details}` : ""}`);
   }
 
-  const session = (await response.json()) as { id: string; url: string };
+  const session = (await response.json()) as { id: string; url?: string; client_secret?: string };
+  if (options.uiMode === "embedded" && !session.client_secret) {
+    throw new Error("Stripe checkout response missing embedded client secret.");
+  }
+  if (options.uiMode !== "embedded" && !session.url) {
+    throw new Error("Stripe checkout response missing redirect URL.");
+  }
+
   return {
     redirectUrl: session.url,
+    clientSecret: session.client_secret,
     providerSessionId: session.id,
   };
 }
@@ -102,6 +137,7 @@ export class StripeProvider implements PaymentProvider {
       currency: SHOP_CURRENCY_LOWER,
       idempotencyKey: `checkout_card_${input.orderId}`,
       paymentMethodTypes: ["card"],
+      uiMode: "embedded",
     });
   }
 

@@ -33,6 +33,22 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
   const [isUploading, setIsUploading] = useState(false);
   const previewImage = useMemo(() => toPublicUrl(form.home_event_image_path), [form.home_event_image_path]);
 
+  const saveSettings = async (nextForm: SiteContentSettings, successMessage = "Contenu enregistre.") => {
+    const response = await fetch("/api/admin/settings/site-content", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nextForm),
+    });
+    const payload: ApiErrorPayload & { settings?: SiteContentSettings } = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(formatApiError(payload));
+    }
+
+    if (payload.settings) setForm(payload.settings);
+    setStatus(successMessage);
+  };
+
   const uploadImage = async (file: File) => {
     const response = await fetch("/api/admin/storage/upload-url", {
       method: "POST",
@@ -81,21 +97,27 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/admin/settings/site-content", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const payload: ApiErrorPayload & { settings?: SiteContentSettings } = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        setStatus(formatApiError(payload));
-        return;
-      }
-
-      if (payload.settings) setForm(payload.settings);
-      setStatus("Contenu homepage enregistre.");
+      await saveSettings(form, "Contenu du site enregistre.");
     } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Erreur inconnue");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const toggleShop = async () => {
+    setStatus(null);
+    setIsSubmitting(true);
+    const nextForm = { ...form, shop_enabled: !form.shop_enabled };
+    setForm(nextForm);
+
+    try {
+      await saveSettings(
+        nextForm,
+        nextForm.shop_enabled ? "Boutique rouverte." : "Boutique fermee. La page de pause est active.",
+      );
+    } catch (error) {
+      setForm(form);
       setStatus(error instanceof Error ? error.message : "Erreur inconnue");
     } finally {
       setIsSubmitting(false);
@@ -104,6 +126,49 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
 
   return (
     <form onSubmit={submit} className="mt-4 grid gap-4">
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-semibold uppercase text-slate-500">Boutique</h3>
+            <p className="mt-1 text-lg font-bold text-slate-900">
+              {form.shop_enabled ? "Boutique ouverte" : "Boutique fermee"}
+            </p>
+            <p className="mt-1 text-sm text-slate-600">
+              Un clic suffit pour remplacer la boutique par une page friendly de pause.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={toggleShop}
+            disabled={isSubmitting || isUploading}
+            className={`rounded-full px-5 py-2 text-sm font-semibold text-white disabled:opacity-60 ${
+              form.shop_enabled ? "bg-slate-900" : "bg-emerald-700"
+            }`}
+          >
+            {form.shop_enabled ? "Fermer la boutique" : "Rouvrir la boutique"}
+          </button>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-[1fr_220px]">
+          <label className="grid gap-1 text-sm font-semibold text-slate-700">
+            Message de fermeture
+            <textarea
+              value={form.shop_closed_message}
+              onChange={(event) => setForm((prev) => ({ ...prev, shop_closed_message: event.target.value }))}
+              className="min-h-20 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            />
+          </label>
+          <label className="grid gap-1 text-sm font-semibold text-slate-700">
+            Date de retour
+            <input
+              type="date"
+              value={form.shop_reopen_date}
+              onChange={(event) => setForm((prev) => ({ ...prev, shop_reopen_date: event.target.value }))}
+              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            />
+          </label>
+        </div>
+      </div>
+
       <label className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-sm font-semibold text-slate-700">
         <input
           type="checkbox"

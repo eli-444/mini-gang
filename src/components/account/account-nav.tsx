@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { href: "/mon-compte/profil", label: "Profil" },
   { href: "/mon-compte/commandes", label: "Commandes" },
+  { href: "/mon-compte/favoris", label: "Favoris" },
 ];
 
 export function AccountNav() {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { BrandLogo } from "@/components/brand-logo";
 
 const navItems = [
   { href: "/admin", label: "Accueil" },
@@ -30,9 +31,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         >
           <div className="flex h-full flex-col">
             <div className="border-b border-slate-200/70 px-5 py-5">
-              <Link href="/admin" className="block font-display text-3xl leading-none text-white">
-                Mini Gang
-              </Link>
+              <BrandLogo href="/admin" imageClassName="w-24" />
               <p className="mt-2 text-xs uppercase tracking-[0.18em] text-slate-400">Admin Control Panel</p>
             </div>
 
@@ -60,7 +59,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
             <div className="border-t border-slate-200/70 px-4 py-4">
               <p className="text-xs text-slate-400">Workspace</p>
-              <p className="mt-1 text-sm font-semibold text-white">Le Mini Gang</p>
+              <BrandLogo href="/" className="mt-2 block w-fit" imageClassName="w-20" />
             </div>
           </div>
         </aside>

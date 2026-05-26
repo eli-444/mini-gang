@@ -9,8 +9,9 @@ export interface CreateCheckoutInput {
 }
 
 export interface CheckoutSessionResult {
-  redirectUrl: string;
   providerSessionId: string;
+  redirectUrl?: string;
+  clientSecret?: string;
 }
 
 export interface PaymentWebhookEvent {

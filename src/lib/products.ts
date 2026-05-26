@@ -334,6 +334,157 @@ export async function getProductById(id: string) {
   return mapVetementToProduct(data as unknown as VetementRow);
 }
 
+export async function getVisibleProductsByIds(ids: string[]) {
+  const uniqueIds = [...new Set(ids)].filter(Boolean);
+  if (uniqueIds.length === 0 || !env.supabaseUrl || !env.supabaseAnonKey) {
+    return [] as Product[];
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const vetementsTable = supabase.from("vetements") as unknown as SupabaseVetementsTable;
+
+  const runQuery = (includeAge: boolean, includeReservation: boolean, includeExpansion: boolean) =>
+    vetementsTable
+      .select(getVetementSelect(includeAge, includeReservation, includeExpansion))
+      .in("id", uniqueIds)
+      .eq("statut", "disponible");
+
+  let data = null;
+  let error = null;
+  for (const [includeAge, includeReservation] of [
+    [true, true],
+    [true, false],
+    [false, true],
+    [false, false],
+  ] as const) {
+    const result = await runQuery(includeAge, includeReservation, true);
+    data = result.data;
+    error = result.error;
+    if (isMissingProductExpansionColumn(error)) {
+      const fallback = await runQuery(includeAge, includeReservation, false);
+      data = fallback.data;
+      error = fallback.error;
+    }
+    if (!isMissingAgeColumn(error) && !isMissingReservedUntilColumn(error)) break;
+  }
+
+  if (error) throw new Error(error.message);
+  const products = ((data ?? []) as unknown as VetementRow[]).map(mapVetementToProduct);
+  const order = new Map(uniqueIds.map((id, index) => [id, index]));
+  return products.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+}
+
+export interface CartProductAvailability {
+  id: string;
+  title: string;
+  price_cents: number;
+  brand?: string | null;
+  size_label?: string | null;
+  age_range?: string | null;
+  image_url?: string | null;
+  status: Product["status"] | "introuvable";
+  available: boolean;
+  reserved_until?: string | null;
+}
+
+type CartVetementRow = {
+  id: string;
+  nom: string;
+  prix_centimes: number;
+  marque?: string | null;
+  taille?: string | null;
+  age?: string | null;
+  statut: Product["status"];
+  reserved_until?: string | null;
+  photos_vetements?: Array<{
+    id: string;
+    url: string;
+    position: number;
+    principale: boolean;
+  }>;
+};
+
+function getPrimaryCartImage(row: CartVetementRow) {
+  const images = [...(row.photos_vetements ?? [])].sort((a, b) => {
+    if (a.principale !== b.principale) return a.principale ? -1 : 1;
+    return a.position - b.position;
+  });
+
+  return images[0]?.url ?? null;
+}
+
+export async function getCartProductsByIds(ids: string[]) {
+  const uniqueIds = [...new Set(ids)].filter(Boolean);
+  if (uniqueIds.length === 0 || !env.supabaseUrl || !env.supabaseAnonKey) {
+    return [] as CartProductAvailability[];
+  }
+
+  const supabase = createSupabaseAdminClient();
+  let rows: CartVetementRow[] | null = null;
+  let error: { message?: string } | null = null;
+
+  const getCartSelect = (includeAge: boolean, includeReservation: boolean) =>
+    [
+      "id",
+      "nom",
+      "prix_centimes",
+      "marque",
+      "taille",
+      includeAge ? "age" : null,
+      "statut",
+      includeReservation ? "reserved_until" : null,
+      "photos_vetements(id,url,position,principale)",
+    ]
+      .filter(Boolean)
+      .join(",");
+
+  for (const [includeAge, includeReservation] of [
+    [true, true],
+    [true, false],
+    [false, true],
+    [false, false],
+  ] as const) {
+    const result = await supabase.from("vetements").select(getCartSelect(includeAge, includeReservation)).in("id", uniqueIds);
+    rows = result.data as CartVetementRow[] | null;
+    error = result.error;
+    if (!isMissingAgeColumn(error) && !isMissingReservedUntilColumn(error)) break;
+  }
+
+  if (error) throw new Error(error.message);
+
+  const byId = new Map((rows ?? []).map((row) => [row.id, row]));
+  return uniqueIds.map((id) => {
+    const row = byId.get(id);
+    if (!row) {
+      return {
+        id,
+        title: "Article indisponible",
+        price_cents: 0,
+        brand: null,
+        size_label: null,
+        age_range: null,
+        image_url: null,
+        status: "introuvable" as const,
+        available: false,
+        reserved_until: null,
+      };
+    }
+
+    return {
+      id: row.id,
+      title: row.nom,
+      price_cents: row.prix_centimes,
+      brand: row.marque ?? null,
+      size_label: row.taille ?? null,
+      age_range: row.age ?? null,
+      image_url: getPrimaryCartImage(row),
+      status: row.statut,
+      available: row.statut === "disponible",
+      reserved_until: row.reserved_until ?? null,
+    };
+  });
+}
+
 export async function getProductsByIds(ids: string[]) {
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
     return [];

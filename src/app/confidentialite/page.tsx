@@ -6,7 +6,7 @@ const sections = [
   ["Base legale LPD", "Le traitement repose sur l'execution du contrat, les obligations legales, l'interet legitime de securiser le service et le consentement lorsque requis."],
   ["Conservation", "Les donnees de compte et commandes sont conservees selon les obligations suisses applicables. Les demandes de suppression sont traitees lorsque la loi ne requiert pas une conservation."],
   ["Droits", "Vous pouvez demander acces, rectification, opposition ou suppression par email. Une verification d'identite peut etre demandee."],
-  ["Contact", "hello@leminigang.com. Les coordonnees postales du responsable doivent etre completees avant mise en ligne publique."],
+  ["Contact", "contact@leminigang.com. Les coordonnees postales du responsable doivent etre completees avant mise en ligne publique."],
 ];
 
 export default function ConfidentialitePage() {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { BrandLogo } from "@/components/brand-logo";
 
 const leftLinks = [
   { href: "/a-propos", label: "A propos" },
@@ -63,11 +64,7 @@ export function Header() {
           Menu
         </button>
 
-        <Link href="/" className="mg-wordmark justify-self-center text-center text-[1.65rem] text-[var(--mg-ink)] md:text-[2rem]">
-          MINI
-          <br />
-          GANG
-        </Link>
+        <BrandLogo className="justify-self-center" imageClassName="w-[56px] md:w-[64px]" priority />
 
         <div className="hidden items-center justify-end gap-9 text-base font-black md:flex">
           <nav className="flex items-center gap-10">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BrandLogo } from "@/components/brand-logo";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
@@ -59,7 +60,7 @@ export default function AdminLoginPage() {
   return (
     <div className="admin-theme grid min-h-screen place-items-center p-4">
       <section className="admin-card w-full max-w-md p-6">
-        <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Le Mini Gang</p>
+        <BrandLogo className="mb-4 block w-fit" imageClassName="w-24" priority />
         <h1 className="mt-1 font-display text-4xl text-slate-900">Admin Login</h1>
         <p className="mt-2 text-sm text-slate-500">Connectez-vous pour acceder au back-office.</p>
         <form onSubmit={onSubmit} className="mt-4 space-y-3">

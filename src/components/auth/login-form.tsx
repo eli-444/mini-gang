@@ -19,11 +19,32 @@ export function LoginForm({ next }: LoginFormProps) {
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const supabase = createSupabaseBrowserClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     if (signInError) {
       setError(signInError.message);
       return;
     }
+
+    const {
+      data: { session: currentSession },
+    } = await supabase.auth.getSession();
+    const session = signInData.session ?? currentSession;
+    if (session?.access_token && session.refresh_token) {
+      const syncResponse = await fetch("/api/auth/session", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        }),
+      });
+      if (!syncResponse.ok) {
+        setError("Connexion reussie, mais la session serveur n'a pas pu etre synchronisee.");
+        return;
+      }
+    }
+
     router.push(next || "/mon-compte");
     router.refresh();
   };

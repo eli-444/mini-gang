@@ -1,16 +1,25 @@
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { ProductFiltersForm } from "@/components/product-filters-form";
+import { ShopClosedPage } from "@/components/shop-closed-page";
+import { getAuthenticatedUser } from "@/lib/auth";
+import { listFavoriteProductIds } from "@/lib/favorites";
 import { listProducts } from "@/lib/products";
+import { getSiteContentSettings } from "@/lib/site-content-settings";
 import { productFiltersSchema } from "@/lib/validation";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 export default async function BoutiquePage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const settings = await getSiteContentSettings();
+  if (!settings.shop_enabled) {
+    return <ShopClosedPage message={settings.shop_closed_message} reopenDate={settings.shop_reopen_date} />;
+  }
+
   const params = await searchParams;
   const flat = Object.fromEntries(
     Object.entries(params).map(([key, value]) => [key, Array.isArray(value) ? value[0] : value]),
@@ -18,6 +27,9 @@ export default async function BoutiquePage({
   const parsed = productFiltersSchema.safeParse(flat);
   const filters = parsed.success ? parsed.data : { sort: "newest" as const, limit: 24 };
   const { products, nextCursor, hasMore, total } = await listProducts(filters);
+  const { user } = await getAuthenticatedUser();
+  const favoriteIds = user ? await listFavoriteProductIds(user.id, products.map((product) => product.id)) : [];
+  const favoriteSet = new Set(favoriteIds);
 
   const createFilterUrl = (updates: Record<string, string>) => {
     const url = new URLSearchParams(flat as Record<string, string>);
@@ -47,7 +59,7 @@ export default async function BoutiquePage({
           {products.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3 xl:gap-9">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} isFavorite={favoriteSet.has(product.id)} />
               ))}
             </div>
           ) : (

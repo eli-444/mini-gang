@@ -77,24 +77,46 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
   const conversions = orderItems?.length ?? 0;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Product Detail</p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-900">{product.nom}</h1>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/admin/products" className="rounded-md border border-slate-300 px-3 py-1.5 text-sm">
+    <div className="space-y-6">
+      <div className="admin-card overflow-hidden p-0">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white/65 px-5 py-5">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Fiche stock</p>
+            <h1 className="mt-1 text-3xl font-black text-slate-900">{product.nom}</h1>
+            <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-slate-600">
+              Modifie les informations client, la visibilité boutique, les photos et l&apos;emplacement physique.
+            </p>
+          </div>
+          <Link href="/admin/products" className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black">
             Retour liste
           </Link>
+        </div>
+        <div className="grid gap-3 px-5 py-4 text-sm font-semibold text-slate-700 md:grid-cols-4">
+          <div className="rounded-xl bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Statut</span>
+            <strong className="mt-1 block text-slate-950">{getProductStatusLabel(product.statut)}</strong>
+          </div>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Prix</span>
+            <strong className="mt-1 block text-slate-950">{toChf(product.prix_centimes)}</strong>
+          </div>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Taille</span>
+            <strong className="mt-1 block text-slate-950">{product.taille || product.age || "-"}</strong>
+          </div>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Emplacement</span>
+            <strong className="mt-1 block text-slate-950">{product.emplacement_stock ?? "-"}</strong>
+          </div>
         </div>
       </div>
 
       <EditProductForm product={{ ...product, age: product.age ?? null }} />
 
       <section className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <article className="admin-card p-4">
-          <h2 className="text-sm font-semibold uppercase text-slate-500">Infos produit</h2>
+        <article className="admin-card p-5">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Résumé</p>
+          <h2 className="mt-1 text-xl font-black text-slate-950">Infos produit</h2>
           <dl className="mt-3 grid gap-2 text-sm md:grid-cols-2">
             <div><dt className="text-slate-500">Marque</dt><dd>{product.marque ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Etat</dt><dd>{getProductConditionLabel(product.etat)}</dd></div>
@@ -115,8 +137,9 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
           <p className="mt-4 text-sm text-slate-700">{product.description ?? "Sans description."}</p>
         </article>
 
-        <article className="admin-card p-4">
-          <h2 className="text-sm font-semibold uppercase text-slate-500">Performance</h2>
+        <article className="admin-card p-5">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Lecture</p>
+          <h2 className="mt-1 text-xl font-black text-slate-950">Performance</h2>
           <div className="mt-3 space-y-2 text-sm">
             <p className="rounded-md bg-slate-50 p-2">Vues produit: <strong>{views}</strong></p>
             <p className="rounded-md bg-slate-50 p-2">Ajouts panier: <strong>{addToCart}</strong></p>

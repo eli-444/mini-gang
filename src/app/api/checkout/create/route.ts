@@ -40,6 +40,12 @@ export async function POST(request: Request) {
       { status: 403 },
     );
   }
+  if (!siteSettings.shop_enabled) {
+    return NextResponse.json(
+      { error: siteSettings.shop_closed_message || "La boutique est temporairement fermee." },
+      { status: 403 },
+    );
+  }
   const twintRuntime = await getTwintRuntimeSettings();
   const provider = getProviderInstance(parsed.data.provider);
   if (!provider) {
@@ -125,6 +131,18 @@ export async function POST(request: Request) {
       provider: provider.name,
       provider_session_id: session.providerSessionId,
     });
+
+    if (provider.name === "stripe" && session.clientSecret) {
+      return NextResponse.json({
+        clientSecret: session.clientSecret,
+        orderId: order.id,
+        providerSessionId: session.providerSessionId,
+      });
+    }
+
+    if (!session.redirectUrl) {
+      throw new Error("Payment provider response missing redirect URL.");
+    }
 
     return NextResponse.json({ redirectUrl: session.redirectUrl, orderId: order.id });
   } catch (error) {

@@ -19,21 +19,45 @@ function toMoney(cents: number) {
   return formatShopMoney(cents);
 }
 
+function buildQrPayload(input: CreateLabelInput) {
+  return JSON.stringify({
+    dossier: input.orderNumber,
+    expediteur: {
+      nom: input.sender.name,
+      email: input.sender.email,
+      ville: input.sender.city,
+    },
+    nombre_vetements: input.items.length,
+    vetements: input.items.map((item, index) => ({
+      n: index + 1,
+      categorie: item.category,
+      marque: item.brand ?? "",
+      taille: item.sizeLabel ?? "",
+      etat: item.condition,
+    })),
+  });
+}
+
 export class InternalPdfProvider implements ShippingLabelProvider {
   async createLabel(input: CreateLabelInput): Promise<CreateLabelResult> {
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595, 842]);
     const titleFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const bodyFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    page.drawRectangle({
-      x: 24,
-      y: 24,
-      width: page.getWidth() - 48,
-      height: page.getHeight() - 48,
-      borderColor: rgb(0.12, 0.12, 0.12),
-      borderWidth: 1.2,
-    });
+    const addPage = () => {
+      const page = pdfDoc.addPage([595, 842]);
+      page.drawRectangle({
+        x: 24,
+        y: 24,
+        width: page.getWidth() - 48,
+        height: page.getHeight() - 48,
+        borderColor: rgb(0.12, 0.12, 0.12),
+        borderWidth: 1.2,
+      });
+      return page;
+    };
+
+    let page = addPage();
 
     page.drawText("Le Mini Gang - Bordereau d'envoi", {
       x: 40,
@@ -69,32 +93,62 @@ export class InternalPdfProvider implements ShippingLabelProvider {
 
     page.drawText("Contenu declare", { x: 40, y: 610, size: 12, font: titleFont });
     let rowY = 590;
-    for (const item of input.items.slice(0, 18)) {
+    for (const [index, item] of input.items.entries()) {
+      if (rowY < 95) {
+        page = addPage();
+        page.drawText(`Le Mini Gang - Bordereau ${input.orderNumber}`, {
+          x: 40,
+          y: 790,
+          size: 14,
+          font: titleFont,
+          color: rgb(0.08, 0.08, 0.08),
+        });
+        page.drawText("Suite du contenu declare", { x: 40, y: 758, size: 12, font: titleFont });
+        rowY = 736;
+      }
+
       page.drawText(
-        `- ${item.category} ${item.brand ? `(${item.brand})` : ""} ${item.sizeLabel ? `- ${item.sizeLabel}` : ""} - ${item.condition}`,
-        { x: 44, y: rowY, size: 9, font: bodyFont },
+        `${index + 1}. ${item.category} ${item.brand ? `(${item.brand})` : ""} ${item.sizeLabel ? `- ${item.sizeLabel}` : ""} - ${item.condition}`,
+        { x: 44, y: rowY, size: 9, maxWidth: 500, font: bodyFont },
       );
       rowY -= 14;
     }
 
-    page.drawText(`Estimation indicative: ${toMoney(input.estimatedTotalCents)}`, {
+    if (rowY < 280) {
+      page = addPage();
+      page.drawText(`Le Mini Gang - Bordereau ${input.orderNumber}`, {
+        x: 40,
+        y: 790,
+        size: 14,
+        font: titleFont,
+        color: rgb(0.08, 0.08, 0.08),
+      });
+      rowY = 740;
+    }
+
+    page.drawText(
+      input.estimatedTotalCents > 0
+        ? `Estimation indicative: ${toMoney(input.estimatedTotalCents)}`
+        : "Estimation indicative: a confirmer apres controle",
+      {
       x: 40,
-      y: 308,
+      y: rowY - 22,
       size: 11,
       font: titleFont,
-    });
+      },
+    );
     page.drawText(
       "L'estimation est confirmee apres controle qualite par l'atelier. Les articles refuses suivent la politique de rachat Mini Gang.",
-      { x: 40, y: 286, size: 9, maxWidth: 520, lineHeight: 12, font: bodyFont },
+      { x: 40, y: rowY - 46, size: 9, maxWidth: 520, lineHeight: 12, font: bodyFont },
     );
 
     try {
-      const qrDataUrl = await QRCode.toDataURL(input.orderNumber, { margin: 1, width: 220 });
+      const qrDataUrl = await QRCode.toDataURL(buildQrPayload(input), { margin: 1, width: 240 });
       const base64 = qrDataUrl.split(",")[1] ?? "";
       const qrBytes = decodeBase64ToBytes(base64);
       const qrPng = await pdfDoc.embedPng(qrBytes);
-      page.drawImage(qrPng, { x: 425, y: 250, width: 130, height: 130 });
-      page.drawText("Scanner ce QR a reception", { x: 420, y: 236, size: 9, font: bodyFont });
+      page.drawImage(qrPng, { x: 425, y: 102, width: 130, height: 130 });
+      page.drawText("Code du dossier et des vetements", { x: 398, y: 88, size: 9, font: bodyFont });
     } catch {
       page.drawText(`Code: ${input.orderNumber}`, { x: 420, y: 260, size: 10, font: titleFont });
     }

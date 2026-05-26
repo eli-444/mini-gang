@@ -10,7 +10,7 @@ export default function MentionsLegalesPage() {
           <p>Adresse: a completer.</p>
           <p>Pays: Suisse.</p>
           <p>IDE/TVA: a completer si applicable.</p>
-          <p>Email: hello@leminigang.com.</p>
+          <p>Email: contact@leminigang.com.</p>
         </article>
         <article className="rounded-lg border border-[var(--mg-ring)] bg-white p-5">
           <h2 className="font-semibold text-[var(--mg-ink)]">Activite</h2>

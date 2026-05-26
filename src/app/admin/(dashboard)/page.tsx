@@ -4,9 +4,9 @@ import { toChf } from "@/lib/utils";
 
 function MetricCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <article className="admin-kpi p-4">
+    <article className="admin-kpi p-4 transition hover:-translate-y-0.5">
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
+      <p className="mt-2 text-3xl font-black text-slate-900">{value}</p>
       {hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
     </article>
   );
@@ -14,9 +14,9 @@ function MetricCard({ label, value, hint }: { label: string; value: string; hint
 
 function ActionLink({ href, label, hint }: { href: string; label: string; hint: string }) {
   return (
-    <Link href={href} className="block rounded-xl border border-slate-200 bg-white/70 p-3 transition hover:border-slate-300 hover:bg-white">
-      <span className="block text-sm font-bold text-slate-900">{label}</span>
-      <span className="mt-1 block text-xs text-slate-500">{hint}</span>
+    <Link href={href} className="block rounded-2xl border border-slate-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white">
+      <span className="block text-base font-black text-slate-900">{label}</span>
+      <span className="mt-1 block text-sm font-semibold leading-5 text-slate-500">{hint}</span>
     </Link>
   );
 }
@@ -26,12 +26,21 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Administration</p>
-        <h1 className="mt-1 text-3xl font-bold text-slate-900">Accueil admin</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-500">
-          Resume simple de la boutique. Les chiffres de vente portent sur les 30 derniers jours.
-        </p>
+      <div className="admin-card overflow-hidden p-0">
+        <div className="grid gap-4 border-b border-slate-200 bg-white/65 px-5 py-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Administration</p>
+            <h1 className="mt-1 text-3xl font-black text-slate-900 md:text-4xl">Tableau de bord</h1>
+            <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-slate-600">
+              Une vue simple pour piloter la boutique, préparer les commandes et garder le stock du local propre.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Priorité du jour</p>
+            <p className="mt-2 text-2xl font-black text-slate-950">{metrics.alerts.paidToPrepare} commande(s) à préparer</p>
+            <p className="mt-1 text-sm font-semibold text-slate-600">À vérifier avant les nouvelles fiches produit.</p>
+          </div>
+        </div>
       </div>
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -42,8 +51,9 @@ export default async function AdminDashboardPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <article className="admin-card p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Actions utiles</h2>
+        <article className="admin-card p-5">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Raccourcis</p>
+          <h2 className="mt-1 text-xl font-black text-slate-950">Actions utiles</h2>
           <div className="mt-4 grid gap-3">
             <ActionLink href="/admin/products/new" label="Ajouter une fiche vetement" hint="Creer un article pour le stock ou la boutique." />
             <ActionLink href="/admin/products" label="Gerer les vetements" hint="Modifier les fiches, statuts, prix, photos et emplacements." />
@@ -52,8 +62,9 @@ export default async function AdminDashboardPage() {
           </div>
         </article>
 
-        <article className="admin-card p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">A surveiller</h2>
+        <article className="admin-card p-5">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Contrôle</p>
+          <h2 className="mt-1 text-xl font-black text-slate-950">À surveiller</h2>
           <div className="mt-4 grid gap-2 text-sm">
             <div className="flex items-center justify-between rounded-md bg-slate-50 p-3">
               <span>Commandes a preparer</span>
@@ -71,8 +82,9 @@ export default async function AdminDashboardPage() {
         </article>
       </section>
 
-      <section className="admin-card p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Stock</h2>
+      <section className="admin-card p-5">
+        <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Inventaire</p>
+        <h2 className="mt-1 text-xl font-black text-slate-950">Santé du stock</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-5">
           <MetricCard label="En ligne" value={String(metrics.stock.active)} />
           <MetricCard label="Reserve" value={String(metrics.stock.reserved)} />

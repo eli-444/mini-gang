@@ -33,7 +33,7 @@ const sections = [
   },
   {
     title: "9. Contact",
-    body: "Pour toute question: hello@leminigang.com. L'adresse postale et l'identite complete du vendeur doivent etre completees avant lancement public.",
+    body: "Pour toute question: contact@leminigang.com. L'adresse postale et l'identite complete du vendeur doivent etre completees avant lancement public.",
   },
 ];
 

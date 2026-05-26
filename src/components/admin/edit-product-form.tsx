@@ -50,6 +50,19 @@ function formatApiError(payload: ApiErrorPayload) {
   return flatMessages ? `${base} (${flatMessages})` : base;
 }
 
+function centsToChfInput(cents: number) {
+  if (!cents) return "";
+  return String(cents / 100);
+}
+
+function chfInputToCents(value: string) {
+  const normalized = value.replace(",", ".").trim();
+  if (!normalized) return 0;
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.round(parsed * 100);
+}
+
 export function EditProductForm({ product }: { product: AdminProductEditInput }) {
   const router = useRouter();
   const [status, setStatus] = useState<string | null>(null);
@@ -202,24 +215,30 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           placeholder="Marque"
           className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
         />
-        <input
-          type="number"
-          min={50}
-          step={1}
-          value={form.price_cents}
-          onChange={(event) => setForm((prev) => ({ ...prev, price_cents: Number(event.target.value) }))}
-          placeholder="Prix en centimes"
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-        />
-        <input
-          type="number"
-          min={0}
-          step={1}
-          value={form.compare_at_price_cents}
-          onChange={(event) => setForm((prev) => ({ ...prev, compare_at_price_cents: Number(event.target.value) }))}
-          placeholder="Prix neuf barre (centimes)"
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-        />
+        <label className="grid gap-1 text-xs font-semibold text-slate-600">
+          Prix de vente (CHF)
+          <input
+            type="number"
+            min={0.5}
+            step={0.05}
+            value={centsToChfInput(form.price_cents)}
+            onChange={(event) => setForm((prev) => ({ ...prev, price_cents: chfInputToCents(event.target.value) }))}
+            placeholder="Ex: 8.00"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900"
+          />
+        </label>
+        <label className="grid gap-1 text-xs font-semibold text-slate-600">
+          Prix supposé neuf (CHF)
+          <input
+            type="number"
+            min={0}
+            step={0.05}
+            value={centsToChfInput(form.compare_at_price_cents)}
+            onChange={(event) => setForm((prev) => ({ ...prev, compare_at_price_cents: chfInputToCents(event.target.value) }))}
+            placeholder="Ex: 24.90"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900"
+          />
+        </label>
       </div>
 
       <div className="grid gap-2 md:grid-cols-5">

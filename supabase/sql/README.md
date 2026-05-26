@@ -11,6 +11,7 @@ Tables confirmees dans Supabase:
 - `admin_settings`
 - `articles_commande`
 - `commandes`
+- `favoris_vetements` (a appliquer via `008_favorites_and_seller_labels.sql` si absent)
 - `photos_vetements`
 - `returns`
 - `shipments`

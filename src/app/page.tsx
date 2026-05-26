@@ -15,7 +15,7 @@ export default async function HomePage() {
   return (
     <div className="bg-[var(--mg-bg)] text-[var(--mg-on-dark)]">
       <section className="relative min-h-[500px] overflow-hidden bg-[#7ec9f0] md:min-h-[690px]">
-        <Image src="/brand/hero-alt.avif" alt="Mini Gang" fill priority className="object-cover" sizes="100vw" />
+        <Image src="/brand/hero-alt.avif" alt="Mini Gang" fill priority className="object-contain object-center" sizes="100vw" />
         <div className="absolute inset-0 bg-black/10" />
         <div className="absolute inset-y-0 left-5 right-5 flex items-center md:left-auto md:right-[7vw] md:w-[48rem] md:max-w-[58vw]">
           <div>

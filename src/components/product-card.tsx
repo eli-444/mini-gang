@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { FavoriteButton } from "@/components/favorite-button";
 import type { Product } from "@/lib/types";
 
 interface Props {
   product: Product;
+  isFavorite?: boolean;
 }
 
 function formatCardPrice(cents: number) {
@@ -10,7 +12,7 @@ function formatCardPrice(cents: number) {
   return Number.isInteger(amount) ? `${amount}.-` : amount.toLocaleString("fr-CH", { minimumFractionDigits: 2 });
 }
 
-export function ProductCard({ product }: Props) {
+export function ProductCard({ product, isFavorite = false }: Props) {
   const image = product.product_images?.[0]?.url ?? product.product_images?.[0]?.path;
   const imageSrc = image?.startsWith("http")
     ? image
@@ -21,7 +23,7 @@ export function ProductCard({ product }: Props) {
   const age = product.age_range || product.size_label || "";
 
   return (
-    <article className="group overflow-hidden rounded-[1.2rem] bg-white text-[var(--mg-ink)] transition-transform hover:-translate-y-1 md:rounded-[1.65rem]">
+    <article className="group relative overflow-hidden rounded-[1.2rem] bg-white text-[var(--mg-ink)] transition-transform hover:-translate-y-1 md:rounded-[1.65rem]">
       <Link href={`/boutique/${product.id}`} className="block">
         <div className="relative aspect-[1/1.02] bg-white">
           {imageSrc ? (
@@ -30,6 +32,9 @@ export function ProductCard({ product }: Props) {
           ) : null}
         </div>
       </Link>
+      <div className="absolute right-3 top-3 z-10">
+        <FavoriteButton productId={product.id} initialIsFavorite={isFavorite} />
+      </div>
       <div className="relative min-h-[4.35rem] bg-[var(--mg-rose-soft)] px-4 py-2.5 text-[0.82rem] font-medium leading-[1.15] md:min-h-[5.05rem] md:px-5 md:py-3 md:text-[0.96rem]">
         <Link href={`/boutique/${product.id}`} className="line-clamp-2 max-w-[82%]">
           {product.brand ? `${product.brand} ` : ""}

@@ -17,31 +17,60 @@ export default async function AdminProductsPage({
   const data = await listAdminProducts({ page: Number.isNaN(page) ? 1 : page, pageSize: 20, query, status });
   const hasPrev = data.page > 1;
   const hasNext = data.page * data.pageSize < data.total;
+  const statusLabel = status ? (adminProductStatusOptions.find((item) => item.value === status)?.label ?? status) : "Tous statuts";
 
   const qs = new URLSearchParams();
   if (query) qs.set("q", query);
   if (status) qs.set("status", status);
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="admin-card overflow-hidden p-0">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white/65 px-5 py-5">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Stock</p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-900">Vetements</h1>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Stock & catalogue</p>
+            <h1 className="mt-1 text-3xl font-black text-slate-900">Vêtements</h1>
+            <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-600">
+              Retrouve les pièces du local, leur statut boutique, leur emplacement et les informations visibles côté client.
+            </p>
         </div>
-        <Link href="/admin/products/new" className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white">
-          Ajouter une fiche
+          <Link href="/admin/products/new" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-black text-white">
+            Ajouter un vêtement
         </Link>
+        </div>
+        <div className="grid gap-3 px-5 py-4 text-sm font-semibold text-slate-700 md:grid-cols-3">
+          <div className="rounded-xl bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Total filtré</span>
+            <strong className="mt-1 block text-2xl text-slate-950">{data.total}</strong>
+      </div>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Page</span>
+            <strong className="mt-1 block text-2xl text-slate-950">{data.page}</strong>
+          </div>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Vue</span>
+            <strong className="mt-1 block text-2xl text-slate-950">{statusLabel}</strong>
+          </div>
+        </div>
       </div>
 
-      <form className="admin-card p-3">
-        <div className="grid gap-2 md:grid-cols-[1fr_180px_auto]">
+      <form className="admin-card p-4">
+        <div className="mb-4">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Recherche rapide</p>
+          <h2 className="mt-1 text-xl font-black text-slate-950">Filtrer le stock</h2>
+        </div>
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px_auto]">
+          <label className="grid gap-1 text-sm font-black text-slate-800">
+            Nom ou marque
           <input
             name="q"
             defaultValue={query}
-            placeholder="Recherche titre ou marque"
-            className="rounded-md border border-slate-200 px-3 py-2 text-sm"
+              placeholder="Ex: Zara, robe, doudoune..."
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold"
           />
+          </label>
+          <label className="grid gap-1 text-sm font-black text-slate-800">
+            Statut
           <select name="status" defaultValue={status} className="rounded-md border border-slate-200 px-3 py-2 text-sm">
             <option value="">Tous statuts</option>
             {adminProductStatusOptions.map((statusOption) => (
@@ -50,13 +79,21 @@ export default async function AdminProductsPage({
               </option>
             ))}
           </select>
-          <button type="submit" className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white">
+          </label>
+          <button type="submit" className="self-end rounded-full bg-slate-900 px-5 py-3 text-sm font-black text-white">
             Filtrer
           </button>
         </div>
       </form>
 
       <section className="admin-table-wrap">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Inventaire</p>
+            <h2 className="text-lg font-black text-slate-950">Fiches vêtements</h2>
+          </div>
+          <p className="text-sm font-semibold text-slate-600">Édition, statut, prix et emplacement au même endroit.</p>
+        </div>
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
