@@ -24,7 +24,7 @@ export function LogoutButton({ className }: { className?: string }) {
       disabled={isLoading}
       className={
         className ??
-        "border-b-[3px] border-transparent pb-1 text-left text-white/72 transition hover:border-white/45 hover:text-white disabled:cursor-wait disabled:opacity-60"
+        "self-center text-sm font-semibold text-white/48 transition hover:text-white/78 disabled:cursor-wait disabled:opacity-60"
       }
     >
       {isLoading ? "Deconnexion..." : "Se deconnecter"}

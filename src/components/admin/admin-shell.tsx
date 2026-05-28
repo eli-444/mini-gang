@@ -91,7 +91,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <Link href="/" className="rounded-lg border border-slate-300/80 px-3 py-1.5 text-sm font-semibold text-[#1a1713]">
                   Voir le site
                 </Link>
-                <LogoutButton className="rounded-lg border border-slate-300/80 px-3 py-1.5 text-sm font-semibold text-[#1a1713] transition hover:bg-white disabled:cursor-wait disabled:opacity-60" />
+                <LogoutButton className="px-2 py-1 text-xs font-semibold text-[#1a1713]/55 transition hover:text-[#1a1713] disabled:cursor-wait disabled:opacity-60" />
               </div>
             </div>
           </header>
