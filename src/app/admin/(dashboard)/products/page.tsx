@@ -24,30 +24,28 @@ export default async function AdminProductsPage({
   if (status) qs.set("status", status);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="admin-card overflow-hidden p-0">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white/65 px-5 py-5">
-        <div>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Stock & catalogue</p>
-            <h1 className="mt-1 text-3xl font-black text-slate-900">Vêtements</h1>
-            <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-600">
-              Retrouve les pièces du local, leur statut boutique, leur emplacement et les informations visibles côté client.
-            </p>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-5 py-5">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Stock & catalogue</p>
+            <h1 className="mt-1 text-2xl font-bold text-slate-950 md:text-3xl">Vetements</h1>
+          </div>
+          <Link href="/admin/products/new" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-bold text-white">
+            Ajouter un vetement
+          </Link>
         </div>
-          <Link href="/admin/products/new" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-black text-white">
-            Ajouter un vêtement
-        </Link>
-        </div>
-        <div className="grid gap-3 px-5 py-4 text-sm font-semibold text-slate-700 md:grid-cols-3">
-          <div className="rounded-xl bg-slate-50 p-3">
-            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Total filtré</span>
+
+        <div className="grid gap-3 px-5 py-4 text-sm text-slate-700 md:grid-cols-3">
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Total filtre</span>
             <strong className="mt-1 block text-2xl text-slate-950">{data.total}</strong>
-      </div>
-          <div className="rounded-xl bg-slate-50 p-3">
+          </div>
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
             <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Page</span>
             <strong className="mt-1 block text-2xl text-slate-950">{data.page}</strong>
           </div>
-          <div className="rounded-xl bg-slate-50 p-3">
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
             <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Vue</span>
             <strong className="mt-1 block text-2xl text-slate-950">{statusLabel}</strong>
           </div>
@@ -56,31 +54,31 @@ export default async function AdminProductsPage({
 
       <form className="admin-card p-4">
         <div className="mb-4">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Recherche rapide</p>
-          <h2 className="mt-1 text-xl font-black text-slate-950">Filtrer le stock</h2>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Recherche rapide</p>
+          <h2 className="mt-1 text-lg font-bold text-slate-950">Filtrer le stock</h2>
         </div>
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px_auto]">
-          <label className="grid gap-1 text-sm font-black text-slate-800">
+          <label className="grid gap-1 text-sm font-bold text-slate-800">
             Nom ou marque
-          <input
-            name="q"
-            defaultValue={query}
-              placeholder="Ex: Zara, robe, doudoune..."
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold"
-          />
+            <input
+              name="q"
+              defaultValue={query}
+              placeholder="Marque ou nom"
+              className="rounded-md border border-slate-200 bg-white px-3 py-2.5 text-sm"
+            />
           </label>
-          <label className="grid gap-1 text-sm font-black text-slate-800">
+          <label className="grid gap-1 text-sm font-bold text-slate-800">
             Statut
-          <select name="status" defaultValue={status} className="rounded-md border border-slate-200 px-3 py-2 text-sm">
-            <option value="">Tous statuts</option>
-            {adminProductStatusOptions.map((statusOption) => (
-              <option key={statusOption.value} value={statusOption.value}>
-                {statusOption.label}
-              </option>
-            ))}
-          </select>
+            <select name="status" defaultValue={status} className="rounded-md border border-slate-200 px-3 py-2.5 text-sm">
+              <option value="">Tous statuts</option>
+              {adminProductStatusOptions.map((statusOption) => (
+                <option key={statusOption.value} value={statusOption.value}>
+                  {statusOption.label}
+                </option>
+              ))}
+            </select>
           </label>
-          <button type="submit" className="self-end rounded-full bg-slate-900 px-5 py-3 text-sm font-black text-white">
+          <button type="submit" className="self-end rounded-md bg-slate-900 px-5 py-2.5 text-sm font-bold text-white">
             Filtrer
           </button>
         </div>
@@ -89,56 +87,57 @@ export default async function AdminProductsPage({
       <section className="admin-table-wrap">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Inventaire</p>
-            <h2 className="text-lg font-black text-slate-950">Fiches vêtements</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Inventaire</p>
+            <h2 className="text-lg font-bold text-slate-950">Fiches vetements</h2>
           </div>
-          <p className="text-sm font-semibold text-slate-600">Édition, statut, prix et emplacement au même endroit.</p>
         </div>
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th className="px-3 py-2">Produit</th>
-              <th className="px-3 py-2">Marque</th>
-              <th className="px-3 py-2">Taille/Age</th>
-              <th className="px-3 py-2">Categorie</th>
-              <th className="px-3 py-2">Saison</th>
-              <th className="px-3 py-2">Emplacement</th>
-              <th className="px-3 py-2">Etat</th>
-              <th className="px-3 py-2">Prix</th>
-              <th className="px-3 py-2">Statut</th>
-              <th className="px-3 py-2">Ajoute</th>
-              <th className="px-3 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.rows.map((product) => (
-              <tr key={product.id} className="border-t border-slate-100">
-                <td className="px-3 py-2 font-medium">{product.title}</td>
-                <td className="px-3 py-2">{product.brand ?? "-"}</td>
-                <td className="px-3 py-2">
-                  {product.size_label ?? "-"} / {product.age_range ?? "-"}
-                </td>
-                <td className="px-3 py-2">{getProductCategoryLabel(product.categorie)}</td>
-                <td className="px-3 py-2">{getProductSeasonLabel(product.season)}</td>
-                <td className="px-3 py-2">{product.stock_location ?? "-"}</td>
-                <td className="px-3 py-2">{getProductConditionLabel(product.condition)}</td>
-                <td className="px-3 py-2">{toChf(product.price_cents)}</td>
-                <td className="px-3 py-2">
-                  <span className={`admin-status ${product.status}`}>{getProductStatusLabel(product.status)}</span>
-                </td>
-                <td className="px-3 py-2">{new Date(product.created_at).toLocaleDateString("fr-FR")}</td>
-                <td className="px-3 py-2">
-                  <div className="flex items-center gap-3">
-                  <Link href={`/admin/products/${product.id}`} className="text-slate-900 underline">
-                    Editer
-                  </Link>
-                    <DeleteProductButton productId={product.id} productName={product.title} />
-                  </div>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th className="px-3 py-2">Produit</th>
+                <th className="px-3 py-2">Marque</th>
+                <th className="px-3 py-2">Taille/Age</th>
+                <th className="px-3 py-2">Categorie</th>
+                <th className="px-3 py-2">Saison</th>
+                <th className="px-3 py-2">Emplacement</th>
+                <th className="px-3 py-2">Etat</th>
+                <th className="px-3 py-2">Prix</th>
+                <th className="px-3 py-2">Statut</th>
+                <th className="px-3 py-2">Ajoute</th>
+                <th className="px-3 py-2">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.rows.map((product) => (
+                <tr key={product.id} className="border-t border-slate-100">
+                  <td className="px-3 py-2 font-medium">{product.title}</td>
+                  <td className="px-3 py-2">{product.brand ?? "-"}</td>
+                  <td className="px-3 py-2">
+                    {product.size_label ?? "-"} / {product.age_range ?? "-"}
+                  </td>
+                  <td className="px-3 py-2">{getProductCategoryLabel(product.categorie)}</td>
+                  <td className="px-3 py-2">{getProductSeasonLabel(product.season)}</td>
+                  <td className="px-3 py-2">{product.stock_location ?? "-"}</td>
+                  <td className="px-3 py-2">{getProductConditionLabel(product.condition)}</td>
+                  <td className="px-3 py-2">{toChf(product.price_cents)}</td>
+                  <td className="px-3 py-2">
+                    <span className={`admin-status ${product.status}`}>{getProductStatusLabel(product.status)}</span>
+                  </td>
+                  <td className="px-3 py-2">{new Date(product.created_at).toLocaleDateString("fr-FR")}</td>
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-3">
+                      <Link href={`/admin/products/${product.id}`} className="font-semibold text-slate-900 underline underline-offset-4">
+                        Editer
+                      </Link>
+                      <DeleteProductButton productId={product.id} productName={product.title} />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {data.rows.length === 0 ? <p className="p-4 text-sm text-slate-500">Aucun produit.</p> : null}
       </section>
 

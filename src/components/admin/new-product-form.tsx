@@ -44,15 +44,15 @@ function FormSection({
 }: {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm">
+    <section className="admin-card p-4">
       <div className="mb-4">
-        <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{eyebrow}</p>
-        <h2 className="mt-1 text-xl font-black text-slate-950">{title}</h2>
-        <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-600">{description}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{eyebrow}</p>
+        <h2 className="mt-1 text-lg font-bold text-slate-950">{title}</h2>
+        {description ? <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">{description}</p> : null}
       </div>
       {children}
     </section>
@@ -69,15 +69,15 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-black text-slate-800">
+    <label className="grid gap-1.5 text-sm font-semibold text-slate-800">
       {label}
       {children}
-      {hint ? <span className="text-xs font-semibold leading-5 text-slate-500">{hint}</span> : null}
+      {hint ? <span className="text-xs font-normal leading-5 text-slate-500">{hint}</span> : null}
     </label>
   );
 }
 
-const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-950";
+const inputClass = "rounded-md border border-slate-200 bg-white px-3 py-2.5 text-sm font-normal text-slate-950";
 const textareaClass = `${inputClass} min-h-28 font-normal leading-6`;
 const selectClass = inputClass;
 
@@ -212,11 +212,7 @@ export function NewProductForm() {
 
   return (
     <form onSubmit={submit} className="mt-6 grid gap-5">
-      <FormSection
-        eyebrow="01 - Identification"
-        title="Ce que voit le client"
-        description="Nom, marque et description courte. Le titre doit permettre de retrouver rapidement le vêtement dans l'admin."
-      >
+      <FormSection eyebrow="01 - Identification" title="Fiche produit">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.55fr)]">
           <Field label="Nom du vêtement">
             <input
@@ -224,7 +220,7 @@ export function NewProductForm() {
               minLength={3}
               value={form.title}
               onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-              placeholder="Ex: T-shirt rayé manches courtes"
+              placeholder="Nom"
               className={inputClass}
             />
           </Field>
@@ -232,16 +228,16 @@ export function NewProductForm() {
             <input
               value={form.brand}
               onChange={(event) => setForm((prev) => ({ ...prev, brand: event.target.value }))}
-              placeholder="Ex: Zara"
+              placeholder="Marque"
               className={inputClass}
             />
           </Field>
           <div className="lg:col-span-2">
-            <Field label="Description" hint="Quelques détails visibles: coupe, matière, particularité, petit défaut s'il y en a un.">
+            <Field label="Description">
               <textarea
                 value={form.description}
                 onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
-                placeholder="Ex: Très joli t-shirt léger, parfait pour l'été. Aucun trou, aucune tache."
+                placeholder="Description"
                 className={textareaClass}
               />
             </Field>
@@ -249,13 +245,9 @@ export function NewProductForm() {
         </div>
       </FormSection>
 
-      <FormSection
-        eyebrow="02 - Prix"
-        title="Prix de vente et prix supposé neuf"
-        description="Saisis les montants en CHF. Le site convertit automatiquement en centimes pour Supabase."
-      >
+      <FormSection eyebrow="02 - Prix" title="Prix">
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Prix de vente (CHF)" hint="Prix affiché et payé par le client.">
+          <Field label="Prix de vente (CHF)">
             <input
               type="number"
               min={0.5}
@@ -263,11 +255,11 @@ export function NewProductForm() {
               inputMode="decimal"
               value={centsToChfInput(form.price_cents)}
               onChange={(event) => setForm((prev) => ({ ...prev, price_cents: chfInputToCents(event.target.value) }))}
-              placeholder="Ex: 8.00"
+              placeholder="8.00"
               className={inputClass}
             />
           </Field>
-          <Field label="Prix supposé neuf (CHF)" hint="Optionnel. Il s'affiche comme prix barré sur la fiche produit.">
+          <Field label="Prix neuf (CHF)">
             <input
               type="number"
               min={0}
@@ -275,18 +267,14 @@ export function NewProductForm() {
               inputMode="decimal"
               value={centsToChfInput(form.compare_at_price_cents)}
               onChange={(event) => setForm((prev) => ({ ...prev, compare_at_price_cents: chfInputToCents(event.target.value) }))}
-              placeholder="Ex: 24.90"
+              placeholder="24.90"
               className={inputClass}
             />
           </Field>
         </div>
       </FormSection>
 
-      <FormSection
-        eyebrow="03 - Classement"
-        title="Catalogue et filtres boutique"
-        description="Ces champs alimentent les filtres côté client et la recherche interne."
-      >
+      <FormSection eyebrow="03 - Classement" title="Catalogue">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <Field label="Catégorie">
             <select value={form.categorie} onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))} className={selectClass}>
@@ -319,7 +307,7 @@ export function NewProductForm() {
             <input
               value={form.size_label}
               onChange={(event) => setForm((prev) => ({ ...prev, size_label: event.target.value }))}
-              placeholder="Ex: 5 ans"
+              placeholder="Taille"
               className={inputClass}
             />
           </Field>
@@ -334,11 +322,7 @@ export function NewProductForm() {
         </div>
       </FormSection>
 
-      <FormSection
-        eyebrow="04 - État et stock"
-        title="Qualité, détails et emplacement physique"
-        description="Cette partie sert autant à la boutique qu'à la gestion du local."
-      >
+      <FormSection eyebrow="04 - Stock" title="Etat et stock">
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="État du vêtement">
             <select value={form.condition} onChange={(event) => setForm((prev) => ({ ...prev, condition: event.target.value }))} className={selectClass}>
@@ -349,11 +333,11 @@ export function NewProductForm() {
               ))}
             </select>
           </Field>
-          <Field label="Emplacement dans le local" hint="Ex: Étagère A / Bac 3 / Réf MG-00045">
+          <Field label="Emplacement">
             <input
               value={form.stock_location}
               onChange={(event) => setForm((prev) => ({ ...prev, stock_location: event.target.value }))}
-              placeholder="Étagère A / Bac 3 / Réf MG-00045"
+              placeholder="Emplacement"
               className={inputClass}
             />
           </Field>
@@ -361,7 +345,7 @@ export function NewProductForm() {
             <input
               value={form.couleur}
               onChange={(event) => setForm((prev) => ({ ...prev, couleur: event.target.value }))}
-              placeholder="Ex: Bleu"
+              placeholder="Couleur"
               className={inputClass}
             />
           </Field>
@@ -369,31 +353,23 @@ export function NewProductForm() {
             <input
               value={form.matiere}
               onChange={(event) => setForm((prev) => ({ ...prev, matiere: event.target.value }))}
-              placeholder="Ex: Coton"
+              placeholder="Matiere"
               className={inputClass}
             />
           </Field>
         </div>
       </FormSection>
 
-      <FormSection
-        eyebrow="05 - Photos"
-        title="Recto, verso et détails"
-        description="Ajoute jusqu'à 6 images. Les deux premières servent de repères recto/verso."
-      >
-        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 p-4">
-          <input type="file" accept="image/*" multiple onChange={onImagesChange} className="w-full text-sm font-semibold" />
-          <p className="mt-2 text-xs font-semibold text-slate-500">{images.length}/6 image(s) sélectionnée(s).</p>
+      <FormSection eyebrow="05 - Photos" title="Photos">
+        <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-4">
+          <input type="file" accept="image/*" multiple onChange={onImagesChange} className="w-full text-sm" />
+          <p className="mt-2 text-xs text-slate-500">{images.length}/6 image(s) sélectionnée(s).</p>
         </div>
       </FormSection>
 
-      <FormSection
-        eyebrow="06 - Publication"
-        title="Visibilité et mise en avant"
-        description="Une fiche peut être créée pour le stock sans être publiée en boutique."
-      >
+      <FormSection eyebrow="06 - Publication" title="Publication">
         <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_260px]">
-          <Field label="Statut de visibilité" hint="Seul le statut En ligne affiche la fiche sur le site.">
+          <Field label="Statut">
             <select value={form.status} onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))} className={selectClass}>
               {productStatusOptions.map((statusOption) => (
                 <option key={statusOption.value} value={statusOption.value}>
@@ -402,7 +378,7 @@ export function NewProductForm() {
               ))}
             </select>
           </Field>
-          <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800">
+          <label className="flex items-center gap-3 rounded-md border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800">
             <input
               type="checkbox"
               checked={form.mis_en_avant}
@@ -413,15 +389,14 @@ export function NewProductForm() {
         </div>
       </FormSection>
 
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-[0_18px_50px_rgba(35,29,21,0.16)] backdrop-blur">
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur">
         <div>
-          <p className="text-sm font-black text-slate-950">Prêt à enregistrer ?</p>
-          <p className="text-xs font-semibold text-slate-500">La fiche sera créée avec le statut sélectionné.</p>
+          <p className="text-sm font-bold text-slate-950">Pret a enregistrer ?</p>
         </div>
-        <button type="submit" disabled={isSubmitting} className="rounded-full bg-slate-900 px-6 py-3 text-sm font-black text-white disabled:opacity-60">
+        <button type="submit" disabled={isSubmitting} className="rounded-md bg-slate-900 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60">
           {isSubmitting ? "Enregistrement..." : "Enregistrer le vêtement"}
         </button>
-        {status ? <p className="w-full text-sm font-semibold text-slate-600">{status}</p> : null}
+        {status ? <p className="w-full text-sm text-slate-600">{status}</p> : null}
       </div>
     </form>
   );

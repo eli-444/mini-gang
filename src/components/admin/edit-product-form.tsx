@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -198,14 +198,14 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         value={form.title}
         onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
         placeholder="Nom du vetement"
-        className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        className="rounded-md border border-slate-200 px-3 py-2 text-sm"
       />
 
       <textarea
         value={form.description}
         onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
         placeholder="Description"
-        className="min-h-28 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        className="min-h-28 rounded-md border border-slate-200 px-3 py-2 text-sm"
       />
 
       <div className="grid gap-2 md:grid-cols-2">
@@ -213,7 +213,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           value={form.brand}
           onChange={(event) => setForm((prev) => ({ ...prev, brand: event.target.value }))}
           placeholder="Marque"
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         />
         <label className="grid gap-1 text-xs font-semibold text-slate-600">
           Prix de vente (CHF)
@@ -223,8 +223,8 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
             step={0.05}
             value={centsToChfInput(form.price_cents)}
             onChange={(event) => setForm((prev) => ({ ...prev, price_cents: chfInputToCents(event.target.value) }))}
-            placeholder="Ex: 8.00"
-            className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900"
+            placeholder="8.00"
+            className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900"
           />
         </label>
         <label className="grid gap-1 text-xs font-semibold text-slate-600">
@@ -235,8 +235,8 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
             step={0.05}
             value={centsToChfInput(form.compare_at_price_cents)}
             onChange={(event) => setForm((prev) => ({ ...prev, compare_at_price_cents: chfInputToCents(event.target.value) }))}
-            placeholder="Ex: 24.90"
-            className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900"
+            placeholder="24.90"
+            className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900"
           />
         </label>
       </div>
@@ -245,7 +245,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         <select
           value={form.categorie}
           onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))}
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         >
           {productCategoryOptions.map((category) => (
             <option key={category.value} value={category.value}>
@@ -259,7 +259,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         <select
           value={form.saison}
           onChange={(event) => setForm((prev) => ({ ...prev, saison: event.target.value }))}
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         >
           {productSeasonOptions.map((season) => (
             <option key={season.value} value={season.value}>
@@ -270,7 +270,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         <select
           value={form.age_range}
           onChange={(event) => setForm((prev) => ({ ...prev, age_range: event.target.value }))}
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         >
           {ageRangeOptions.map((age) => (
             <option key={age} value={age}>
@@ -282,12 +282,12 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           value={form.size_label}
           onChange={(event) => setForm((prev) => ({ ...prev, size_label: event.target.value }))}
           placeholder="Taille"
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         />
         <select
           value={form.sex}
           onChange={(event) => setForm((prev) => ({ ...prev, sex: event.target.value }))}
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         >
           <option value="mixte">Mixte</option>
           <option value="femme">Femme</option>
@@ -301,28 +301,28 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           value={form.couleur}
           onChange={(event) => setForm((prev) => ({ ...prev, couleur: event.target.value }))}
           placeholder="Couleur"
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         />
         <input
           value={form.matiere}
           onChange={(event) => setForm((prev) => ({ ...prev, matiere: event.target.value }))}
           placeholder="Matiere"
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         />
       </div>
 
       <input
         value={form.stock_location}
         onChange={(event) => setForm((prev) => ({ ...prev, stock_location: event.target.value }))}
-        placeholder="Emplacement: Etagere A / Bac 3 / Ref MG-00045"
-        className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+        placeholder="Emplacement"
+        className="rounded-md border border-slate-200 px-3 py-2 text-sm"
       />
 
       <div className="grid gap-2 md:grid-cols-2">
         <select
           value={form.condition}
           onChange={(event) => setForm((prev) => ({ ...prev, condition: event.target.value }))}
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         >
           {productConditionOptions.map((condition) => (
             <option key={condition.value} value={condition.value}>
@@ -333,7 +333,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         <select
           value={form.status}
           onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
-          className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         >
           {adminProductStatusOptions.map((statusOption) => (
             <option key={statusOption.value} value={statusOption.value}>
@@ -342,10 +342,6 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           ))}
         </select>
       </div>
-      <p className="text-xs text-slate-500">
-        Visibilite boutique: seul le statut <strong>En ligne</strong> affiche la fiche sur le site.
-      </p>
-
       <label className="flex items-center gap-2 text-sm text-slate-700">
         <input
           type="checkbox"
@@ -355,11 +351,11 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         Mettre en avant
       </label>
 
-      <div className="rounded-xl border border-slate-200 p-3">
+      <div className="rounded-md border border-slate-200 p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-semibold text-slate-900">Images</h3>
-            <p className="text-xs text-slate-500">{currentImages.length}/6 image(s) enregistree(s). Image 1: recto, image 2: verso.</p>
+            <p className="text-xs text-slate-500">{currentImages.length}/6 image(s)</p>
           </div>
           {remainingImageSlots > 0 ? (
             <p className="text-xs text-slate-500">{remainingImageSlots} emplacement(s) restant(s)</p>
@@ -369,7 +365,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         {currentImages.length > 0 ? (
           <div className="mt-3 grid grid-cols-3 gap-2">
             {currentImages.map((image) => (
-              <div key={image.id} className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+              <div key={image.id} className="overflow-hidden rounded-md border border-slate-200 bg-slate-50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imageSrc(image.url)} alt={product.nom} className="h-28 w-full object-cover" />
               </div>
@@ -386,7 +382,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
               type="button"
               disabled={isUploading || images.length === 0}
               onClick={uploadImages}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold disabled:opacity-60"
             >
               {isUploading ? "Upload..." : `Ajouter ${images.length || ""} image(s)`}
             </button>
@@ -398,7 +394,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
         >
           {isSubmitting ? "Enregistrement..." : "Enregistrer les modifications"}
         </button>
@@ -407,3 +403,4 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
     </form>
   );
 }
+

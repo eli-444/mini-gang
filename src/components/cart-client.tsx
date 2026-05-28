@@ -285,24 +285,10 @@ export function CartClient({
         <div>
           <h1 className="text-3xl font-black leading-tight text-[var(--mg-on-dark)] md:text-5xl">Panier</h1>
         </div>
-        <p className="max-w-md text-sm font-semibold leading-6 text-[var(--mg-on-dark-muted)]">
-          Les champs marqués <RequiredMark /> sont obligatoires. Le paiement carte s&apos;affiche directement ici après validation.
-        </p>
       </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_430px]">
         <div className="space-y-5">
-        {false ? (
-          <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
-            <div className="mb-4">
-              <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Paiement</p>
-              <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Formulaire securise Stripe</h2>
-              <p className="mt-1 text-sm font-semibold text-[var(--mg-ink)]/65">Votre vetement est reserve pendant que vous finalisez le paiement.</p>
-            </div>
-            {isStripeLoading ? <p className="text-sm font-semibold text-[var(--mg-ink)]/70">Chargement du formulaire Stripe...</p> : null}
-            <div id="stripe-embedded-checkout" className="min-h-[560px]" />
-          </section>
-        ) : null}
         <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -317,7 +303,6 @@ export function CartClient({
           {products.length === 0 ? (
             <div className="mt-5 rounded-lg border border-dashed border-black/10 p-5">
               <p className="text-sm font-semibold text-[var(--mg-ink)]">Votre panier est vide.</p>
-              <p className="mt-1 text-xs leading-5 text-[var(--mg-ink)]/60">Les pièces ajoutées depuis la boutique apparaîtront ici.</p>
             </div>
           ) : null}
 
@@ -367,7 +352,6 @@ export function CartClient({
             <div className="mb-4">
               <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Paiement</p>
               <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Formulaire securise Stripe</h2>
-              <p className="mt-1 text-sm font-semibold text-[var(--mg-ink)]/65">Votre vetement est reserve pendant que vous finalisez le paiement.</p>
             </div>
             {isStripeLoading ? <p className="text-sm font-semibold text-[var(--mg-ink)]/70">Chargement du formulaire Stripe...</p> : null}
             <div id="stripe-embedded-checkout" className="min-h-[560px]" />
@@ -535,17 +519,6 @@ export function CartClient({
         </aside>
       </div>
 
-      {false ? (
-        <section className="mt-6 rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
-          <div className="mb-4">
-            <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Étape 4</p>
-            <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Paiement sécurisé Stripe</h2>
-            <p className="mt-1 text-sm font-semibold text-[var(--mg-ink)]/65">Votre vêtement est réservé pendant que vous finalisez le paiement.</p>
-          </div>
-          {isStripeLoading ? <p className="text-sm font-semibold text-[var(--mg-ink)]/70">Chargement du formulaire Stripe...</p> : null}
-          <div id="stripe-embedded-checkout" className="min-h-[560px]" />
-        </section>
-      ) : null}
     </div>
   );
 }

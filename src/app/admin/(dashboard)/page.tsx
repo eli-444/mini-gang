@@ -2,21 +2,50 @@ import Link from "next/link";
 import { getDashboardMetrics } from "@/lib/admin-data";
 import { toChf } from "@/lib/utils";
 
-function MetricCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
+type MetricCardProps = {
+  label: string;
+  value: string;
+};
+
+type ProgressLineProps = {
+  label: string;
+  value: number;
+  max: number;
+  tone?: string;
+};
+
+function MetricCard({ label, value }: MetricCardProps) {
   return (
-    <article className="admin-kpi p-4 transition hover:-translate-y-0.5">
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</p>
-      <p className="mt-2 text-3xl font-black text-slate-900">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
+    <article className="admin-kpi p-4">
+      <p className="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-3 text-3xl font-bold text-slate-950">{value}</p>
     </article>
   );
 }
 
-function ActionLink({ href, label, hint }: { href: string; label: string; hint: string }) {
+function ProgressLine({ label, value, max, tone = "bg-[#164f31]" }: ProgressLineProps) {
+  const percent = max > 0 ? Math.max(4, Math.round((value / max) * 100)) : 0;
+
   return (
-    <Link href={href} className="block rounded-2xl border border-slate-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white">
-      <span className="block text-base font-black text-slate-900">{label}</span>
-      <span className="mt-1 block text-sm font-semibold leading-5 text-slate-500">{hint}</span>
+    <div className="grid gap-2">
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="font-semibold text-slate-700">{label}</span>
+        <span className="font-bold text-slate-950">{value}</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+        <div className={`h-full rounded-full ${tone}`} style={{ width: `${percent}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function ActionLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="group block border-b border-slate-200 py-3 text-sm font-bold text-slate-950 last:border-b-0 hover:text-[#164f31]"
+    >
+      {label}
     </Link>
   );
 }
@@ -24,23 +53,40 @@ function ActionLink({ href, label, hint }: { href: string; label: string; hint: 
 export default async function AdminDashboardPage() {
   const metrics = await getDashboardMetrics(30);
 
+  const orderLines = [
+    { label: "En attente", value: metrics.ordersByStatus.en_attente, tone: "bg-amber-400" },
+    { label: "Payees", value: metrics.ordersByStatus.payee, tone: "bg-emerald-500" },
+    { label: "Preparees", value: metrics.ordersByStatus.preparee, tone: "bg-sky-500" },
+    { label: "Envoyees", value: metrics.ordersByStatus.envoyee, tone: "bg-indigo-500" },
+    { label: "Livrees", value: metrics.ordersByStatus.livree, tone: "bg-slate-700" },
+    {
+      label: "Annulees / remboursees",
+      value: metrics.ordersByStatus.annulee + metrics.ordersByStatus.remboursee,
+      tone: "bg-rose-400",
+    },
+  ];
+  const maxOrders = Math.max(...orderLines.map((line) => line.value), 1);
+
+  const stockLines = [
+    { label: "En ligne", value: metrics.stock.active, tone: "bg-[#164f31]" },
+    { label: "Brouillons", value: metrics.stock.draft, tone: "bg-amber-400" },
+    { label: "Reserves", value: metrics.stock.reserved, tone: "bg-sky-500" },
+    { label: "Hors ligne", value: metrics.stock.offline, tone: "bg-slate-400" },
+    { label: "Vendus", value: metrics.stock.sold, tone: "bg-indigo-500" },
+    { label: "Archives", value: metrics.stock.archived, tone: "bg-slate-700" },
+  ];
+  const maxStock = Math.max(...stockLines.map((line) => line.value), 1);
+
   return (
-    <div className="space-y-6">
-      <div className="admin-card overflow-hidden p-0">
-        <div className="grid gap-4 border-b border-slate-200 bg-white/65 px-5 py-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Administration</p>
-            <h1 className="mt-1 text-3xl font-black text-slate-900 md:text-4xl">Tableau de bord</h1>
-            <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-slate-600">
-              Une vue simple pour piloter la boutique, préparer les commandes et garder le stock du local propre.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Priorité du jour</p>
-            <p className="mt-2 text-2xl font-black text-slate-950">{metrics.alerts.paidToPrepare} commande(s) à préparer</p>
-            <p className="mt-1 text-sm font-semibold text-slate-600">À vérifier avant les nouvelles fiches produit.</p>
-          </div>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Vue globale</p>
+          <h1 className="mt-1 text-2xl font-bold text-slate-950 md:text-3xl">Tableau de bord</h1>
         </div>
+        <Link href="/admin/products/new" className="rounded-md bg-[#164f31] px-4 py-2 text-sm font-bold text-white">
+          Ajouter un vetement
+        </Link>
       </div>
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -50,48 +96,65 @@ export default async function AdminDashboardPage() {
         <MetricCard label="Articles en ligne" value={String(metrics.stock.active)} />
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.75fr)]">
         <article className="admin-card p-5">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Raccourcis</p>
-          <h2 className="mt-1 text-xl font-black text-slate-950">Actions utiles</h2>
-          <div className="mt-4 grid gap-3">
-            <ActionLink href="/admin/products/new" label="Ajouter une fiche vetement" hint="Creer un article pour le stock ou la boutique." />
-            <ActionLink href="/admin/products" label="Gerer les vetements" hint="Modifier les fiches, statuts, prix, photos et emplacements." />
-            <ActionLink href="/admin/orders" label="Suivre les commandes" hint="Voir les commandes payees, preparees ou envoyees." />
-            <ActionLink href="/admin/settings" label="Reglages boutique" hint="Ouvrir ou fermer les commandes et le rachat." />
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Commandes</p>
+              <h2 className="mt-1 text-lg font-bold text-slate-950">Statuts des 30 derniers jours</h2>
+            </div>
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-500">
+              {metrics.cards.ordersPending} en attente
+            </span>
+          </div>
+          <div className="mt-6 grid gap-4">
+            {orderLines.map((line) => (
+              <ProgressLine key={line.label} label={line.label} value={line.value} max={maxOrders} tone={line.tone} />
+            ))}
           </div>
         </article>
 
         <article className="admin-card p-5">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Contrôle</p>
-          <h2 className="mt-1 text-xl font-black text-slate-950">À surveiller</h2>
-          <div className="mt-4 grid gap-2 text-sm">
-            <div className="flex items-center justify-between rounded-md bg-slate-50 p-3">
-              <span>Commandes a preparer</span>
-              <strong>{metrics.alerts.paidToPrepare}</strong>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Priorites</p>
+          <h2 className="mt-1 text-lg font-bold text-slate-950">A verifier ce jour</h2>
+          <div className="mt-5 grid gap-3">
+            <div className="rounded-md border border-slate-200 p-3">
+              <p className="text-2xl font-bold text-slate-950">{metrics.alerts.paidToPrepare}</p>
+              <p className="text-sm text-slate-500">commande(s) a preparer</p>
             </div>
-            <div className="flex items-center justify-between rounded-md bg-slate-50 p-3">
-              <span>Vetements reserves</span>
-              <strong>{metrics.alerts.reservedProducts}</strong>
+            <div className="rounded-md border border-slate-200 p-3">
+              <p className="text-2xl font-bold text-slate-950">{metrics.alerts.reservedProducts}</p>
+              <p className="text-sm text-slate-500">vetement(s) reserves</p>
             </div>
-            <div className="flex items-center justify-between rounded-md bg-slate-50 p-3">
-              <span>Brouillons catalogue</span>
-              <strong>{metrics.alerts.draftProducts}</strong>
+            <div className="rounded-md border border-slate-200 p-3">
+              <p className="text-2xl font-bold text-slate-950">{metrics.alerts.draftProducts}</p>
+              <p className="text-sm text-slate-500">brouillon(s) a completer</p>
             </div>
           </div>
         </article>
       </section>
 
-      <section className="admin-card p-5">
-        <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Inventaire</p>
-        <h2 className="mt-1 text-xl font-black text-slate-950">Santé du stock</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-5">
-          <MetricCard label="En ligne" value={String(metrics.stock.active)} />
-          <MetricCard label="Reserve" value={String(metrics.stock.reserved)} />
-          <MetricCard label="Vendu" value={String(metrics.stock.sold)} />
-          <MetricCard label="Brouillon" value={String(metrics.stock.draft)} />
-          <MetricCard label="Archive" value={String(metrics.stock.archived)} />
-        </div>
+      <section className="grid gap-4 xl:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.15fr)]">
+        <article className="admin-card p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Stock</p>
+          <h2 className="mt-1 text-lg font-bold text-slate-950">Repartition des fiches</h2>
+          <div className="mt-6 grid gap-4">
+            {stockLines.map((line) => (
+              <ProgressLine key={line.label} label={line.label} value={line.value} max={maxStock} tone={line.tone} />
+            ))}
+          </div>
+        </article>
+
+        <article className="admin-card p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Acces rapides</p>
+          <h2 className="mt-1 text-lg font-bold text-slate-950">Operations courantes</h2>
+          <div className="mt-4">
+            <ActionLink href="/admin/products/new" label="Ajouter une fiche vetement" />
+            <ActionLink href="/admin/products" label="Gerer le stock" />
+            <ActionLink href="/admin/orders" label="Suivre les commandes" />
+            <ActionLink href="/admin/settings" label="Reglages boutique" />
+          </div>
+        </article>
       </section>
     </div>
   );

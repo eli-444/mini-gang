@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -126,7 +126,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
 
   return (
     <form onSubmit={submit} className="mt-4 grid gap-4">
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold uppercase text-slate-500">Boutique</h3>
@@ -141,7 +141,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             type="button"
             onClick={toggleShop}
             disabled={isSubmitting || isUploading}
-            className={`rounded-full px-5 py-2 text-sm font-semibold text-white disabled:opacity-60 ${
+            className={`rounded-md px-5 py-2 text-sm font-semibold text-white disabled:opacity-60 ${
               form.shop_enabled ? "bg-slate-900" : "bg-emerald-700"
             }`}
           >
@@ -154,7 +154,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             <textarea
               value={form.shop_closed_message}
               onChange={(event) => setForm((prev) => ({ ...prev, shop_closed_message: event.target.value }))}
-              className="min-h-20 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+              className="min-h-20 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
             />
           </label>
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
@@ -163,13 +163,13 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
               type="date"
               value={form.shop_reopen_date}
               onChange={(event) => setForm((prev) => ({ ...prev, shop_reopen_date: event.target.value }))}
-              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+              className="rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
             />
           </label>
         </div>
       </div>
 
-      <label className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-sm font-semibold text-slate-700">
+      <label className="flex items-center gap-2 rounded-md border border-slate-200 p-3 text-sm font-semibold text-slate-700">
         <input
           type="checkbox"
           checked={form.home_event_enabled}
@@ -184,8 +184,8 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
           <input
             value={form.home_event_title}
             onChange={(event) => setForm((prev) => ({ ...prev, home_event_title: event.target.value }))}
-            placeholder="Pop-up Mini Gang, marche, depot special..."
-            className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            placeholder="Titre"
+            className="rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
           />
         </label>
         <label className="grid gap-1 text-sm font-semibold text-slate-700">
@@ -194,7 +194,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             value={form.home_event_cta_url}
             onChange={(event) => setForm((prev) => ({ ...prev, home_event_cta_url: event.target.value }))}
             placeholder="https://... ou /contact"
-            className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            className="rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
           />
         </label>
       </div>
@@ -205,8 +205,8 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
           <textarea
             value={form.home_event_text}
             onChange={(event) => setForm((prev) => ({ ...prev, home_event_text: event.target.value }))}
-            placeholder="Quelques lignes pour annoncer l'evenement sur la homepage."
-            className="min-h-32 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            placeholder="Description"
+            className="min-h-32 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
           />
         </label>
         <div className="grid gap-2">
@@ -215,28 +215,28 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             <input
               value={form.home_event_cta_label}
               onChange={(event) => setForm((prev) => ({ ...prev, home_event_cta_label: event.target.value }))}
-              placeholder="Voir l&apos;event"
-              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+              placeholder="Bouton"
+              className="rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
             />
           </label>
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
             Image
-            <input type="file" accept="image/*" onChange={onImageChange} className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal" />
+            <input type="file" accept="image/*" onChange={onImageChange} className="rounded-md border border-slate-200 px-3 py-2 text-sm font-normal" />
           </label>
           {previewImage ? (
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+            <div className="overflow-hidden rounded-md border border-slate-200 bg-slate-50">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={previewImage} alt="Apercu event" className="h-36 w-full object-cover" />
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-slate-200 p-4 text-xs text-slate-500">Aucune image d&apos;event chargee.</div>
+            <div className="rounded-md border border-dashed border-slate-200 p-4 text-xs text-slate-500">Aucune image d&apos;event chargee.</div>
           )}
         </div>
       </div>
 
       <div className="border-t border-slate-200 pt-4">
         <h3 className="text-sm font-semibold uppercase text-slate-500">Rachat / depot</h3>
-        <label className="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-sm font-semibold text-slate-700">
+        <label className="mt-3 flex items-center gap-2 rounded-md border border-slate-200 p-3 text-sm font-semibold text-slate-700">
           <input
             type="checkbox"
             checked={form.sell_service_enabled}
@@ -249,7 +249,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
           <textarea
             value={form.sell_closed_message}
             onChange={(event) => setForm((prev) => ({ ...prev, sell_closed_message: event.target.value }))}
-            className="min-h-20 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+            className="min-h-20 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
           />
         </label>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
@@ -258,8 +258,8 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             <textarea
               value={form.sell_conditions_text}
               onChange={(event) => setForm((prev) => ({ ...prev, sell_conditions_text: event.target.value }))}
-              placeholder="Minimum 10 vetements, maximum 50, etats acceptes..."
-              className="min-h-32 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+              placeholder="Conditions"
+              className="min-h-32 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
             />
           </label>
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
@@ -267,8 +267,8 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             <textarea
               value={form.sell_refused_brands_text}
               onChange={(event) => setForm((prev) => ({ ...prev, sell_refused_brands_text: event.target.value }))}
-              placeholder="Liste a integrer plus tard"
-              className="min-h-32 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+              placeholder="Liste"
+              className="min-h-32 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
             />
           </label>
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
@@ -276,8 +276,8 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             <textarea
               value={form.sell_explanation_text}
               onChange={(event) => setForm((prev) => ({ ...prev, sell_explanation_text: event.target.value }))}
-              placeholder="Comment preparer le colis, criteres, delais..."
-              className="min-h-32 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+              placeholder="Explications"
+              className="min-h-32 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
             />
           </label>
         </div>
@@ -285,7 +285,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
 
       <div className="border-t border-slate-200 pt-4">
         <h3 className="text-sm font-semibold uppercase text-slate-500">Commandes</h3>
-        <label className="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-sm font-semibold text-slate-700">
+        <label className="mt-3 flex items-center gap-2 rounded-md border border-slate-200 p-3 text-sm font-semibold text-slate-700">
           <input
             type="checkbox"
             checked={form.orders_enabled}
@@ -299,7 +299,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             <textarea
               value={form.orders_closed_message}
               onChange={(event) => setForm((prev) => ({ ...prev, orders_closed_message: event.target.value }))}
-              className="min-h-20 rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+              className="min-h-20 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
             />
           </label>
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
@@ -308,7 +308,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
               type="date"
               value={form.orders_reopen_date}
               onChange={(event) => setForm((prev) => ({ ...prev, orders_reopen_date: event.target.value }))}
-              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal"
+              className="rounded-md border border-slate-200 px-3 py-2 text-sm font-normal"
             />
           </label>
         </div>
@@ -318,7 +318,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
         <button
           type="submit"
           disabled={isSubmitting || isUploading}
-          className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          className="rounded-md bg-slate-900 px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
         >
           {isSubmitting ? "Enregistrement..." : isUploading ? "Upload..." : "Enregistrer le contenu"}
         </button>
@@ -327,3 +327,4 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
     </form>
   );
 }
+
