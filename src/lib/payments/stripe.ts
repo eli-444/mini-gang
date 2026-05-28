@@ -6,7 +6,7 @@ interface StripeCheckoutOptions {
   currency: string;
   idempotencyKey: string;
   paymentMethodTypes: string[];
-  uiMode?: "hosted" | "embedded";
+  uiMode?: "hosted" | "embedded_page";
 }
 
 type StripeErrorPayload = {
@@ -68,8 +68,8 @@ export async function createStripeCheckoutSession(
     "payment_intent_data[metadata][orderId]": input.orderId,
   });
 
-  if (options.uiMode === "embedded") {
-    formData.append("ui_mode", "embedded");
+  if (options.uiMode === "embedded_page") {
+    formData.append("ui_mode", "embedded_page");
     formData.append("return_url", `${input.successUrl}?order_id=${input.orderId}&session_id={CHECKOUT_SESSION_ID}`);
   } else {
     formData.append("success_url", `${input.successUrl}?order_id=${input.orderId}`);
@@ -111,10 +111,10 @@ export async function createStripeCheckoutSession(
   }
 
   const session = (await response.json()) as { id: string; url?: string; client_secret?: string };
-  if (options.uiMode === "embedded" && !session.client_secret) {
+  if (options.uiMode === "embedded_page" && !session.client_secret) {
     throw new Error("Stripe checkout response missing embedded client secret.");
   }
-  if (options.uiMode !== "embedded" && !session.url) {
+  if (options.uiMode !== "embedded_page" && !session.url) {
     throw new Error("Stripe checkout response missing redirect URL.");
   }
 
@@ -137,7 +137,7 @@ export class StripeProvider implements PaymentProvider {
       currency: SHOP_CURRENCY_LOWER,
       idempotencyKey: `checkout_card_${input.orderId}`,
       paymentMethodTypes: ["card"],
-      uiMode: "embedded",
+      uiMode: "embedded_page",
     });
   }
 
