@@ -15,10 +15,7 @@ export default async function MonCompteProfilPage() {
   return (
     <section className="bg-[var(--mg-surface)] px-5 py-6 text-[var(--mg-ink)] md:px-8 md:py-8">
       <div className="max-w-3xl">
-        <h2 className="text-2xl font-black leading-tight md:text-3xl">Profil client</h2>
-        <p className="mt-3 text-base font-semibold leading-7 text-[var(--mg-ink)]/70 md:text-lg">
-          Mettez a jour les informations utiles pour vos commandes. L&apos;email reste verrouille pour proteger le compte.
-        </p>
+        <h2 className="text-2xl font-black leading-tight md:text-3xl">Profil</h2>
       </div>
       <div className="mt-8 max-w-4xl">
         <ProfileForm

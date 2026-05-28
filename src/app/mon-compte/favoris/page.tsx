@@ -10,12 +10,9 @@ export default async function MonCompteFavorisPage() {
   return (
     <section className="bg-[var(--mg-surface)] px-5 py-6 text-[var(--mg-ink)] md:px-8 md:py-8">
       <h2 className="text-2xl font-black leading-tight md:text-3xl">Mes favoris</h2>
-      <p className="mt-3 max-w-3xl text-base font-semibold leading-7 text-[var(--mg-ink)]/70 md:text-lg">
-        Gardez de cote les pieces reperees dans la boutique et retrouvez-les ici avant de passer commande.
-      </p>
 
       {products.length > 0 ? (
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-7 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} isFavorite />
           ))}

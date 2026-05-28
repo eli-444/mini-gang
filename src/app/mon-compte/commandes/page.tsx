@@ -95,11 +95,8 @@ export default async function MonCompteCommandesPage() {
   return (
     <section className="bg-[var(--mg-surface)] px-5 py-6 text-[var(--mg-ink)] md:px-8 md:py-8">
       <h2 className="text-2xl font-black leading-tight md:text-3xl">Commandes</h2>
-      <p className="mt-3 max-w-3xl text-base font-semibold leading-7 text-[var(--mg-ink)]/70 md:text-lg">
-        Suivez vos commandes en cours et retrouvez votre historique, sans avoir a chercher dans plusieurs petits encarts.
-      </p>
 
-      <div className="mt-8 grid gap-9 lg:grid-cols-2">
+      <div className="mt-7 grid gap-9 lg:grid-cols-2">
         <div>
           <h3 className="mb-4 text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">
             Commandes en cours

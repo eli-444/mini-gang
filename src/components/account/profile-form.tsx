@@ -55,7 +55,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       <div className="border-b-2 border-[var(--mg-ring)] pb-4 md:col-span-2">
         <span className={labelClass}>Email</span>
         <p className="mt-2 text-xl font-black leading-tight text-[var(--mg-ink)] md:text-2xl">{profile.email}</p>
-        <p className="mt-2 text-base font-semibold leading-6 text-[var(--mg-ink)]/60">L&apos;email ne peut pas etre modifie depuis cet espace.</p>
       </div>
 
       <label>

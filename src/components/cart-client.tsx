@@ -282,8 +282,7 @@ export function CartClient({
     <div className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-12">
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[0.68rem] font-black uppercase tracking-[0.16em] text-[var(--mg-pop-rose)]">Commande</p>
-          <h1 className="mt-1 text-3xl font-black leading-tight text-[var(--mg-on-dark)] md:text-5xl">Panier</h1>
+          <h1 className="text-3xl font-black leading-tight text-[var(--mg-on-dark)] md:text-5xl">Panier</h1>
         </div>
         <p className="max-w-md text-sm font-semibold leading-6 text-[var(--mg-on-dark-muted)]">
           Les champs marqués <RequiredMark /> sont obligatoires. Le paiement carte s&apos;affiche directement ici après validation.

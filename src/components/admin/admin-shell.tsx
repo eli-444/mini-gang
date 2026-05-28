@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/brand-logo";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 const navItems = [
   { href: "/admin", label: "Accueil" },
@@ -90,6 +91,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <Link href="/" className="rounded-lg border border-slate-300/80 px-3 py-1.5 text-sm font-semibold text-[#1a1713]">
                   Voir le site
                 </Link>
+                <LogoutButton className="rounded-lg border border-slate-300/80 px-3 py-1.5 text-sm font-semibold text-[#1a1713] transition hover:bg-white disabled:cursor-wait disabled:opacity-60" />
               </div>
             </div>
           </header>

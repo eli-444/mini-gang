@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 const navItems = [
   { href: "/mon-compte/profil", label: "Profil" },
@@ -31,6 +32,7 @@ export function AccountNav() {
           </Link>
         );
       })}
+      <LogoutButton />
     </nav>
   );
 }
