@@ -292,7 +292,7 @@ export function CartClient({
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_430px]">
         <div className="space-y-5">
-        {checkoutClientSecret ? (
+        {false ? (
           <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
             <div className="mb-4">
               <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Paiement</p>
@@ -362,7 +362,7 @@ export function CartClient({
           </div>
         </section>
 
-        {false ? (
+        {checkoutClientSecret ? (
           <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
             <div className="mb-4">
               <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Paiement</p>
