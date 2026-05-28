@@ -291,6 +291,18 @@ export function CartClient({
       </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_430px]">
+        <div className="space-y-5">
+        {checkoutClientSecret ? (
+          <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
+            <div className="mb-4">
+              <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Paiement</p>
+              <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Formulaire securise Stripe</h2>
+              <p className="mt-1 text-sm font-semibold text-[var(--mg-ink)]/65">Votre vetement est reserve pendant que vous finalisez le paiement.</p>
+            </div>
+            {isStripeLoading ? <p className="text-sm font-semibold text-[var(--mg-ink)]/70">Chargement du formulaire Stripe...</p> : null}
+            <div id="stripe-embedded-checkout" className="min-h-[560px]" />
+          </section>
+        ) : null}
         <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -349,6 +361,19 @@ export function CartClient({
             })}
           </div>
         </section>
+
+        {false ? (
+          <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
+            <div className="mb-4">
+              <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Paiement</p>
+              <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Formulaire securise Stripe</h2>
+              <p className="mt-1 text-sm font-semibold text-[var(--mg-ink)]/65">Votre vetement est reserve pendant que vous finalisez le paiement.</p>
+            </div>
+            {isStripeLoading ? <p className="text-sm font-semibold text-[var(--mg-ink)]/70">Chargement du formulaire Stripe...</p> : null}
+            <div id="stripe-embedded-checkout" className="min-h-[560px]" />
+          </section>
+        ) : null}
+        </div>
 
         <aside className="space-y-4">
           <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
@@ -510,7 +535,7 @@ export function CartClient({
         </aside>
       </div>
 
-      {checkoutClientSecret ? (
+      {false ? (
         <section className="mt-6 rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
           <div className="mb-4">
             <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Étape 4</p>
