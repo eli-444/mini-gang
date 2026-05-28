@@ -3,6 +3,9 @@ import { getMerchantPaymentSettings, getTwintRuntimeSettings } from "@/lib/admin
 import { getCheckoutProviderOptions, getDefaultProviderName } from "@/lib/payments";
 import { getSiteContentSettings } from "@/lib/site-content-settings";
 import type { PaymentProviderName } from "@/lib/types";
+import { env } from "@/lib/env";
+
+export const dynamic = "force-dynamic";
 
 export default async function PanierPage() {
   const [paymentSettings, twintRuntime, siteSettings] = await Promise.all([
@@ -27,6 +30,7 @@ export default async function PanierPage() {
       ordersEnabled={siteSettings.orders_enabled}
       ordersClosedMessage={siteSettings.orders_closed_message}
       ordersReopenDate={siteSettings.orders_reopen_date}
+      stripePublishableKey={env.stripePublishableKey}
     />
   );
 }

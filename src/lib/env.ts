@@ -9,6 +9,11 @@ function normalizeEnv(raw: string | undefined): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+const stripeSecretKey = normalizeEnv(process.env.STRIPE_SECRET_KEY);
+const stripePublishableKey =
+  normalizeEnv(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) ?? normalizeEnv(process.env.STRIPE_PUBLIC_KEY);
+const enableStripeFlag = normalizeEnv(process.env.ENABLE_STRIPE);
+
 export const env = {
   supabaseUrl: normalizeEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) ?? "",
   supabaseAnonKey:
@@ -16,11 +21,12 @@ export const env = {
     normalizeEnv(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) ??
     "",
   supabaseServiceRoleKey: normalizeEnv(process.env.SUPABASE_SERVICE_ROLE_KEY),
-  enableStripe: process.env.ENABLE_STRIPE === "true",
+  enableStripe: enableStripeFlag ? enableStripeFlag === "true" : Boolean(stripeSecretKey),
   enableKlarna: process.env.ENABLE_KLARNA === "true",
   enableTwint: process.env.ENABLE_TWINT === "true",
   paymentProviderDefault: normalizeEnv(process.env.PAYMENT_PROVIDER_DEFAULT) ?? "stripe",
-  stripeSecretKey: normalizeEnv(process.env.STRIPE_SECRET_KEY),
+  stripeSecretKey,
+  stripePublishableKey,
   stripeWebhookSecret: normalizeEnv(process.env.STRIPE_WEBHOOK_SECRET),
   klarnaApiBaseUrl: normalizeEnv(process.env.KLARNA_API_BASE_URL),
   klarnaUsername: normalizeEnv(process.env.KLARNA_USERNAME),

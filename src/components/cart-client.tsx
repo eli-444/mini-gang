@@ -117,6 +117,7 @@ export function CartClient({
   ordersEnabled = true,
   ordersClosedMessage,
   ordersReopenDate,
+  stripePublishableKey,
 }: {
   providers: Array<{
     name: PaymentProviderName;
@@ -129,12 +130,13 @@ export function CartClient({
   ordersEnabled?: boolean;
   ordersClosedMessage?: string;
   ordersReopenDate?: string;
+  stripePublishableKey?: string;
 }) {
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const [products, setProducts] = useState<ProductLite[]>([]);
   const [email, setEmail] = useState("");
-  const [provider, setProvider] = useState<PaymentProviderName>(defaultProvider);
+  const provider = defaultProvider;
   const [shipping, setShipping] = useState({
     name: "",
     phone: "",
@@ -182,9 +184,8 @@ export function CartClient({
       setCheckoutError(null);
       try {
         await loadStripeScript();
-        const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-        if (!publishableKey) throw new Error("La clé publique Stripe est manquante.");
-        const stripe = window.Stripe?.(publishableKey);
+        if (!stripePublishableKey) throw new Error("La clé publique Stripe est manquante.");
+        const stripe = window.Stripe?.(stripePublishableKey);
         if (!stripe) throw new Error("Stripe.js n'est pas disponible.");
         embeddedCheckout = await stripe.initEmbeddedCheckout({
           fetchClientSecret: async () => checkoutClientSecret,
@@ -209,7 +210,7 @@ export function CartClient({
       cancelled = true;
       embeddedCheckout?.destroy();
     };
-  }, [checkoutClientSecret]);
+  }, [checkoutClientSecret, stripePublishableKey]);
 
   const availableProducts = useMemo(() => products.filter((item) => item.available), [products]);
   const unavailableProducts = useMemo(() => products.filter((item) => !item.available), [products]);
@@ -478,32 +479,6 @@ export function CartClient({
               </div>
             </div>
 
-            <div className="mt-4 space-y-2">
-              {providers.map((item) => (
-                <label
-                  key={item.name}
-                  className={`flex items-start gap-3 rounded-lg border px-3 py-2 text-sm ${
-                    item.enabled ? "border-black/10 bg-white" : "border-black/5 bg-black/[0.03] opacity-60"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    className="mt-1"
-                    disabled={!item.enabled || Boolean(checkoutClientSecret)}
-                    checked={provider === item.name}
-                    onChange={() => setProvider(item.name)}
-                  />
-                  <span>
-                    <span className="block font-black">{item.label}</span>
-                    <span className="block text-xs text-[var(--mg-ink)]/60">
-                      {item.name === "stripe" ? "Le formulaire sécurisé s'affichera sur cette page." : item.description}
-                      {!item.enabled ? " À configurer dans les variables d'environnement." : ""}
-                    </span>
-                  </span>
-                </label>
-              ))}
-            </div>
-
             <label className="mt-4 flex items-start gap-2 rounded-lg border border-black/10 p-3 text-xs leading-5 text-[var(--mg-ink)]/75">
               <input
                 type="checkbox"
@@ -528,7 +503,7 @@ export function CartClient({
                 onClick={createCheckout}
                 className="mt-4 w-full rounded-full bg-[var(--mg-accent)] px-4 py-3 text-sm font-black text-white transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isCreatingCheckout ? "Préparation du paiement..." : provider === "stripe" ? "Afficher le paiement sécurisé" : "Continuer vers le paiement"}
+                {isCreatingCheckout ? "Preparation du paiement..." : "Afficher le formulaire de paiement"}
               </button>
             ) : null}
           </section>
