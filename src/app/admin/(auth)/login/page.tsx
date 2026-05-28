@@ -61,8 +61,7 @@ export default function AdminLoginPage() {
     <div className="admin-theme grid min-h-screen place-items-center p-4">
       <section className="admin-card w-full max-w-md p-6">
         <BrandLogo className="mb-4 block w-fit" imageClassName="w-24" priority />
-        <h1 className="mt-1 font-display text-4xl text-slate-900">Admin Login</h1>
-        <p className="mt-2 text-sm text-slate-500">Connectez-vous pour acceder au back-office.</p>
+        <h1 className="mt-1 text-3xl font-semibold text-slate-900">Panel admin</h1>
         <form onSubmit={onSubmit} className="mt-4 space-y-3">
           <input
             value={email}

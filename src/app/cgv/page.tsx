@@ -1,54 +1,319 @@
-const sections = [
+type LegalBlock =
+  | { type: "paragraph"; text: string }
+  | { type: "heading"; text: string }
+  | { type: "list"; items: string[] };
+
+const articles: Array<{ title: string; blocks: LegalBlock[] }> = [
   {
-    title: "1. Vendeur",
-    body: "Le Mini Gang est exploite par une entite suisse a completer: raison sociale, adresse, IDE/TVA si applicable, email de contact et responsable. Ces informations doivent etre finalisees avant mise en production.",
+    title: "Article 1. Objet",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "Les présentes conditions générales de vente régissent les droits et obligations des Parties résultant de la vente en ligne et du rachat des Articles proposés sur le site du Mini Gang, tels que ces Articles sont définis à l’article 2 ci-dessous ; elles s’appliquent à l’exclusion de tout autre document. Toute commande ou envoi d’un Article pour rachat implique l’adhésion du client aux présentes conditions générales de vente.",
+      },
+      {
+        type: "paragraph",
+        text: "Le Mini Gang se réserve le droit de modifier à tout moment les présentes conditions générales de vente. Les conditions applicables sont celles en vigueur à la date de la commande ou de l’envoi pour rachat.",
+      },
+    ],
   },
   {
-    title: "2. Articles de seconde main",
-    body: "Les vetements proposes sont des pieces uniques de seconde main pour enfants. Chaque fiche indique l'etat, la taille, la marque si connue, les photos disponibles et les defauts identifies. De legeres traces d'usage peuvent subsister malgre le controle.",
+    title: "Article 2. Articles - Prix",
+    blocks: [
+      { type: "heading", text: "2.1. Articles" },
+      {
+        type: "paragraph",
+        text: "Le Mini Gang propose à la vente, sur son site internet, des vêtements et accessoires de seconde main pour enfants de 0 à 12 ans.",
+      },
+      {
+        type: "paragraph",
+        text: "Dans le cadre du service de rachat, les articles envoyés doivent impérativement correspondre aux critères de sélection définis par Le Mini Gang : marques acceptées, état général, ancienneté et type de vêtement.",
+      },
+      { type: "heading", text: "Conditions de reprise des articles" },
+      {
+        type: "list",
+        items: [
+          "Les articles doivent être propres, lavés et en excellent état général.",
+          "Les vêtements doivent être sans tache, sans odeur et immédiatement réutilisables.",
+          "Aucun défaut ne doit compromettre l’utilisation partielle ou totale du produit.",
+          "Les boutons, coutures, pressions, fermetures éclair, lacets et autres éléments doivent être complets et fonctionnels.",
+          "Les matières ne doivent présenter ni trous, ni décoloration importante, ni usure excessive, ni boulochage prononcé.",
+          "Les ensembles doivent être complets, par exemple un pyjama deux pièces comprenant le haut et le bas.",
+          "Les vêtements proposés ne doivent pas être âgés de plus de 6 ans au moment de leur envoi.",
+        ],
+      },
+      {
+        type: "paragraph",
+        text: "Afin de garantir la cohérence de l’offre proposée sur le site, certaines marques de fast fashion ou à faible valeur de revente ne sont pas reprises par Le Mini Gang.",
+      },
+      { type: "heading", text: "Marques non acceptées - liste non exhaustive" },
+      {
+        type: "list",
+        items: [
+          "Primark",
+          "Shein Kids",
+          "Cider Kids",
+          "PatPat",
+          "Temu",
+          "Fashion Nova Kids",
+          "Boohoo",
+          "Kiabi",
+          "C&A",
+          "Lupilu (Lidl)",
+          "Kids & Co (Migros)",
+          "Tex Baby / Tex Kids (Carrefour)",
+          "Impidimpi (Aldi)",
+          "F&F Kids (Tesco)",
+          "Zeeman Kids",
+          "In Extenso (Auchan)",
+        ],
+      },
+      {
+        type: "paragraph",
+        text: "Cette liste peut être modifiée à tout moment sans préavis, selon l’évolution des critères de sélection du Mini Gang.",
+      },
+      {
+        type: "paragraph",
+        text: "Le service de rachat en ligne est proposé ponctuellement au cours de l’année et peut être temporairement fermé. Le Mini Gang se réserve le droit d’ouvrir ou de suspendre les périodes de rachat à sa libre appréciation.",
+      },
+      {
+        type: "paragraph",
+        text: "Les frais d’envoi liés au rachat sont pris en charge par Le Mini Gang, sous réserve du respect des présentes conditions. Un envoi destiné au rachat doit comporter un minimum de 20 pièces éligibles à la reprise par colis.",
+      },
+      {
+        type: "paragraph",
+        text: "S’agissant d’articles de seconde main, la responsabilité du Mini Gang ne saurait être engagée quant à d’éventuels défauts résultant de l’usage antérieur des produits. En acceptant les présentes conditions générales de vente, le client reconnaît que les articles ne sont pas à l’état neuf et peuvent présenter de légères variations liées à leur usage, notamment en matière de taille ou d’aspect dues aux lavages successifs.",
+      },
+      { type: "heading", text: "Articles non conformes" },
+      {
+        type: "paragraph",
+        text: "Si les articles envoyés pour rachat ne répondent pas aux critères définis ci-dessus, Le Mini Gang se réserve le droit :",
+      },
+      {
+        type: "list",
+        items: [
+          "de refuser leur reprise ;",
+          "de retourner les articles aux frais du client ;",
+          "ou de les confier à une filière de revalorisation textile ou à une association partenaire.",
+        ],
+      },
+      {
+        type: "paragraph",
+        text: "Si aucun article envoyé ne remplit les critères de reprise, les frais d’expédition initialement pris en charge par Le Mini Gang pourront être facturés au client.",
+      },
+      {
+        type: "paragraph",
+        text: "Le client peut effectuer une estimation indicative du montant de rachat directement sur le site internet. En validant l’envoi de ses vêtements, le client accepte le principe de cette estimation. Le Mini Gang demeure seul décisionnaire du montant final de reprise après contrôle qualité des articles reçus. Aucune négociation relative au prix de rachat ne pourra être engagée après réception du colis.",
+      },
+      { type: "heading", text: "Délai de traitement des colis de rachat" },
+      {
+        type: "paragraph",
+        text: "Le délai de traitement des colis envoyés dans le cadre du service de rachat est estimé à 3 semaines à compter de la réception du colis par Le Mini Gang. Ce délai comprend la réception, le contrôle qualité, le tri, l’évaluation des articles et la validation du montant de reprise. En période de forte activité ou lors d’opérations ponctuelles de rachat, ce délai peut être exceptionnellement prolongé. Le Mini Gang s’efforcera d’en informer les clients dans les meilleurs délais.",
+      },
+      { type: "heading", text: "2.2. Prix" },
+      {
+        type: "paragraph",
+        text: "Les prix sont indiqués en francs suisses (CHF) et incluent la TVA applicable.",
+      },
+      { type: "heading", text: "Frais de livraison" },
+      {
+        type: "list",
+        items: ["7,90 CHF par commande.", "Livraison gratuite dès 80 CHF d’achat."],
+      },
+      {
+        type: "paragraph",
+        text: "Les frais d’expédition pour l’envoi de vêtements destinés au rachat sont offerts. Les prix de rachat sont fermes et définitifs.",
+      },
+    ],
   },
   {
-    title: "3. Prix et disponibilite",
-    body: "Les prix sont indiques en CHF, hors frais de livraison sauf mention contraire. Un article ajoute au panier n'est pas garanti tant que le checkout n'a pas reserve la piece. En cas d'indisponibilite exceptionnelle, la commande est annulee et remboursee.",
+    title: "Article 3. Livraisons et expéditions",
+    blocks: [
+      { type: "paragraph", text: "Le Mini Gang livre uniquement en Suisse." },
+      { type: "heading", text: "Délais de préparation et d’expédition" },
+      {
+        type: "paragraph",
+        text: "Toute commande passée sur le site du Mini Gang du lundi au vendredi, hors jours fériés, sera préparée et expédiée dans un délai maximum de 48 heures, sous réserve de validation du paiement.",
+      },
+      {
+        type: "paragraph",
+        text: "Toute commande passée du vendredi au dimanche ou un jour férié sera préparée et expédiée dans un délai maximum de 48 heures à partir du jour ouvré suivant.",
+      },
+      {
+        type: "paragraph",
+        text: "Sauf cas particulier, comme des périodes de vacances ou une fermeture exceptionnelle. Dans ce cas, un message d’information sur le site indiquera que le traitement des commandes est momentanément interrompu.",
+      },
+      {
+        type: "paragraph",
+        text: "Le client doit vérifier l’état du colis lors de la livraison. Toute anomalie, notamment colis endommagé, article manquant ou article abîmé, doit être signalée au transporteur et au Mini Gang dans les 3 jours suivant la réception.",
+      },
+    ],
   },
   {
-    title: "4. Paiement",
-    body: "Le paiement se fait par carte bancaire et/ou TWINT selon les moyens actifs au checkout. Les transactions sont traitees par le prestataire de paiement configure; Le Mini Gang ne stocke pas les donnees completes de carte.",
+    title: "Article 4. Droit de rétractation",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "Le client dispose d’un délai de 14 jours à compter de la réception de la commande pour retourner un article.",
+      },
+      { type: "heading", text: "Les articles doivent être :" },
+      {
+        type: "list",
+        items: ["dans leur état d’origine ;", "non portés ;", "retournés dans leur emballage d’origine."],
+      },
+      {
+        type: "paragraph",
+        text: "Les frais de retour sont à la charge du client. Le remboursement est effectué dans un délai maximum de 30 jours après réception et vérification des articles retournés.",
+      },
+    ],
   },
   {
-    title: "5. Livraison Suisse",
-    body: "La livraison est prevue en Suisse. Les frais sont affiches avant paiement. Les delais indicatifs commencent apres confirmation du paiement et preparation de la commande.",
+    title: "Article 5. Garantie et responsabilité",
+    blocks: [
+      { type: "heading", text: "Le Mini Gang ne peut être tenu responsable :" },
+      {
+        type: "list",
+        items: [
+          "des défauts liés à l’usage précédent des articles ;",
+          "des dommages indirects liés à l’utilisation des articles.",
+        ],
+      },
+      {
+        type: "paragraph",
+        text: "Les vêtements envoyés pour rachat restent sous la responsabilité du vendeur jusqu’à leur réception et validation par le Mini Gang.",
+      },
+    ],
   },
   {
-    title: "6. Retours et reclamations",
-    body: "Les retours de pieces de seconde main sont acceptes uniquement selon la politique de retours publiee: erreur manifeste, article non conforme a la fiche ou probleme signale dans le delai indique. Les articles portes, laves ou endommages apres reception ne sont pas repris.",
+    title: "Article 6. Paiement",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "Le paiement des commandes peut être effectué via les moyens proposés sur le site, notamment par carte bancaire via Stripe.",
+      },
+      { type: "heading", text: "Pour les vêtements rachetés par Le Mini Gang, le client peut choisir :" },
+      {
+        type: "list",
+        items: [
+          "de conserver le montant sur sa cagnotte Mini Gang ;",
+          "ou de transférer le montant directement sur son compte bancaire.",
+        ],
+      },
+    ],
   },
   {
-    title: "7. Remboursement",
-    body: "Un remboursement accepte est effectue manuellement ou via le prestataire de paiement lorsque l'integration le permet. Les frais de livraison peuvent etre exclus du remboursement sauf erreur imputable a Le Mini Gang.",
+    title: "Article 7. Informatique et protection des données",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "Les données personnelles collectées sont utilisées uniquement pour le traitement des commandes et des rachats. Elles sont traitées conformément à la Loi fédérale suisse sur la protection des données (LPD).",
+      },
+      {
+        type: "paragraph",
+        text: "Le client dispose d’un droit d’accès, de rectification et de suppression de ses données.",
+      },
+    ],
   },
   {
-    title: "8. Donnees personnelles",
-    body: "Les donnees necessaires a la commande, au paiement, a la livraison et au support sont traitees selon la politique de confidentialite LPD.",
+    title: "Article 8. Offres promotionnelles et lutte contre la fraude",
+    blocks: [
+      { type: "heading", text: "8.1 Usage personnel et unique" },
+      {
+        type: "paragraph",
+        text: "Les bons de réduction, codes promotionnels et offres de bienvenue émis par Le Mini Gang sont strictement personnels et limités à une seule utilisation par personne physique : même nom, même adresse ou même terminal de connexion.",
+      },
+      { type: "heading", text: "8.2 Interdiction des comptes multiples" },
+      {
+        type: "paragraph",
+        text: "Il est strictement interdit pour une même personne physique :",
+      },
+      {
+        type: "list",
+        items: [
+          "de créer plusieurs comptes clients ;",
+          "d’utiliser plusieurs adresses email dans le but de bénéficier plusieurs fois d’une même offre promotionnelle ou d’un avantage réservé aux nouveaux clients.",
+        ],
+      },
+    ],
   },
   {
-    title: "9. Contact",
-    body: "Pour toute question: contact@leminigang.com. L'adresse postale et l'identite complete du vendeur doivent etre completees avant lancement public.",
+    title: "Article 9. Force majeure",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "Le Mini Gang ne pourra être tenu responsable de la non-exécution de ses obligations en cas de force majeure : grève, perturbation des transports, catastrophe naturelle, incendie, etc.",
+      },
+    ],
+  },
+  {
+    title: "Article 10. Intégralité du contrat",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "Les présentes conditions générales de vente, le récapitulatif de commande et la facture constituent l’intégralité de l’accord entre le client et Le Mini Gang.",
+      },
+    ],
+  },
+  {
+    title: "Article 11. Loi applicable et juridiction compétente",
+    blocks: [
+      {
+        type: "paragraph",
+        text: "Les présentes conditions générales de vente sont régies par le droit suisse.",
+      },
+      {
+        type: "paragraph",
+        text: "En cas de litige, les tribunaux compétents seront ceux du canton du siège du Mini Gang, après tentative de résolution amiable.",
+      },
+    ],
   },
 ];
 
+function LegalArticle({ title, blocks }: { title: string; blocks: LegalBlock[] }) {
+  return (
+    <article className="border-t border-slate-200 py-7 first:border-t-0 first:pt-0">
+      <h2 className="text-xl font-semibold tracking-tight text-slate-950">{title}</h2>
+      <div className="mt-4 space-y-4 text-[0.96rem] leading-7 text-slate-700">
+        {blocks.map((block, index) => {
+          if (block.type === "heading") {
+            return (
+              <h3 key={`${title}-${index}`} className="pt-2 text-base font-semibold text-slate-950">
+                {block.text}
+              </h3>
+            );
+          }
+
+          if (block.type === "list") {
+            return (
+              <ul key={`${title}-${index}`} className="list-disc space-y-2 pl-6">
+                {block.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            );
+          }
+
+          return <p key={`${title}-${index}`}>{block.text}</p>;
+        })}
+      </div>
+    </article>
+  );
+}
+
 export default function CgvPage() {
   return (
-    <section className="mx-auto max-w-3xl py-6 md:py-10">
-      <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--mg-pop-sun)]">Cadre de vente</p>
-      <h1 className="mt-6 text-4xl font-black leading-tight text-[var(--mg-ink)] md:text-5xl">Conditions generales de vente</h1>
-      <div className="mt-8 space-y-5">
-        {sections.map((section) => (
-          <article key={section.title} className="rounded-lg border border-[var(--mg-ring)] bg-white p-5">
-            <h2 className="font-semibold text-[var(--mg-ink)]">{section.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-[var(--mg-ink)]/75">{section.body}</p>
-          </article>
-        ))}
+    <section className="bg-[#f8f5f0] px-4 py-10 text-slate-950 md:px-6 md:py-14" style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
+      <div className="mx-auto max-w-4xl rounded-lg border border-slate-200 bg-white px-5 py-8 shadow-sm md:px-10 md:py-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Le Mini Gang</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
+          Conditions Générales de Vente
+        </h1>
+
+        <div className="mt-10">
+          {articles.map((article) => (
+            <LegalArticle key={article.title} title={article.title} blocks={article.blocks} />
+          ))}
+        </div>
       </div>
     </section>
   );

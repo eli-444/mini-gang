@@ -13,7 +13,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     return <main className="min-h-screen">{children}</main>;
   }
 
-  const isLightRoute = pathname.startsWith("/contact");
+  const isLightRoute = ["/contact", "/cgv", "/confidentialite", "/mentions-legales", "/retours"].some((route) =>
+    pathname.startsWith(route),
+  );
 
   return (
     <div className={isLightRoute ? "site-page-light min-h-screen" : "site-page-green min-h-screen"}>
