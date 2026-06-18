@@ -28,7 +28,7 @@ export default function ContactPage() {
           alt=""
           width={560}
           height={438}
-          className="absolute right-8 top-10 hidden w-[25rem] max-w-[30vw] md:block"
+          className="absolute right-8 -top-8 hidden w-[25rem] max-w-[30vw] md:block"
         />
 
         <h1 className="mg-hand-title text-[2.9rem] text-[var(--mg-pop-rose)] md:text-[7.6rem]">
