@@ -22,10 +22,8 @@ export const adminProductStatusOptions: Array<{ value: ProductStatus; label: str
 ];
 
 export const productSeasonOptions = [
-  { value: "printemps", label: "Printemps" },
-  { value: "ete", label: "Ete" },
-  { value: "automne", label: "Automne" },
-  { value: "hiver", label: "Hiver" },
+  { value: "printemps_ete", label: "Printemps-Ete" },
+  { value: "automne_hiver", label: "Automne-Hiver" },
   { value: "toutes_saisons", label: "Toutes saisons" },
 ] as const;
 
@@ -40,5 +38,7 @@ export function getProductStatusLabel(value: string | null | undefined) {
 }
 
 export function getProductSeasonLabel(value: string | null | undefined) {
+  if (value === "printemps" || value === "ete") return "Printemps-Ete";
+  if (value === "automne" || value === "hiver") return "Automne-Hiver";
   return productSeasonOptions.find((option) => option.value === value)?.label ?? value ?? "-";
 }

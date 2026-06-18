@@ -1,6 +1,13 @@
 import { NewProductForm } from "@/components/admin/new-product-form";
 
-export default function AdminNewProductPage() {
+export default async function AdminNewProductPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const category = (Array.isArray(params.category) ? params.category[0] : params.category) || "tee_shirts";
+
   return (
     <section>
       <div className="admin-card overflow-hidden p-0">
@@ -9,7 +16,7 @@ export default function AdminNewProductPage() {
           <h1 className="mt-1 text-2xl font-bold text-slate-950 md:text-3xl">Ajouter un vetement</h1>
         </div>
       </div>
-      <NewProductForm />
+      <NewProductForm defaultCategory={category} />
     </section>
   );
 }

@@ -10,6 +10,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 interface AdminProductEditInput {
   id: string;
   nom: string;
+  reference_vetement?: string | null;
   description: string | null;
   marque: string | null;
   etat: string;
@@ -63,6 +64,12 @@ function chfInputToCents(value: string) {
   return Math.round(parsed * 100);
 }
 
+function normalizeSeason(value: string | null | undefined) {
+  if (value === "printemps" || value === "ete") return "printemps_ete";
+  if (value === "automne" || value === "hiver") return "automne_hiver";
+  return value ?? "toutes_saisons";
+}
+
 export function EditProductForm({ product }: { product: AdminProductEditInput }) {
   const router = useRouter();
   const [status, setStatus] = useState<string | null>(null);
@@ -76,13 +83,14 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
   const [images, setImages] = useState<File[]>([]);
   const [form, setForm] = useState({
     title: product.nom,
+    reference_code: product.reference_vetement ?? "",
     description: product.description ?? "",
     price_cents: product.prix_centimes,
     compare_at_price_cents: product.prix_neuf_centimes ?? 0,
     brand: product.marque ?? "",
     condition: product.etat,
     categorie: product.categorie,
-    saison: product.saison ?? "toutes_saisons",
+    saison: normalizeSeason(product.saison),
     age_range: product.age ?? "3 mois",
     size_label: product.taille,
     sex: product.genre,
@@ -215,6 +223,15 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           placeholder="Marque"
           className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         />
+        <input
+          value={form.reference_code}
+          onChange={(event) => setForm((prev) => ({ ...prev, reference_code: event.target.value }))}
+          placeholder="Reference"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div className="grid gap-2 md:grid-cols-2">
         <label className="grid gap-1 text-xs font-semibold text-slate-600">
           Prix de vente (CHF)
           <input

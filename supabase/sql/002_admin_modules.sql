@@ -1,2 +1,0 @@
--- Supprime volontairement: la nouvelle base reste simple.
--- Voir 001_init.sql pour le schema actif.

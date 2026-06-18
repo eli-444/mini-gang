@@ -6,7 +6,7 @@ const ageRangeSchema = z.enum(ageRangeOptions);
 const productCategorySchema = z.enum(productCategoryValues);
 export const productConditionSchema = z.enum(["beaucoup_aime", "bon", "tres_bon", "comme_neuf", "neuf_etiquettes", "neuf", "correct"]);
 export const productStatusSchema = z.enum(["brouillon", "disponible", "hors_ligne", "reserve", "vendu", "archive"]);
-export const productSeasonSchema = z.enum(["printemps", "ete", "automne", "hiver", "toutes_saisons"]);
+export const productSeasonSchema = z.enum(["printemps_ete", "automne_hiver", "toutes_saisons"]);
 const emptyStringToUndefined = (value: unknown) => (value === "" ? undefined : value);
 const urlOrAbsolutePathSchema = z
   .string()
@@ -15,7 +15,7 @@ const urlOrAbsolutePathSchema = z
 
 export const productFiltersSchema = z.object({
   q: z.preprocess(emptyStringToUndefined, z.string().trim().max(120).optional()),
-  shop_section: z.preprocess(emptyStringToUndefined, z.enum(["vetements", "merche"]).optional()),
+  shop_section: z.preprocess(emptyStringToUndefined, z.enum(["vetements", "merch", "merche"]).optional()),
   categorie: z.preprocess(
     emptyStringToUndefined,
     productCategorySchema.optional(),
@@ -93,6 +93,7 @@ export const siteContentSettingsSchema = z.object({
 
 export const adminProductSchema = z.object({
   title: z.string().trim().min(3).max(140),
+  reference_code: z.string().trim().max(80).optional().or(z.literal("")),
   description: z.string().trim().max(3000).optional().or(z.literal("")),
   price_cents: z.coerce.number().int().min(50).max(50000),
   compare_at_price_cents: z.coerce.number().int().min(0).max(100000).optional().or(z.literal("")),

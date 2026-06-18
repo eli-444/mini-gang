@@ -13,6 +13,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
     .maybeSingle();
 
   if (!order) notFound();
+  const canGenerateShippingLabel = ["payee", "preparee", "envoyee", "livree"].includes(order.statut);
 
   return (
     <div className="space-y-5">
@@ -58,6 +59,16 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
         <article className="admin-card p-4">
           <h2 className="text-sm font-semibold uppercase text-slate-500">Livraison</h2>
+          {canGenerateShippingLabel ? (
+            <a
+              href={`/api/admin/orders/${order.id}/shipping-label`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Generer un bordereau d&apos;envoi
+            </a>
+          ) : null}
           <div className="mt-3 space-y-2 text-sm">
             {(order.shipments ?? []).length === 0 ? <p className="text-slate-500">Aucun tracking enregistre.</p> : null}
             {(order.shipments ?? []).map((shipment: { id: string; carrier: string; status: string; tracking_number: string | null; tracking_url: string | null; shipped_at: string | null }) => (

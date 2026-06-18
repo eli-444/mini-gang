@@ -6,7 +6,7 @@ import type { Product } from "@/lib/types";
 
 interface ListProductsOptions {
   q?: string;
-  shop_section?: "vetements" | "merche";
+  shop_section?: "vetements" | "merch" | "merche";
   categorie?: string;
   age_range?: string;
   genre?: string;
@@ -228,7 +228,7 @@ export async function listProducts(options: ListProductsOptions) {
     if (options.shop_section === "vetements") {
       query = query.in("categorie", [...productCategoryOptions.map((category) => category.value), "haut", "bas", "robe", "veste", "manteau"]);
     }
-    if (options.shop_section === "merche") {
+    if (options.shop_section === "merch" || options.shop_section === "merche") {
       query = query.in("categorie", ["accessoire", "autre"]);
     }
     if (options.categorie) query = query.eq("categorie", options.categorie);

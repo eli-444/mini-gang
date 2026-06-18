@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand-logo";
 
-type FooterVariant = "dark" | "light";
+type FooterVariant = "dark" | "light" | "soft-green";
 
 const primaryLinks = [
   { href: "/a-propos", label: "A propos" },
   { href: "/contact", label: "Contact" },
   { href: "/boutique", label: "Boutique" },
+  { href: "/merch", label: "Merch" },
   { href: "/vendre", label: "Vendre" },
   { href: "/mon-compte", label: "Mon compte" },
 ];
@@ -20,14 +21,23 @@ const secondaryLinks = [
 
 export function Footer({ variant = "dark" }: { variant?: FooterVariant }) {
   const isLight = variant === "light";
+  const isSoftGreen = variant === "soft-green";
 
   return (
-    <footer className={isLight ? "bg-[var(--mg-cream)] text-[var(--mg-ink)]" : "bg-[var(--mg-bg)] text-[var(--mg-on-dark)]"}>
+    <footer
+      className={
+        isSoftGreen
+          ? "bg-[#edf6ef] text-[#164832]"
+          : isLight
+            ? "bg-[var(--mg-cream)] text-[var(--mg-ink)]"
+            : "bg-[var(--mg-bg)] text-[var(--mg-on-dark)]"
+      }
+    >
       <div className="mg-container py-8 md:py-12">
         <div className="mg-footer-line mb-6 md:mb-8" />
         <div className="grid gap-10 md:grid-cols-[1fr_1fr_1fr] md:items-start">
           <div className="space-y-10 md:space-y-16">
-            <BrandLogo imageClassName={`w-24 md:w-32 ${isLight ? "" : "brightness-0 invert"}`} />
+            <BrandLogo imageClassName={`w-24 md:w-32 ${isLight || isSoftGreen ? "" : "brightness-0 invert"}`} />
             <p className="text-sm font-black md:text-lg">(c) 2026 Le Mini Gang</p>
           </div>
 

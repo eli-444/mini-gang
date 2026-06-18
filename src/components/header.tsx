@@ -12,6 +12,7 @@ const leftLinks = [
 
 const rightLinks = [
   { href: "/boutique", label: "Boutique" },
+  { href: "/merch", label: "Merch" },
   { href: "/vendre", label: "Vente" },
 ];
 

@@ -19,6 +19,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const supabase = createSupabaseAdminClient();
   const updates: Record<string, unknown> = {};
   if (parsed.data.title !== undefined) updates.nom = parsed.data.title;
+  if (parsed.data.reference_code !== undefined) updates.reference_vetement = parsed.data.reference_code || null;
   if (parsed.data.description !== undefined) updates.description = parsed.data.description || null;
   if (parsed.data.price_cents !== undefined) updates.prix_centimes = parsed.data.price_cents;
   if (parsed.data.compare_at_price_cents !== undefined) updates.prix_neuf_centimes = parsed.data.compare_at_price_cents || null;

@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     .from("vetements")
     .insert({
       nom: parsed.data.title,
+      reference_vetement: parsed.data.reference_code || null,
       description: parsed.data.description || null,
       prix_centimes: parsed.data.price_cents,
       prix_neuf_centimes: parsed.data.compare_at_price_cents || null,

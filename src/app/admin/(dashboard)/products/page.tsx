@@ -96,6 +96,7 @@ export default async function AdminProductsPage({
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-3 py-2">Produit</th>
+                <th className="px-3 py-2">Reference</th>
                 <th className="px-3 py-2">Marque</th>
                 <th className="px-3 py-2">Taille/Age</th>
                 <th className="px-3 py-2">Categorie</th>
@@ -112,6 +113,7 @@ export default async function AdminProductsPage({
               {data.rows.map((product) => (
                 <tr key={product.id} className="border-t border-slate-100">
                   <td className="px-3 py-2 font-medium">{product.title}</td>
+                  <td className="px-3 py-2">{product.reference_code ?? "-"}</td>
                   <td className="px-3 py-2">{product.brand ?? "-"}</td>
                   <td className="px-3 py-2">
                     {product.size_label ?? "-"} / {product.age_range ?? "-"}

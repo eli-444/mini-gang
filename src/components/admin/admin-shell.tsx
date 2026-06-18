@@ -9,10 +9,11 @@ import { LogoutButton } from "@/components/auth/logout-button";
 const navItems = [
   { href: "/admin", label: "Tableau de bord", section: "Pilotage", icon: "01" },
   { href: "/admin/products", label: "Vetements", section: "Boutique", icon: "02" },
-  { href: "/admin/orders", label: "Commandes", section: "Boutique", icon: "03" },
-  { href: "/admin/customers", label: "Clients", section: "Boutique", icon: "04" },
-  { href: "/admin/sell-orders", label: "Rachat", section: "Operations", icon: "05" },
-  { href: "/admin/settings", label: "Reglages", section: "Systeme", icon: "06" },
+  { href: "/admin/merch", label: "Merch", section: "Boutique", icon: "03" },
+  { href: "/admin/orders", label: "Commandes", section: "Boutique", icon: "04" },
+  { href: "/admin/customers", label: "Clients", section: "Boutique", icon: "05" },
+  { href: "/admin/sell-orders", label: "Rachat", section: "Operations", icon: "06" },
+  { href: "/admin/settings", label: "Reglages", section: "Systeme", icon: "07" },
 ];
 
 const navSections = ["Pilotage", "Boutique", "Operations", "Systeme"];

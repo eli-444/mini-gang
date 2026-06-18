@@ -10,6 +10,7 @@ function toIsoDaysAgo(days: number) {
 type AdminProductRow = {
   id: string;
   nom: string;
+  reference_vetement?: string | null;
   marque: string | null;
   taille: string;
   categorie: string;
@@ -106,13 +107,14 @@ export async function listAdminProducts(input: {
   pageSize: number;
   query?: string;
   status?: string;
+  shopSection?: "vetements" | "merch" | "merche";
 }) {
   const supabase = createSupabaseAdminClient();
   const from = (input.page - 1) * input.pageSize;
   const to = from + input.pageSize - 1;
 
   const runQuery = async (includeAge: boolean, includeExpansion: boolean) => {
-    const expansionColumns = includeExpansion ? "prix_neuf_centimes,saison,emplacement_stock," : "";
+    const expansionColumns = includeExpansion ? "reference_vetement,prix_neuf_centimes,saison,emplacement_stock," : "";
     let query = supabase
       .from("vetements")
       .select(`id,nom,marque,taille,categorie,${includeAge ? "age," : ""}etat,prix_centimes,${expansionColumns}statut,cree_le,photos_vetements(url)`, {
@@ -121,18 +123,25 @@ export async function listAdminProducts(input: {
       .order("cree_le", { ascending: false })
       .range(from, to);
 
-    if (input.query) query = query.or(`nom.ilike.%${input.query}%,marque.ilike.%${input.query}%`);
+    if (input.query) {
+      const search = input.query.trim().replace(/[%*,(){}\[\]"'\\]/g, " ").replace(/\s+/g, " ").slice(0, 80);
+      query = includeExpansion
+        ? query.or(`nom.ilike.%${search}%,marque.ilike.%${search}%,reference_vetement.ilike.%${search}%`)
+        : query.or(`nom.ilike.%${search}%,marque.ilike.%${search}%`);
+    }
     if (input.status) query = query.eq("statut", input.status);
+    if (input.shopSection === "vetements") query = query.not("categorie", "in", "(accessoire,autre)");
+    if (input.shopSection === "merch" || input.shopSection === "merche") query = query.in("categorie", ["accessoire", "autre"]);
     return query;
   };
 
   let { data, count, error } = await runQuery(true, true);
-  if (error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock")) {
+  if (error?.message?.toLowerCase().includes("reference_vetement") || error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock")) {
     ({ data, count, error } = await runQuery(true, false));
   }
   if (error?.message?.toLowerCase().includes("vetements.age")) {
     ({ data, count, error } = await runQuery(false, true));
-    if (error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock")) {
+    if (error?.message?.toLowerCase().includes("reference_vetement") || error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock")) {
       ({ data, count, error } = await runQuery(false, false));
     }
   }
@@ -144,6 +153,7 @@ export async function listAdminProducts(input: {
     rows: products.map((product) => ({
       id: product.id,
       title: product.nom,
+      reference_code: product.reference_vetement ?? null,
       brand: product.marque,
       size_label: product.taille,
       age_range: product.age,

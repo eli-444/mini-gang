@@ -81,18 +81,19 @@ const inputClass = "rounded-md border border-slate-200 bg-white px-3 py-2.5 text
 const textareaClass = `${inputClass} min-h-28 font-normal leading-6`;
 const selectClass = inputClass;
 
-export function NewProductForm() {
+export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCategory?: string }) {
   const [status, setStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [form, setForm] = useState({
     title: "",
+    reference_code: "",
     description: "",
     price_cents: 1000,
     compare_at_price_cents: 0,
     brand: "",
     condition: "bon",
-    categorie: "tee_shirts",
+    categorie: defaultCategory,
     saison: "toutes_saisons",
     age_range: "3 mois",
     size_label: "",
@@ -213,7 +214,7 @@ export function NewProductForm() {
   return (
     <form onSubmit={submit} className="mt-6 grid gap-5">
       <FormSection eyebrow="01 - Identification" title="Fiche produit">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.55fr)]">
+        <div className="grid gap-4 lg:grid-cols-3">
           <Field label="Nom du vêtement">
             <input
               required
@@ -232,7 +233,15 @@ export function NewProductForm() {
               className={inputClass}
             />
           </Field>
-          <div className="lg:col-span-2">
+          <Field label="Reference">
+            <input
+              value={form.reference_code}
+              onChange={(event) => setForm((prev) => ({ ...prev, reference_code: event.target.value }))}
+              placeholder="MG-00045"
+              className={inputClass}
+            />
+          </Field>
+          <div className="lg:col-span-3">
             <Field label="Description">
               <textarea
                 value={form.description}

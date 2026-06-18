@@ -13,15 +13,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     return <main className="min-h-screen">{children}</main>;
   }
 
-  const isLightRoute = ["/contact", "/cgv", "/confidentialite", "/mentions-legales", "/retours"].some((route) =>
-    pathname.startsWith(route),
-  );
+  const isLegalRoute = ["/cgv", "/confidentialite", "/mentions-legales"].some((route) => pathname.startsWith(route));
+  const isLightRoute = isLegalRoute || ["/contact", "/retours"].some((route) => pathname.startsWith(route));
 
   return (
     <div className={isLightRoute ? "site-page-light min-h-screen" : "site-page-green min-h-screen"}>
       <Header />
       <main className={`${isLightRoute ? "site-page-light" : "site-page-green"} w-full flex-1`}>{children}</main>
-      <Footer variant={isLightRoute ? "light" : "dark"} />
+      <Footer variant={isLegalRoute ? "soft-green" : isLightRoute ? "light" : "dark"} />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { toChf } from "@/lib/utils";
 type AdminProductRow = {
   id: string;
   nom: string;
+  reference_vetement?: string | null;
   description: string | null;
   marque: string | null;
   etat: string;
@@ -42,7 +43,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
 
   const loadProduct = async (includeAge: boolean) =>
     vetementsTable
-      .select(`id,nom,description,marque,etat,categorie,saison,${includeAge ? "age," : ""}taille,genre,statut,prix_centimes,prix_neuf_centimes,couleur,matiere,emplacement_stock,mis_en_avant,cree_le,photos_vetements(id,url,position,principale)`)
+      .select(`id,nom,reference_vetement,description,marque,etat,categorie,saison,${includeAge ? "age," : ""}taille,genre,statut,prix_centimes,prix_neuf_centimes,couleur,matiere,emplacement_stock,mis_en_avant,cree_le,photos_vetements(id,url,position,principale)`)
       .eq("id", id)
       .maybeSingle();
   const loadLegacyProduct = async (includeAge: boolean) =>
@@ -59,6 +60,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
 
   let { data: productData, error: productError } = productRes;
   if (
+    productError?.message?.toLowerCase().includes("reference_vetement") ||
     productError?.message?.toLowerCase().includes("prix_neuf_centimes") ||
     productError?.message?.toLowerCase().includes("saison") ||
     productError?.message?.toLowerCase().includes("emplacement_stock")
@@ -68,6 +70,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
   if (productError?.message?.toLowerCase().includes("vetements.age")) {
     ({ data: productData, error: productError } = await loadProduct(false));
     if (
+      productError?.message?.toLowerCase().includes("reference_vetement") ||
       productError?.message?.toLowerCase().includes("prix_neuf_centimes") ||
       productError?.message?.toLowerCase().includes("saison") ||
       productError?.message?.toLowerCase().includes("emplacement_stock")
@@ -97,7 +100,11 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
           </Link>
         </div>
 
-        <div className="grid gap-3 px-5 py-4 text-sm text-slate-700 md:grid-cols-4">
+        <div className="grid gap-3 px-5 py-4 text-sm text-slate-700 md:grid-cols-5">
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Reference</span>
+            <strong className="mt-1 block text-slate-950">{product.reference_vetement ?? "-"}</strong>
+          </div>
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
             <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Statut</span>
             <strong className="mt-1 block text-slate-950">{getProductStatusLabel(product.statut)}</strong>
@@ -124,6 +131,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Resume</p>
           <h2 className="mt-1 text-lg font-bold text-slate-950">Infos produit</h2>
           <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
+            <div><dt className="text-slate-500">Reference</dt><dd>{product.reference_vetement ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Marque</dt><dd>{product.marque ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Etat</dt><dd>{getProductConditionLabel(product.etat)}</dd></div>
             <div><dt className="text-slate-500">Taille</dt><dd>{product.taille ?? "-"}</dd></div>

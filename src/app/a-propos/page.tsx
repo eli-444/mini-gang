@@ -6,7 +6,9 @@ export default function AboutPage() {
     <div className="overflow-hidden bg-[var(--mg-bg)] text-[var(--mg-on-dark)]">
       <section className="mg-container relative grid gap-10 py-14 md:grid-cols-[1fr_0.92fr] md:gap-12 md:py-28">
         <div className="relative z-10">
-          <h1 className="mg-hand-title mg-underline mb-7 text-[2.65rem] md:mb-10 md:text-7xl">A PROPOS</h1>
+          <h1 className="mg-hand-title mb-7 inline-block border-b-[0.14em] border-[var(--mg-pop-rose)] pb-[0.02em] text-[2.65rem] md:mb-10 md:text-7xl">
+            A PROPOS
+          </h1>
           <div className="mg-page-copy max-w-[48rem] text-[1.65rem] md:text-[3.35rem]">
             <p>
               Nous sommes <span className="text-[var(--mg-pop-rose)]">Nicole</span> et{" "}
@@ -50,10 +52,6 @@ export default function AboutPage() {
             <span className="text-[var(--mg-pop-rose)]">la seconde main le premier reflexe des familles</span>.
           </p>
         </div>
-      </section>
-
-      <section className="relative h-[220px] overflow-hidden md:h-[390px]">
-        <Image src="/brand/design/skatepark-wide.jpeg" alt="Enfant au skatepark" fill className="object-cover" sizes="100vw" />
       </section>
 
       <section className="mg-container relative py-14 md:py-24">
