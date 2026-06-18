@@ -3,6 +3,12 @@ import { env } from "@/lib/env";
 import { formatShopMoney } from "@/lib/shop-config";
 import { createLaPosteOrderLabel } from "@/lib/shipping/la-poste-order-provider";
 
+export interface OrderShippingLabelResult {
+  pdfBytes: Uint8Array;
+  trackingNumber?: string | null;
+  carrier?: string | null;
+}
+
 export interface OrderShippingLabelInput {
   order: {
     id: string;
@@ -135,7 +141,11 @@ async function createInternalOrderLabel(input: OrderShippingLabelInput) {
   line(page, bodyFont, "Code barre interne - remplacable par le bordereau La Poste", 292, 116, 8.5);
 
   line(page, bodyFont, "A imprimer et coller sur le colis apres generation.", 46, 88, 9);
-  return pdfDoc.save();
+  return {
+    pdfBytes: await pdfDoc.save(),
+    trackingNumber: null,
+    carrier: "Interne",
+  };
 }
 
 export async function createOrderShippingLabel(input: OrderShippingLabelInput) {
