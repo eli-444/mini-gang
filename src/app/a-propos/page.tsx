@@ -6,7 +6,7 @@ export default function AboutPage() {
     <div className="overflow-hidden bg-[var(--mg-bg)] text-[var(--mg-on-dark)]">
       <section className="mg-container relative grid gap-10 py-14 md:grid-cols-[1fr_0.92fr] md:gap-12 md:py-28">
         <div className="relative z-10">
-          <h1 className="mg-hand-title mb-7 inline-block rounded-b-md border-b-[0.14em] border-[var(--mg-pop-rose)] pb-[0.02em] text-[2.65rem] md:mb-10 md:text-7xl">
+          <h1 className="mg-hand-title mb-7 inline-block rounded-b-xl border-b-[0.14em] border-[var(--mg-pop-rose)] pb-[0.02em] text-[2.65rem] md:mb-10 md:text-7xl">
             A PROPOS
           </h1>
           <div className="mg-page-copy max-w-[48rem] text-[1.65rem] md:text-[3.35rem]">
@@ -56,7 +56,7 @@ export default function AboutPage() {
 
       <section className="mg-container relative py-14 md:py-24">
         <div className="max-w-[72rem]">
-          <h2 className="mg-hand-title inline-block rounded-b-md border-b-[0.14em] border-[var(--mg-pop-sun)] pb-[0.02em] text-[2.4rem] md:text-6xl">
+          <h2 className="mg-hand-title inline-block rounded-b-xl border-b-[0.14em] border-[var(--mg-pop-sun)] pb-[0.02em] text-[2.4rem] md:text-6xl">
             NOTRE VISION
           </h2>
           <p className="mt-6 max-w-[70rem] text-[1.5rem] font-black leading-[1.02] md:mt-8 md:text-5xl">
