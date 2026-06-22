@@ -35,7 +35,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <section className="mg-shell space-y-5 bg-white p-5 md:p-6">
           <p className="mg-chip inline-flex bg-[var(--mg-sun)]/35">piece unique</p>
           <h1 className="font-display text-3xl leading-none md:text-4xl">{product.title}</h1>
-          <p className="text-sm leading-6 text-[var(--mg-ink)]/75">{product.description || "Sans description."}</p>
+          {product.description?.trim() ? (
+            <p className="text-sm leading-6 text-[var(--mg-ink)]/75">{product.description}</p>
+          ) : null}
           <ul className="grid gap-2 rounded-2xl bg-[linear-gradient(120deg,#fff,#fff7ec)] p-4 text-sm text-[var(--mg-ink)]/85">
             <li>
               <strong>Etat:</strong> {getProductConditionLabel(product.condition)}
@@ -50,7 +52,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               <strong>Age:</strong> {product.age_range || "-"}
             </li>
             <li>
-              <strong>Marque:</strong> {product.brand || "-"}
+              <strong>Marque:</strong> <span className="font-black">{product.brand || "-"}</span>
             </li>
             <li>
               <strong>Saison:</strong> {getProductSeasonLabel(product.season)}

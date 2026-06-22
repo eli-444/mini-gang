@@ -57,7 +57,7 @@ export default async function BoutiquePage({
           </div>
 
           {products.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3 xl:gap-9">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 xl:grid-cols-3 xl:gap-9">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} isFavorite={favoriteSet.has(product.id)} />
               ))}

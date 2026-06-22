@@ -44,7 +44,9 @@ export default async function HomePage() {
 
       <section className="mg-container py-9 md:py-14">
         <div className="mb-7">
-          <h2 className="mg-hand-title mg-underline text-[2.9rem] text-[var(--mg-pop-sun)] md:text-8xl">NOUVEAUTES</h2>
+          <h2 className="mg-hand-title inline-block rounded-b-xl border-b-[0.14em] border-[var(--mg-pop-rose)] pb-[0.02em] text-[2.9rem] text-[var(--mg-pop-sun)] md:text-8xl">
+            NOUVEAUTES
+          </h2>
           <p className="mt-2 text-base font-black md:mt-3 md:text-xl">Selection de pepites pour vos kids</p>
         </div>
 
