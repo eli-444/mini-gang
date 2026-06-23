@@ -41,6 +41,13 @@ type CheckoutPayload = {
   error?: string;
 };
 
+type PromoValidationPayload = {
+  code?: string;
+  percentage?: number;
+  discountCents?: number;
+  error?: string;
+};
+
 function getCartImageSrc(path?: string | null) {
   if (!path) return null;
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
@@ -151,6 +158,10 @@ export function CartClient({
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
   const [isStripeLoading, setIsStripeLoading] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; percentage: number; discountCents: number } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
   useEffect(() => {
     const run = async () => {
@@ -172,6 +183,8 @@ export function CartClient({
   useEffect(() => {
     setCheckoutClientSecret(null);
     setCheckoutError(null);
+    setAppliedPromo(null);
+    setPromoError(null);
   }, [items, provider]);
 
   useEffect(() => {
@@ -216,7 +229,9 @@ export function CartClient({
   const unavailableProducts = useMemo(() => products.filter((item) => !item.available), [products]);
   const subtotal = useMemo(() => availableProducts.reduce((sum, item) => sum + item.price_cents, 0), [availableProducts]);
   const effectiveShippingFeeCents = subtotal >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : shippingFeeCents;
-  const total = subtotal + effectiveShippingFeeCents;
+  const promoDiscountCents = Math.min(appliedPromo?.discountCents ?? 0, subtotal);
+  const discountedSubtotal = Math.max(0, subtotal - promoDiscountCents);
+  const total = discountedSubtotal + effectiveShippingFeeCents;
   const selectedProvider = providers.find((item) => item.name === provider);
   const requiredFieldsComplete =
     email.length > 0 &&
@@ -234,6 +249,36 @@ export function CartClient({
     Boolean(selectedProvider?.enabled) &&
     !checkoutClientSecret;
 
+  const applyPromoCode = async () => {
+    const code = promoCode.trim();
+    setPromoError(null);
+    setAppliedPromo(null);
+    if (!code) return;
+
+    setIsApplyingPromo(true);
+    const response = await fetch("/api/promo-codes/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code,
+        items: items.map((item) => ({ productId: item.productId })),
+      }),
+    });
+    const payload = (await response.json().catch(() => ({}))) as PromoValidationPayload;
+    setIsApplyingPromo(false);
+
+    if (!response.ok || !payload.code || typeof payload.percentage !== "number" || typeof payload.discountCents !== "number") {
+      setPromoError(payload.error ?? "Code promo invalide.");
+      return;
+    }
+
+    setAppliedPromo({
+      code: payload.code,
+      percentage: payload.percentage,
+      discountCents: payload.discountCents,
+    });
+  };
+
   const createCheckout = async () => {
     setCheckoutError(null);
     if (!selectedProvider?.enabled) {
@@ -249,6 +294,11 @@ export function CartClient({
       return;
     }
 
+    if (promoCode.trim() && !appliedPromo) {
+      setCheckoutError("Appliquez le code promo avant de continuer.");
+      return;
+    }
+
     setIsCreatingCheckout(true);
     const response = await fetch("/api/checkout/create", {
       method: "POST",
@@ -257,6 +307,7 @@ export function CartClient({
         provider,
         email,
         items: items.map((item) => ({ productId: item.productId })),
+        promoCode: appliedPromo?.code ?? "",
         shipping,
         acceptTerms,
       }),
@@ -468,11 +519,48 @@ export function CartClient({
               </div>
             ) : null}
 
+            <div className="mt-4 rounded-lg border border-black/10 p-3">
+              <FieldLabel>Code promo</FieldLabel>
+              <div className="flex gap-2">
+                <input
+                  value={promoCode}
+                  onChange={(event) => {
+                    setPromoCode(event.target.value);
+                    setAppliedPromo(null);
+                    setPromoError(null);
+                  }}
+                  disabled={Boolean(checkoutClientSecret)}
+                  placeholder="MINIGANG20"
+                  className="min-w-0 flex-1 rounded-lg border border-black/12 bg-white px-3 py-2 text-sm font-semibold uppercase outline-none focus:border-[var(--mg-ink)] focus:ring-2 focus:ring-[var(--mg-pop-sun)]/35"
+                />
+                <button
+                  type="button"
+                  onClick={applyPromoCode}
+                  disabled={isApplyingPromo || !promoCode.trim() || Boolean(checkoutClientSecret)}
+                  className="rounded-lg bg-[var(--mg-ink)] px-3 py-2 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  {isApplyingPromo ? "..." : "Appliquer"}
+                </button>
+              </div>
+              {appliedPromo ? (
+                <p className="mt-2 text-xs font-black text-[var(--mg-accent)]">
+                  {appliedPromo.code} -{appliedPromo.percentage}%
+                </p>
+              ) : null}
+              {promoError ? <p className="mt-2 text-xs font-bold text-red-700">{promoError}</p> : null}
+            </div>
+
             <div className="mt-4 rounded-lg border border-black/10 bg-black/[0.02] p-3 text-sm">
               <div className="flex justify-between">
                 <span>Sous-total articles</span>
                 <strong>{toChf(subtotal)}</strong>
               </div>
+              {promoDiscountCents > 0 ? (
+                <div className="mt-2 flex justify-between text-[var(--mg-accent)]">
+                  <span>Remise</span>
+                  <strong>-{toChf(promoDiscountCents)}</strong>
+                </div>
+              ) : null}
               <div className="mt-2 flex justify-between">
                 <span>Livraison Suisse</span>
                 <strong>{effectiveShippingFeeCents === 0 && subtotal > 0 ? "Offerte" : toChf(effectiveShippingFeeCents)}</strong>

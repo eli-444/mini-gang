@@ -12,6 +12,11 @@ import {
 import { log } from "@/lib/logger";
 import { getProviderInstance } from "@/lib/payments";
 import { getProductsByIds } from "@/lib/products";
+import {
+  applyDiscountToCheckoutItems,
+  calculatePromoDiscountCents,
+  validatePromoCodeForUser,
+} from "@/lib/promo-codes";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { FREE_SHIPPING_THRESHOLD_CENTS } from "@/lib/shop-config";
 import { getSiteContentSettings } from "@/lib/site-content-settings";
@@ -86,12 +91,29 @@ export async function POST(request: Request) {
     reservedIds = ids;
     const itemsTotalCents = products.reduce((sum, product) => sum + product.price_cents, 0);
     const shippingFeeCents = itemsTotalCents >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : paymentSettings.shipping_fee_cents;
+    const promoCode = parsed.data.promoCode
+      ? await validatePromoCodeForUser({
+          code: parsed.data.promoCode,
+          userId: user.id,
+        })
+      : null;
+    const productLineItems = products.map((product) => ({
+      title: product.title,
+      unitAmountCents: product.price_cents,
+      quantity: 1,
+    }));
+    const { items: discountedLineItems, appliedDiscountCents } = applyDiscountToCheckoutItems(
+      productLineItems,
+      promoCode ? calculatePromoDiscountCents(itemsTotalCents, promoCode.percentage) : 0,
+    );
 
     const order = await createOrderDraft({
       userId: user.id,
       email: parsed.data.email,
       provider: provider.name,
       shippingFeeCents,
+      discountCents: appliedDiscountCents,
+      promoCode,
       items: products.map((product) => ({
         id: product.id,
         title: product.title,
@@ -107,11 +129,7 @@ export async function POST(request: Request) {
       email: parsed.data.email,
       successUrl,
       cancelUrl,
-      items: products.map((product) => ({
-        title: product.title,
-        unitAmountCents: product.price_cents,
-        quantity: 1,
-      })).concat(
+      items: discountedLineItems.concat(
         shippingFeeCents > 0
           ? [
               {

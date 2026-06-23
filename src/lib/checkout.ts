@@ -2,6 +2,7 @@ import { env } from "@/lib/env";
 import { log } from "@/lib/logger";
 import { RESERVATION_TTL_MINUTES, SHOP_COUNTRY_LABEL, SHOP_CURRENCY } from "@/lib/shop-config";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { registerPromoUsageForPaidOrder, type PromoCodeValidation } from "@/lib/promo-codes";
 import type { PaymentProviderName } from "@/lib/types";
 
 export async function reserveProductsOrThrow(productIds: string[]) {
@@ -53,6 +54,8 @@ export async function createOrderDraft(input: {
   provider: PaymentProviderName;
   items: Array<{ id: string; title: string; price_cents: number }>;
   shippingFeeCents: number;
+  discountCents?: number;
+  promoCode?: PromoCodeValidation | null;
   shipping: {
     name: string;
     phone: string;
@@ -69,7 +72,8 @@ export async function createOrderDraft(input: {
 
   const supabase = createSupabaseAdminClient();
   const itemsTotalCents = input.items.reduce((sum, item) => sum + item.price_cents, 0);
-  const amountTotalCents = itemsTotalCents + input.shippingFeeCents;
+  const discountCents = Math.min(Math.max(0, input.discountCents ?? 0), itemsTotalCents);
+  const amountTotalCents = Math.max(0, itemsTotalCents - discountCents) + input.shippingFeeCents;
   const [prenom = input.shipping.name, ...nomParts] = input.shipping.name.trim().split(/\s+/);
   const nom = nomParts.join(" ") || "-";
 
@@ -98,17 +102,32 @@ export async function createOrderDraft(input: {
     accepted_terms_at: new Date().toISOString(),
   };
 
+  const insertDraft = {
+    ...orderDraft,
+    payment_provider: input.provider,
+    code_promo_id: input.promoCode?.id ?? null,
+    code_promo_code: input.promoCode?.code ?? null,
+    remise_centimes: discountCents,
+  };
+
   let { data: order, error: orderError } = await supabase
     .from("commandes")
-    .insert({
-      ...orderDraft,
-      payment_provider: input.provider,
-    })
+    .insert(insertDraft)
     .select("*")
     .single();
 
-  if (orderError?.message?.toLowerCase().includes("payment_provider")) {
-    ({ data: order, error: orderError } = await supabase.from("commandes").insert(orderDraft).select("*").single());
+  if (orderError) {
+    const message = orderError.message.toLowerCase();
+    const fallbackDraft: Record<string, unknown> = { ...orderDraft };
+    if (!message.includes("payment_provider")) {
+      fallbackDraft.payment_provider = input.provider;
+    }
+    if (!message.includes("code_promo") && !message.includes("remise_centimes")) {
+      fallbackDraft.code_promo_id = input.promoCode?.id ?? null;
+      fallbackDraft.code_promo_code = input.promoCode?.code ?? null;
+      fallbackDraft.remise_centimes = discountCents;
+    }
+    ({ data: order, error: orderError } = await supabase.from("commandes").insert(fallbackDraft).select("*").single());
   }
 
   if (orderError || !order) {
@@ -192,6 +211,8 @@ export async function markOrderPaid(input: { orderId: string; providerPaymentId?
       .in("id", productIds);
     if (productError) throw new Error(productError.message);
   }
+
+  await registerPromoUsageForPaidOrder(input.orderId);
 }
 
 export async function markOrderCancelled(orderId: string) {

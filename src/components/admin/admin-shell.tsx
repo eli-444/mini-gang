@@ -12,8 +12,9 @@ const navItems = [
   { href: "/admin/merch", label: "Merch", section: "Boutique", icon: "03" },
   { href: "/admin/orders", label: "Commandes", section: "Boutique", icon: "04" },
   { href: "/admin/customers", label: "Clients", section: "Boutique", icon: "05" },
-  { href: "/admin/sell-orders", label: "Rachat", section: "Operations", icon: "06" },
-  { href: "/admin/settings", label: "Reglages", section: "Systeme", icon: "07" },
+  { href: "/admin/promo-codes", label: "Codes promo", section: "Boutique", icon: "06" },
+  { href: "/admin/sell-orders", label: "Rachat", section: "Operations", icon: "07" },
+  { href: "/admin/settings", label: "Reglages", section: "Systeme", icon: "08" },
 ];
 
 const navSections = ["Pilotage", "Boutique", "Operations", "Systeme"];

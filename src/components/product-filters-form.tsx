@@ -68,7 +68,6 @@ export function ProductFiltersForm({ values }: ProductFiltersFormProps) {
       </div>
 
       <FilterSelect name="age_range" label="Age" value={values.age_range} options={ageRangeOptions.map((age) => ({ value: age, label: age }))} />
-      <FilterSelect name="size_label" label="Taille" value={values.size_label} options={["2 ans", "3 ans", "4 ans", "5 ans", "6 ans", "8 ans", "10 ans", "12 ans"].map((size) => ({ value: size, label: size }))} />
       <FilterSelect name="genre" label="Genre" value={values.genre} options={[{ value: "femme", label: "Fille" }, { value: "homme", label: "Garcon" }]} />
       <FilterSelect name="saison" label="Saison" value={values.saison} options={productSeasonOptions.map((season) => ({ value: season.value, label: season.label }))} />
 

@@ -307,3 +307,41 @@ export async function listProcurements() {
     procurement_items?: Array<{ id: string; buy_cost_cents?: number | null }>;
   }>;
 }
+
+export async function listPromoCodes() {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("codes_promo")
+    .select("id,code,pourcentage,actif,usage_unique,expire_le,cree_le,codes_promo_utilisations(id)")
+    .order("cree_le", { ascending: false });
+
+  if (error) {
+    return {
+      rows: [] as Array<{
+        id: string;
+        code: string;
+        percentage: number;
+        active: boolean;
+        unique_usage: boolean;
+        expires_at: string | null;
+        created_at: string;
+        usage_count: number;
+      }>,
+      error: error.message,
+    };
+  }
+
+  return {
+    rows: (data ?? []).map((promo) => ({
+      id: promo.id,
+      code: promo.code,
+      percentage: promo.pourcentage,
+      active: promo.actif,
+      unique_usage: promo.usage_unique,
+      expires_at: promo.expire_le,
+      created_at: promo.cree_le,
+      usage_count: promo.codes_promo_utilisations?.length ?? 0,
+    })),
+    error: null,
+  };
+}

@@ -41,6 +41,7 @@ export const checkoutCreateSchema = z.object({
   provider: z.enum(["stripe", "twint"]),
   email: z.string().email(),
   items: z.array(checkoutItemSchema).min(1).max(20),
+  promoCode: z.string().trim().max(40).optional().or(z.literal("")),
   shipping: z.object({
     name: z.string().trim().min(2).max(120),
     phone: z.string().trim().min(6).max(40),
@@ -51,6 +52,31 @@ export const checkoutCreateSchema = z.object({
     country: z.string().trim().length(2).default("CH"),
   }),
   acceptTerms: z.literal(true),
+});
+
+export const promoCodeValidateSchema = z.object({
+  code: z.string().trim().min(2).max(40),
+  items: z.array(checkoutItemSchema).min(1).max(20),
+});
+
+export const adminPromoCodeSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .min(2)
+    .max(40)
+    .regex(/^[A-Z0-9_-]+$/i, "Code invalide"),
+  percentage: z.coerce.number().int().min(1).max(90),
+  active: z.boolean().default(true),
+  uniqueUsage: z.boolean().default(true),
+  expiresAt: z.string().trim().optional().or(z.literal("")),
+});
+
+export const adminPromoCodeUpdateSchema = z.object({
+  active: z.boolean().optional(),
+  percentage: z.coerce.number().int().min(1).max(90).optional(),
+  uniqueUsage: z.boolean().optional(),
+  expiresAt: z.string().trim().optional().or(z.literal("")),
 });
 
 export const adminPaymentSettingsSchema = z.object({
