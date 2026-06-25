@@ -64,20 +64,23 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               const emplacement = item.emplacement_stock ?? item.vetements?.emplacement_stock ?? "-";
 
               return (
-              <div key={item.id} className="grid gap-2 rounded-md border border-slate-100 p-3 text-sm md:grid-cols-[minmax(0,1fr)_180px_180px_auto] md:items-center">
-                <div>
-                  <p className="font-semibold text-slate-950">{item.nom_vetement ?? item.vetement_id}</p>
-                  <p className="text-xs text-slate-500">{item.vetement_id ?? "-"}</p>
+              <div
+                key={item.id}
+                className="grid gap-3 rounded-md border border-slate-100 p-3 text-sm xl:grid-cols-[minmax(0,1fr)_150px_150px_auto] xl:items-center"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-slate-950">{item.nom_vetement ?? item.vetement_id}</p>
+                  <p className="break-all text-xs leading-4 text-slate-500">{item.vetement_id ?? "-"}</p>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <span className="block text-xs uppercase tracking-[0.1em] text-slate-400">Reference</span>
-                  <strong>{reference}</strong>
+                  <strong className="break-words">{reference}</strong>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <span className="block text-xs uppercase tracking-[0.1em] text-slate-400">Emplacement</span>
-                  <strong>{emplacement}</strong>
+                  <strong className="break-words">{emplacement}</strong>
                 </div>
-                <strong className="md:text-right">{toChf(item.prix_centimes)}</strong>
+                <strong className="text-left xl:text-right">{toChf(item.prix_centimes)}</strong>
               </div>
               );
             })}
