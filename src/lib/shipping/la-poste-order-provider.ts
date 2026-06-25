@@ -4,12 +4,17 @@ import type { OrderShippingLabelInput, OrderShippingLabelResult } from "@/lib/sh
 type SwissPostLabelResponse = {
   item?: {
     identCode?: string;
-    label?: string;
+    label?: string | string[];
     errors?: Array<{ code?: string; message?: string }>;
   };
-  label?: string;
+  label?: string | string[];
   identCode?: string;
   errors?: Array<{ code?: string; message?: string }>;
+  error?: string;
+  error_description?: string;
+  message?: string;
+  detail?: string;
+  title?: string;
 };
 
 function isConfigured() {
@@ -31,6 +36,10 @@ function normalizeCountry(value: string | null | undefined) {
 
 function clean(value: string | null | undefined, fallback = "") {
   return String(value ?? fallback).trim();
+}
+
+function limit(value: string | null | undefined, maxLength: number, fallback = "") {
+  return clean(value, fallback).slice(0, maxLength);
 }
 
 function splitStreet(line1: string | null | undefined) {
@@ -88,11 +97,10 @@ function buildRequestPayload(input: OrderShippingLabelInput) {
     language: "FR",
     frankingLicense: env.laPosteFrankingLicense,
     customer: {
-      name1: sender.name,
-      street: sender.street.street,
-      houseNo: sender.street.houseNo,
-      zip: sender.postalCode,
-      city: sender.city,
+      name1: limit(sender.name, 25, "Mini Gang"),
+      street: limit(env.shippingSenderLine1 ?? env.buybackReceiverLine1, 25),
+      zip: limit(sender.postalCode, 6),
+      city: limit(sender.city, 25),
       country: sender.country,
     },
     labelDefinition: {
@@ -105,26 +113,19 @@ function buildRequestPayload(input: OrderShippingLabelInput) {
     item: {
       itemID: itemId,
       recipient: {
-        name1: recipientName,
-        street: recipientStreet.street,
-        houseNo: recipientStreet.houseNo,
-        zip: clean(input.order.code_postal),
-        city: clean(input.order.ville),
+        name1: limit(recipientName, 35, input.order.email),
+        street: limit(recipientStreet.street, 35),
+        houseNo: limit(recipientStreet.houseNo, 10),
+        zip: limit(input.order.code_postal, 10),
+        city: limit(input.order.ville, 35),
         country: normalizeCountry(input.order.pays),
-        phone: clean(input.order.telephone),
-        email: clean(input.order.email),
+        phone: limit(input.order.telephone, 20),
+        email: limit(input.order.email, 160),
       },
       attributes: {
         przl: [env.laPosteServiceCode],
         weight: Number.isFinite(env.laPosteDefaultWeightGrams) ? env.laPosteDefaultWeightGrams : 1000,
       },
-      notification: {
-        email: clean(input.order.email),
-      },
-      content: input.items.map((item) => ({
-        description: clean(item.nom_vetement ?? item.vetement_id, "Article"),
-        quantity: 1,
-      })),
     },
   };
 }
@@ -133,10 +134,42 @@ function decodePdf(base64: string) {
   return Uint8Array.from(Buffer.from(base64, "base64"));
 }
 
+function pickLabel(label: string | string[] | undefined) {
+  if (Array.isArray(label)) return label[0];
+  return label;
+}
+
+function formatSwissPostError(status: number, payload: SwissPostLabelResponse | Record<string, unknown> | null, rawBody: string) {
+  const structured = payload as SwissPostLabelResponse | null;
+  const responseErrors = structured?.errors ?? structured?.item?.errors ?? [];
+  const messages = responseErrors.map((error) => [error.code, error.message].filter(Boolean).join(" ")).filter(Boolean);
+  const direct = [
+    structured?.error_description,
+    structured?.detail,
+    structured?.message,
+    structured?.title,
+    structured?.error,
+  ].filter(Boolean);
+  const raw = rawBody.trim();
+  return [...messages, ...direct, raw && raw !== "[object Object]" ? raw.slice(0, 1200) : null]
+    .filter(Boolean)
+    .join(" | ") || `HTTP ${status}`;
+}
+
+function parseSwissPostResponse(rawBody: string) {
+  if (!rawBody.trim()) return null;
+  try {
+    return JSON.parse(rawBody) as SwissPostLabelResponse;
+  } catch {
+    return null;
+  }
+}
+
 export async function createLaPosteOrderLabel(input: OrderShippingLabelInput): Promise<OrderShippingLabelResult | null> {
   if (!isConfigured()) return null;
 
   const accessToken = await fetchAccessToken();
+  const requestPayload = buildRequestPayload(input);
   const response = await fetch(env.laPosteApiUrl, {
     method: "POST",
     headers: {
@@ -144,17 +177,17 @@ export async function createLaPosteOrderLabel(input: OrderShippingLabelInput): P
       "Content-Type": "application/json;charset=UTF-8",
       Accept: "application/json",
     },
-    body: JSON.stringify(buildRequestPayload(input)),
+    body: JSON.stringify(requestPayload),
   });
 
-  const payload = (await response.json().catch(() => null)) as SwissPostLabelResponse | null;
+  const rawBody = await response.text();
+  const payload = parseSwissPostResponse(rawBody);
   const responseErrors = payload?.errors ?? payload?.item?.errors ?? [];
   if (!response.ok || responseErrors.length > 0) {
-    const message = responseErrors.map((error) => error.message ?? error.code).filter(Boolean).join(" | ");
-    throw new Error(`La Poste label failed (${response.status}): ${message || "unknown error"}`);
+    throw new Error(`La Poste label failed (${response.status}): ${formatSwissPostError(response.status, payload, rawBody)}`);
   }
 
-  const labelBase64 = payload?.item?.label ?? payload?.label;
+  const labelBase64 = pickLabel(payload?.item?.label) ?? pickLabel(payload?.label);
   if (!labelBase64) {
     throw new Error("La Poste label failed: missing PDF label.");
   }
