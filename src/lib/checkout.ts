@@ -1,15 +1,66 @@
 import { env } from "@/lib/env";
 import { log } from "@/lib/logger";
+import { isMerchCategory } from "@/lib/product-categories";
 import { RESERVATION_TTL_MINUTES, SHOP_COUNTRY_LABEL, SHOP_CURRENCY } from "@/lib/shop-config";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { registerPromoUsageForPaidOrder, type PromoCodeValidation } from "@/lib/promo-codes";
 import type { PaymentProviderName } from "@/lib/types";
+
+type ReservableProductRow = {
+  id: string;
+  categorie?: string | null;
+  statut: string;
+  quantite_stock?: number | null;
+};
+
+function isMissingMerchStockColumn(error: { message?: string } | null) {
+  const message = error?.message?.toLowerCase() ?? "";
+  return message.includes("quantite_stock") || message.includes("categorie");
+}
 
 export async function reserveProductsOrThrow(productIds: string[]) {
   const supabase = createSupabaseAdminClient();
   const reservedUntil = new Date(Date.now() + RESERVATION_TTL_MINUTES * 60_000).toISOString();
 
   for (const productId of productIds) {
+    const { data: stockRow, error: stockError } = await supabase
+      .from("vetements")
+      .select("id,categorie,statut,quantite_stock")
+      .eq("id", productId)
+      .eq("statut", "disponible")
+      .maybeSingle();
+
+    if (stockError && !isMissingMerchStockColumn(stockError)) {
+      throw new Error(stockError.message);
+    }
+
+    const row = stockRow as ReservableProductRow | null;
+    if (row && isMerchCategory(row.categorie)) {
+      const currentStock = typeof row.quantite_stock === "number" ? row.quantite_stock : 1;
+      if (currentStock <= 0) {
+        throw new Error(`Product ${productId} is unavailable.`);
+      }
+
+      const nextStock = currentStock - 1;
+      const { data: reserved, error } = await supabase
+        .from("vetements")
+        .update({
+          quantite_stock: nextStock,
+          statut: nextStock > 0 ? "disponible" : "reserve",
+          reserved_until: reservedUntil,
+        })
+        .eq("id", productId)
+        .eq("statut", "disponible")
+        .eq("quantite_stock", currentStock)
+        .select("id")
+        .maybeSingle();
+
+      if (error || !reserved) {
+        throw new Error(`Product ${productId} is unavailable.`);
+      }
+      continue;
+    }
+
     const { data: reserved, error } = await supabase
       .from("vetements")
       .update({ statut: "reserve", reserved_until: reservedUntil })
@@ -26,20 +77,84 @@ export async function reserveProductsOrThrow(productIds: string[]) {
 
 export async function releaseExpiredReservations() {
   const supabase = createSupabaseAdminClient();
+  const now = new Date().toISOString();
+  const { data: expiredRows, error: listError } = await supabase
+    .from("vetements")
+    .select("id,categorie,quantite_stock")
+    .eq("statut", "reserve")
+    .lt("reserved_until", now);
+
+  if (listError && isMissingMerchStockColumn(listError)) {
+    const { data, error } = await supabase
+      .from("vetements")
+      .update({ statut: "disponible", reserved_until: null })
+      .eq("statut", "reserve")
+      .lt("reserved_until", now)
+      .select("id");
+
+    if (error) throw new Error(error.message);
+    return { ok: true, released: data?.length ?? 0 };
+  }
+
+  if (listError) throw new Error(listError.message);
+
+  const { data: expiredAvailableMerch } = await supabase
+    .from("vetements")
+    .select("id,categorie,quantite_stock")
+    .eq("statut", "disponible")
+    .lt("reserved_until", now);
+
+  const expired = (expiredRows ?? []) as ReservableProductRow[];
+  const merchRows = [
+    ...expired.filter((item) => isMerchCategory(item.categorie)),
+    ...(((expiredAvailableMerch ?? []) as ReservableProductRow[]).filter((item) => isMerchCategory(item.categorie))),
+  ];
+  for (const row of merchRows) {
+    await supabase
+      .from("vetements")
+      .update({
+        statut: "disponible",
+        reserved_until: null,
+        quantite_stock: (row.quantite_stock ?? 0) + 1,
+      })
+      .eq("id", row.id);
+  }
+
+  const uniqueIds = expired.filter((item) => !isMerchCategory(item.categorie)).map((item) => item.id);
   const { data, error } = await supabase
     .from("vetements")
     .update({ statut: "disponible", reserved_until: null })
-    .eq("statut", "reserve")
-    .lt("reserved_until", new Date().toISOString())
+    .in("id", uniqueIds.length > 0 ? uniqueIds : ["00000000-0000-0000-0000-000000000000"])
     .select("id");
 
   if (error) throw new Error(error.message);
-  return { ok: true, released: data?.length ?? 0 };
+  return { ok: true, released: (data?.length ?? 0) + merchRows.length };
 }
 
 export async function releaseProductReservations(productIds: string[]) {
   if (productIds.length === 0) return;
   const supabase = createSupabaseAdminClient();
+  const { data: rows, error: rowsError } = await supabase
+    .from("vetements")
+    .select("id,categorie,quantite_stock")
+    .in("id", productIds);
+
+  if (!rowsError) {
+    const products = (rows ?? []) as ReservableProductRow[];
+    for (const row of products.filter((item) => isMerchCategory(item.categorie))) {
+      await supabase
+        .from("vetements")
+        .update({
+          statut: "disponible",
+          reserved_until: null,
+          quantite_stock: (row.quantite_stock ?? 0) + 1,
+        })
+        .eq("id", row.id);
+    }
+  } else if (!isMissingMerchStockColumn(rowsError)) {
+    throw new Error(rowsError.message);
+  }
+
   const { error } = await supabase
     .from("vetements")
     .update({ statut: "disponible", reserved_until: null })
@@ -52,7 +167,13 @@ export async function createOrderDraft(input: {
   userId?: string;
   email: string;
   provider: PaymentProviderName;
-  items: Array<{ id: string; title: string; price_cents: number }>;
+  items: Array<{
+    id: string;
+    title: string;
+    price_cents: number;
+    reference_code?: string | null;
+    stock_location?: string | null;
+  }>;
   shippingFeeCents: number;
   discountCents?: number;
   promoCode?: PromoCodeValidation | null;
@@ -141,9 +262,26 @@ export async function createOrderDraft(input: {
       nom_vetement: item.title,
       taille: "",
       prix_centimes: item.price_cents,
+      reference_vetement: item.reference_code ?? null,
+      emplacement_stock: item.stock_location ?? null,
     })),
   );
-  if (itemsError) throw new Error(`Cannot create order items: ${itemsError.message}`);
+  if (itemsError) {
+    const message = itemsError.message.toLowerCase();
+    if (!message.includes("reference_vetement") && !message.includes("emplacement_stock")) {
+      throw new Error(`Cannot create order items: ${itemsError.message}`);
+    }
+    const { error: fallbackItemsError } = await supabase.from("articles_commande").insert(
+      input.items.map((item) => ({
+        commande_id: order.id,
+        vetement_id: item.id,
+        nom_vetement: item.title,
+        taille: "",
+        prix_centimes: item.price_cents,
+      })),
+    );
+    if (fallbackItemsError) throw new Error(`Cannot create order items: ${fallbackItemsError.message}`);
+  }
 
   return order;
 }
@@ -205,11 +343,41 @@ export async function markOrderPaid(input: { orderId: string; providerPaymentId?
 
   const productIds = orderItems.map((item) => item.vetement_id).filter(Boolean);
   if (productIds.length > 0) {
-    const { error: productError } = await supabase
+    const { data: products, error: productListError } = await supabase
       .from("vetements")
-      .update({ statut: "vendu", reserved_until: null })
+      .select("id,categorie,quantite_stock")
       .in("id", productIds);
-    if (productError) throw new Error(productError.message);
+
+    if (productListError && !isMissingMerchStockColumn(productListError)) throw new Error(productListError.message);
+
+    if (!productListError) {
+      const rows = (products ?? []) as ReservableProductRow[];
+      const merch = rows.filter((item) => isMerchCategory(item.categorie));
+      const unique = rows.filter((item) => !isMerchCategory(item.categorie)).map((item) => item.id);
+
+      for (const row of merch) {
+        const nextStatus = (row.quantite_stock ?? 0) > 0 ? "disponible" : "vendu";
+        const { error: merchError } = await supabase
+          .from("vetements")
+          .update({ statut: nextStatus, reserved_until: null })
+          .eq("id", row.id);
+        if (merchError) throw new Error(merchError.message);
+      }
+
+      if (unique.length > 0) {
+        const { error: productError } = await supabase
+          .from("vetements")
+          .update({ statut: "vendu", reserved_until: null })
+          .in("id", unique);
+        if (productError) throw new Error(productError.message);
+      }
+    } else {
+      const { error: productError } = await supabase
+        .from("vetements")
+        .update({ statut: "vendu", reserved_until: null })
+        .in("id", productIds);
+      if (productError) throw new Error(productError.message);
+    }
   }
 
   await registerPromoUsageForPaidOrder(input.orderId);

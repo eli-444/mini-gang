@@ -118,6 +118,8 @@ export async function POST(request: Request) {
         id: product.id,
         title: product.title,
         price_cents: product.price_cents,
+        reference_code: product.reference_code,
+        stock_location: product.stock_location,
       })),
       shipping: parsed.data.shipping,
     });

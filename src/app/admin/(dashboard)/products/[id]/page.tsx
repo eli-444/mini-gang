@@ -18,6 +18,7 @@ type AdminProductRow = {
   taille: string;
   genre: string;
   statut: string;
+  quantite_stock?: number | null;
   prix_centimes: number;
   prix_neuf_centimes?: number | null;
   couleur: string | null;
@@ -43,7 +44,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
 
   const loadProduct = async (includeAge: boolean) =>
     vetementsTable
-      .select(`id,nom,reference_vetement,description,marque,etat,categorie,saison,${includeAge ? "age," : ""}taille,genre,statut,prix_centimes,prix_neuf_centimes,couleur,matiere,emplacement_stock,mis_en_avant,cree_le,photos_vetements(id,url,position,principale)`)
+      .select(`id,nom,reference_vetement,description,marque,etat,categorie,saison,${includeAge ? "age," : ""}taille,genre,statut,quantite_stock,prix_centimes,prix_neuf_centimes,couleur,matiere,emplacement_stock,mis_en_avant,cree_le,photos_vetements(id,url,position,principale)`)
       .eq("id", id)
       .maybeSingle();
   const loadLegacyProduct = async (includeAge: boolean) =>
@@ -63,7 +64,8 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
     productError?.message?.toLowerCase().includes("reference_vetement") ||
     productError?.message?.toLowerCase().includes("prix_neuf_centimes") ||
     productError?.message?.toLowerCase().includes("saison") ||
-    productError?.message?.toLowerCase().includes("emplacement_stock")
+    productError?.message?.toLowerCase().includes("emplacement_stock") ||
+    productError?.message?.toLowerCase().includes("quantite_stock")
   ) {
     ({ data: productData, error: productError } = await loadLegacyProduct(true));
   }
@@ -73,7 +75,8 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
       productError?.message?.toLowerCase().includes("reference_vetement") ||
       productError?.message?.toLowerCase().includes("prix_neuf_centimes") ||
       productError?.message?.toLowerCase().includes("saison") ||
-      productError?.message?.toLowerCase().includes("emplacement_stock")
+      productError?.message?.toLowerCase().includes("emplacement_stock") ||
+      productError?.message?.toLowerCase().includes("quantite_stock")
     ) {
       ({ data: productData, error: productError } = await loadLegacyProduct(false));
     }
@@ -100,7 +103,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
           </Link>
         </div>
 
-        <div className="grid gap-3 px-5 py-4 text-sm text-slate-700 md:grid-cols-5">
+        <div className="grid gap-3 px-5 py-4 text-sm text-slate-700 md:grid-cols-2 xl:grid-cols-6">
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
             <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Reference</span>
             <strong className="mt-1 block text-slate-950">{product.reference_vetement ?? "-"}</strong>
@@ -120,6 +123,10 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
             <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Emplacement</span>
             <strong className="mt-1 block text-slate-950">{product.emplacement_stock ?? "-"}</strong>
+          </div>
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Quantite</span>
+            <strong className="mt-1 block text-slate-950">{product.quantite_stock ?? 1}</strong>
           </div>
         </div>
       </div>
@@ -142,6 +149,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
             <div><dt className="text-slate-500">Prix</dt><dd>{toChf(product.prix_centimes)}</dd></div>
             <div><dt className="text-slate-500">Prix neuf barre</dt><dd>{product.prix_neuf_centimes ? toChf(product.prix_neuf_centimes) : "-"}</dd></div>
             <div><dt className="text-slate-500">Emplacement</dt><dd>{product.emplacement_stock ?? "-"}</dd></div>
+            <div><dt className="text-slate-500">Quantite</dt><dd>{product.quantite_stock ?? 1}</dd></div>
             <div>
               <dt className="text-slate-500">Statut</dt>
               <dd><span className={`admin-status ${product.statut}`}>{getProductStatusLabel(product.statut)}</span></dd>

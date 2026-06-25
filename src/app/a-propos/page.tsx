@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { InstagramEmbed } from "@/components/instagram-embed";
 
 export default function AboutPage() {
   return (
@@ -79,6 +80,12 @@ export default function AboutPage() {
           height={503}
           className="absolute -right-20 top-0 hidden w-[26rem] rotate-6 md:block"
         />
+      </section>
+
+      <section className="mg-container py-12 md:py-20">
+        <div className="mx-auto max-w-[640px]">
+          <InstagramEmbed />
+        </div>
       </section>
     </div>
   );

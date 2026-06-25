@@ -35,6 +35,7 @@ export interface Product {
   size_label: string | null;
   sex: ProductSex;
   status: ProductStatus;
+  stock_quantity: number | null;
   stock_location: string | null;
   reserved_until: string | null;
   created_at: string;

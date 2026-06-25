@@ -133,6 +133,7 @@ export const adminProductSchema = z.object({
   couleur: z.string().trim().max(60).optional().or(z.literal("")),
   matiere: z.string().trim().max(80).optional().or(z.literal("")),
   stock_location: z.string().trim().max(160).optional().or(z.literal("")),
+  stock_quantity: z.coerce.number().int().min(0).max(10000).default(1),
   mis_en_avant: z.boolean().default(false),
   status: productStatusSchema.default("disponible"),
 });

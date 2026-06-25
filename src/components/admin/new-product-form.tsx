@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ageRangeOptions } from "@/lib/age-options";
-import { productCategoryOptions } from "@/lib/product-categories";
+import { allProductCategoryOptions, isMerchCategory } from "@/lib/product-categories";
 import { productConditionOptions, productSeasonOptions, productStatusOptions } from "@/lib/product-options";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -101,6 +101,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
     couleur: "",
     matiere: "",
     stock_location: "",
+    stock_quantity: isMerchCategory(defaultCategory) ? 1 : 1,
     status: "brouillon",
     mis_en_avant: false,
   });
@@ -287,7 +288,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <Field label="Catégorie">
             <select value={form.categorie} onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))} className={selectClass}>
-              {productCategoryOptions.map((category) => (
+              {allProductCategoryOptions.map((category) => (
                 <option key={category.value} value={category.value}>
                   {category.label}
                 </option>
@@ -350,6 +351,19 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
               className={inputClass}
             />
           </Field>
+          {isMerchCategory(form.categorie) ? (
+            <Field label="Quantite merch">
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={form.stock_quantity}
+                onChange={(event) => setForm((prev) => ({ ...prev, stock_quantity: Number(event.target.value) }))}
+                placeholder="50"
+                className={inputClass}
+              />
+            </Field>
+          ) : null}
           <Field label="Couleur">
             <input
               value={form.couleur}

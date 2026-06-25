@@ -6,11 +6,20 @@ import { toChf } from "@/lib/utils";
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createSupabaseAdminClient();
-  const { data: order } = await supabase
+  const orderResult = await supabase
     .from("commandes")
-    .select("*, articles_commande(*), shipments(*)")
+    .select("*, articles_commande(*, vetements(reference_vetement,emplacement_stock)), shipments(*)")
     .eq("id", id)
     .maybeSingle();
+  let order = orderResult.data;
+
+  if (orderResult.error) {
+    ({ data: order } = await supabase
+      .from("commandes")
+      .select("*, articles_commande(*), shipments(*)")
+      .eq("id", id)
+      .maybeSingle());
+  }
 
   if (!order) notFound();
   const canGenerateShippingLabel = ["payee", "preparee", "envoyee", "livree"].includes(order.statut);
@@ -25,12 +34,36 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         <article className="admin-card p-4">
           <h2 className="text-sm font-semibold uppercase text-slate-500">Articles</h2>
           <div className="mt-3 space-y-2">
-            {(order.articles_commande ?? []).map((item: { id: string; vetement_id: string | null; nom_vetement: string; prix_centimes: number }) => (
-              <div key={item.id} className="flex items-center justify-between rounded-md border border-slate-100 p-2 text-sm">
-                <span>{item.nom_vetement ?? item.vetement_id}</span>
-                <strong>{toChf(item.prix_centimes)}</strong>
+            {(order.articles_commande ?? []).map((item: {
+              id: string;
+              vetement_id: string | null;
+              nom_vetement: string;
+              prix_centimes: number;
+              reference_vetement?: string | null;
+              emplacement_stock?: string | null;
+              vetements?: { reference_vetement?: string | null; emplacement_stock?: string | null } | null;
+            }) => {
+              const reference = item.reference_vetement ?? item.vetements?.reference_vetement ?? "-";
+              const emplacement = item.emplacement_stock ?? item.vetements?.emplacement_stock ?? "-";
+
+              return (
+              <div key={item.id} className="grid gap-2 rounded-md border border-slate-100 p-3 text-sm md:grid-cols-[minmax(0,1fr)_180px_180px_auto] md:items-center">
+                <div>
+                  <p className="font-semibold text-slate-950">{item.nom_vetement ?? item.vetement_id}</p>
+                  <p className="text-xs text-slate-500">{item.vetement_id ?? "-"}</p>
+                </div>
+                <div>
+                  <span className="block text-xs uppercase tracking-[0.1em] text-slate-400">Reference</span>
+                  <strong>{reference}</strong>
+                </div>
+                <div>
+                  <span className="block text-xs uppercase tracking-[0.1em] text-slate-400">Emplacement</span>
+                  <strong>{emplacement}</strong>
+                </div>
+                <strong className="md:text-right">{toChf(item.prix_centimes)}</strong>
               </div>
-            ))}
+              );
+            })}
           </div>
         </article>
 

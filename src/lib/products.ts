@@ -35,6 +35,7 @@ type VetementRow = {
   taille: string;
   genre: Product["sex"];
   statut: Product["status"];
+  quantite_stock?: number | null;
   emplacement_stock?: string | null;
   reserved_until?: string | null;
   cree_le: string;
@@ -82,13 +83,13 @@ type SupabaseVetementsTable = {
 };
 
 const vetementSelectWithAgeAndReservation =
-  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,age,taille,genre,statut,emplacement_stock,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
+  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,age,taille,genre,statut,quantite_stock,emplacement_stock,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectWithAge =
-  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,age,taille,genre,statut,emplacement_stock,cree_le,photos_vetements(id,url,position,principale)";
+  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,age,taille,genre,statut,quantite_stock,emplacement_stock,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectWithoutAgeAndReservation =
-  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,taille,genre,statut,emplacement_stock,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
+  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,taille,genre,statut,quantite_stock,emplacement_stock,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectWithoutAge =
-  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,taille,genre,statut,emplacement_stock,cree_le,photos_vetements(id,url,position,principale)";
+  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,taille,genre,statut,quantite_stock,emplacement_stock,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectLegacyWithAgeAndReservation =
   "id,nom,description,prix_centimes,marque,etat,categorie,age,taille,genre,statut,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectLegacyWithAge =
@@ -108,7 +109,9 @@ function isMissingReservedUntilColumn(error: { message?: string } | null) {
 
 function isMissingProductExpansionColumn(error: { message?: string } | null) {
   const message = error?.message?.toLowerCase() ?? "";
-  return ["prix_neuf_centimes", "saison", "emplacement_stock"].some((column) => message.includes(column));
+  return ["prix_neuf_centimes", "saison", "emplacement_stock", "quantite_stock", "reference_vetement"].some((column) =>
+    message.includes(column),
+  );
 }
 
 function getVetementSelect(includeAge: boolean, includeReservation: boolean, includeExpansion = true) {
@@ -184,6 +187,7 @@ function mapVetementToProduct(row: VetementRow): Product {
     size_label: row.taille,
     sex: row.genre,
     status: row.statut,
+    stock_quantity: row.quantite_stock ?? null,
     stock_location: row.emplacement_stock ?? null,
     reserved_until: row.reserved_until ?? null,
     created_at: row.cree_le,
@@ -277,7 +281,9 @@ export async function listProducts(options: ListProductsOptions) {
   }
   if (error) throw new Error(error.message);
 
-  const rows = (data ?? []) as unknown as VetementRow[];
+  const rows = ((data ?? []) as unknown as VetementRow[]).filter(
+    (row) => typeof row.quantite_stock !== "number" || row.quantite_stock > 0,
+  );
   const hasMore = rows.length > limit;
   const products = (hasMore ? rows.slice(0, limit) : rows).map(mapVetementToProduct);
   const last = products[products.length - 1];
@@ -331,7 +337,9 @@ export async function getProductById(id: string) {
   }
 
   if (error) return null;
-  return mapVetementToProduct(data as unknown as VetementRow);
+  const row = data as unknown as VetementRow;
+  if (typeof row.quantite_stock === "number" && row.quantite_stock <= 0) return null;
+  return mapVetementToProduct(row);
 }
 
 export async function getVisibleProductsByIds(ids: string[]) {
@@ -369,7 +377,9 @@ export async function getVisibleProductsByIds(ids: string[]) {
   }
 
   if (error) throw new Error(error.message);
-  const products = ((data ?? []) as unknown as VetementRow[]).map(mapVetementToProduct);
+  const products = ((data ?? []) as unknown as VetementRow[])
+    .filter((row) => typeof row.quantite_stock !== "number" || row.quantite_stock > 0)
+    .map(mapVetementToProduct);
   const order = new Map(uniqueIds.map((id, index) => [id, index]));
   return products.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 }
@@ -395,6 +405,7 @@ type CartVetementRow = {
   taille?: string | null;
   age?: string | null;
   statut: Product["status"];
+  quantite_stock?: number | null;
   reserved_until?: string | null;
   photos_vetements?: Array<{
     id: string;
@@ -423,7 +434,7 @@ export async function getCartProductsByIds(ids: string[]) {
   let rows: CartVetementRow[] | null = null;
   let error: { message?: string } | null = null;
 
-  const getCartSelect = (includeAge: boolean, includeReservation: boolean) =>
+  const getCartSelect = (includeAge: boolean, includeReservation: boolean, includeStock = true) =>
     [
       "id",
       "nom",
@@ -432,6 +443,7 @@ export async function getCartProductsByIds(ids: string[]) {
       "taille",
       includeAge ? "age" : null,
       "statut",
+      includeStock ? "quantite_stock" : null,
       includeReservation ? "reserved_until" : null,
       "photos_vetements(id,url,position,principale)",
     ]
@@ -444,7 +456,10 @@ export async function getCartProductsByIds(ids: string[]) {
     [false, true],
     [false, false],
   ] as const) {
-    const result = await supabase.from("vetements").select(getCartSelect(includeAge, includeReservation)).in("id", uniqueIds);
+    let result = await supabase.from("vetements").select(getCartSelect(includeAge, includeReservation)).in("id", uniqueIds);
+    if (isMissingProductExpansionColumn(result.error)) {
+      result = await supabase.from("vetements").select(getCartSelect(includeAge, includeReservation, false)).in("id", uniqueIds);
+    }
     rows = result.data as CartVetementRow[] | null;
     error = result.error;
     if (!isMissingAgeColumn(error) && !isMissingReservedUntilColumn(error)) break;
@@ -479,7 +494,7 @@ export async function getCartProductsByIds(ids: string[]) {
       age_range: row.age ?? null,
       image_url: getPrimaryCartImage(row),
       status: row.statut,
-      available: row.statut === "disponible",
+      available: row.statut === "disponible" && (typeof row.quantite_stock !== "number" || row.quantite_stock > 0),
       reserved_until: row.reserved_until ?? null,
     };
   });
@@ -491,17 +506,27 @@ export async function getProductsByIds(ids: string[]) {
   }
 
   const supabase = createSupabaseAdminClient();
-  let productRows: Array<{ id: string; nom: string; prix_centimes: number; statut: string; reserved_until?: string | null }> | null = null;
+  let productRows: Array<{
+    id: string;
+    nom: string;
+    prix_centimes: number;
+    statut: string;
+    categorie?: string | null;
+    reference_vetement?: string | null;
+    emplacement_stock?: string | null;
+    quantite_stock?: number | null;
+    reserved_until?: string | null;
+  }> | null = null;
   let productError: { message?: string } | null = null;
   const result = await supabase
     .from("vetements")
-    .select("id,nom,prix_centimes,statut,reserved_until")
+    .select("id,nom,prix_centimes,statut,categorie,reference_vetement,emplacement_stock,quantite_stock,reserved_until")
     .in("id", ids)
     .eq("statut", "disponible");
   productRows = result.data;
   productError = result.error;
 
-  if (isMissingReservedUntilColumn(productError)) {
+  if (isMissingReservedUntilColumn(productError) || isMissingProductExpansionColumn(productError)) {
     const fallback = await supabase
       .from("vetements")
       .select("id,nom,prix_centimes,statut")
@@ -512,11 +537,17 @@ export async function getProductsByIds(ids: string[]) {
   }
 
   if (productError) throw new Error(productError.message);
-  return (productRows ?? []).map((row) => ({
-    id: row.id,
-    title: row.nom,
-    price_cents: row.prix_centimes,
-    status: row.statut,
-    reserved_until: row.reserved_until,
-  }));
+  return (productRows ?? [])
+    .filter((row) => typeof row.quantite_stock !== "number" || row.quantite_stock > 0)
+    .map((row) => ({
+      id: row.id,
+      title: row.nom,
+      price_cents: row.prix_centimes,
+      status: row.statut,
+      category: row.categorie ?? null,
+      reference_code: row.reference_vetement ?? null,
+      stock_location: row.emplacement_stock ?? null,
+      stock_quantity: row.quantite_stock ?? null,
+      reserved_until: row.reserved_until,
+    }));
 }

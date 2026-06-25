@@ -47,3 +47,7 @@ export const productCategoryValues = allProductCategoryOptions.map((option) => o
 export function getProductCategoryLabel(value: string | null | undefined) {
   return allProductCategoryOptions.find((option) => option.value === value)?.label ?? value ?? "-";
 }
+
+export function isMerchCategory(value: string | null | undefined) {
+  return value === "accessoire" || value === "autre";
+}

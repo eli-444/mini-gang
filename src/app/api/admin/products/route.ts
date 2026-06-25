@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   }
 
   const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("vetements")
     .insert({
       nom: parsed.data.title,
@@ -35,11 +35,39 @@ export async function POST(request: Request) {
       etat: parsed.data.condition,
       statut: parsed.data.status,
       emplacement_stock: parsed.data.stock_location || null,
+      quantite_stock: parsed.data.stock_quantity,
       mis_en_avant: parsed.data.mis_en_avant,
       cree_par: auth.user.id,
     })
     .select("*")
     .single();
+
+  if (error?.message?.toLowerCase().includes("quantite_stock")) {
+    ({ data, error } = await supabase
+      .from("vetements")
+      .insert({
+        nom: parsed.data.title,
+        reference_vetement: parsed.data.reference_code || null,
+        description: parsed.data.description || null,
+        prix_centimes: parsed.data.price_cents,
+        prix_neuf_centimes: parsed.data.compare_at_price_cents || null,
+        categorie: parsed.data.categorie,
+        saison: parsed.data.saison || null,
+        age: parsed.data.age_range,
+        taille: parsed.data.size_label || "Unique",
+        marque: parsed.data.brand || null,
+        couleur: parsed.data.couleur || null,
+        matiere: parsed.data.matiere || null,
+        genre: parsed.data.sex,
+        etat: parsed.data.condition,
+        statut: parsed.data.status,
+        emplacement_stock: parsed.data.stock_location || null,
+        mis_en_avant: parsed.data.mis_en_avant,
+        cree_par: auth.user.id,
+      })
+      .select("*")
+      .single());
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });

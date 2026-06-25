@@ -141,7 +141,7 @@ export async function createLaPosteOrderLabel(input: OrderShippingLabelInput): P
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
+      "Content-Type": "application/json;charset=UTF-8",
       Accept: "application/json",
     },
     body: JSON.stringify(buildRequestPayload(input)),

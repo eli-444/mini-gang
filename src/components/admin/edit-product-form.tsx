@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ageRangeOptions } from "@/lib/age-options";
-import { productCategoryOptions } from "@/lib/product-categories";
+import { allProductCategoryOptions, isMerchCategory } from "@/lib/product-categories";
 import { adminProductStatusOptions, productConditionOptions, productSeasonOptions } from "@/lib/product-options";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -19,6 +19,7 @@ interface AdminProductEditInput {
   taille: string;
   genre: string;
   statut: string;
+  quantite_stock?: number | null;
   prix_centimes: number;
   prix_neuf_centimes?: number | null;
   couleur: string | null;
@@ -97,6 +98,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
     couleur: product.couleur ?? "",
     matiere: product.matiere ?? "",
     stock_location: product.emplacement_stock ?? "",
+    stock_quantity: product.quantite_stock ?? 1,
     status: product.statut,
     mis_en_avant: product.mis_en_avant,
   });
@@ -264,12 +266,12 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))}
           className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         >
-          {productCategoryOptions.map((category) => (
+          {allProductCategoryOptions.map((category) => (
             <option key={category.value} value={category.value}>
               {category.label}
             </option>
           ))}
-          {!productCategoryOptions.some((category) => category.value === form.categorie) ? (
+          {!allProductCategoryOptions.some((category) => category.value === form.categorie) ? (
             <option value={form.categorie}>{form.categorie}</option>
           ) : null}
         </select>
@@ -328,12 +330,25 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         />
       </div>
 
-      <input
-        value={form.stock_location}
-        onChange={(event) => setForm((prev) => ({ ...prev, stock_location: event.target.value }))}
-        placeholder="Emplacement"
-        className="rounded-md border border-slate-200 px-3 py-2 text-sm"
-      />
+      <div className="grid gap-2 md:grid-cols-2">
+        <input
+          value={form.stock_location}
+          onChange={(event) => setForm((prev) => ({ ...prev, stock_location: event.target.value }))}
+          placeholder="Emplacement"
+          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
+        />
+        {isMerchCategory(form.categorie) ? (
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={form.stock_quantity}
+            onChange={(event) => setForm((prev) => ({ ...prev, stock_quantity: Number(event.target.value) }))}
+            placeholder="Quantite merch"
+            className="rounded-md border border-slate-200 px-3 py-2 text-sm"
+          />
+        ) : null}
+      </div>
 
       <div className="grid gap-2 md:grid-cols-2">
         <select

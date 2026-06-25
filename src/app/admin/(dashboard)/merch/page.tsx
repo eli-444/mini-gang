@@ -75,6 +75,7 @@ export default async function AdminMerchPage({
                 <th className="px-3 py-2">Reference</th>
                 <th className="px-3 py-2">Categorie</th>
                 <th className="px-3 py-2">Saison</th>
+                <th className="px-3 py-2">Stock</th>
                 <th className="px-3 py-2">Prix</th>
                 <th className="px-3 py-2">Statut</th>
                 <th className="px-3 py-2">Action</th>
@@ -87,6 +88,7 @@ export default async function AdminMerchPage({
                   <td className="px-3 py-2">{product.reference_code ?? "-"}</td>
                   <td className="px-3 py-2">{getProductCategoryLabel(product.categorie)}</td>
                   <td className="px-3 py-2">{getProductSeasonLabel(product.season)}</td>
+                  <td className="px-3 py-2">{product.stock_quantity ?? 1}</td>
                   <td className="px-3 py-2">{toChf(product.price_cents)}</td>
                   <td className="px-3 py-2">
                     <span className={`admin-status ${product.status}`}>{getProductStatusLabel(product.status)}</span>

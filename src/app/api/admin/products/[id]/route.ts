@@ -34,14 +34,25 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   if (parsed.data.condition !== undefined) updates.etat = parsed.data.condition;
   if (parsed.data.status !== undefined) updates.statut = parsed.data.status;
   if (parsed.data.stock_location !== undefined) updates.emplacement_stock = parsed.data.stock_location || null;
+  if (parsed.data.stock_quantity !== undefined) updates.quantite_stock = parsed.data.stock_quantity;
   if (parsed.data.mis_en_avant !== undefined) updates.mis_en_avant = parsed.data.mis_en_avant;
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("vetements")
     .update(updates)
     .eq("id", id)
     .select("*")
     .single();
+
+  if (error?.message?.toLowerCase().includes("quantite_stock")) {
+    delete updates.quantite_stock;
+    ({ data, error } = await supabase
+      .from("vetements")
+      .update(updates)
+      .eq("id", id)
+      .select("*")
+      .single());
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
