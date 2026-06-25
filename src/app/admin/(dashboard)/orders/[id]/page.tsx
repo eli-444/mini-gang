@@ -66,21 +66,21 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               return (
               <div
                 key={item.id}
-                className="grid gap-3 rounded-md border border-slate-100 p-3 text-sm xl:grid-cols-[minmax(0,1fr)_150px_150px_auto] xl:items-center"
+                className="grid min-w-0 grid-cols-[minmax(0,1fr)_96px_96px_auto] items-center gap-3 rounded-md border border-slate-100 p-3 text-sm"
               >
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-slate-950">{item.nom_vetement ?? item.vetement_id}</p>
-                  <p className="break-all text-xs leading-4 text-slate-500">{item.vetement_id ?? "-"}</p>
+                  <p className="hidden truncate text-xs leading-4 text-slate-500 min-[1180px]:block">{item.vetement_id ?? "-"}</p>
                 </div>
                 <div className="min-w-0">
                   <span className="block text-xs uppercase tracking-[0.1em] text-slate-400">Reference</span>
-                  <strong className="break-words">{reference}</strong>
+                  <strong className="block truncate">{reference}</strong>
                 </div>
                 <div className="min-w-0">
                   <span className="block text-xs uppercase tracking-[0.1em] text-slate-400">Emplacement</span>
-                  <strong className="break-words">{emplacement}</strong>
+                  <strong className="block truncate">{emplacement}</strong>
                 </div>
-                <strong className="text-left xl:text-right">{toChf(item.prix_centimes)}</strong>
+                <strong className="whitespace-nowrap text-right">{toChf(item.prix_centimes)}</strong>
               </div>
               );
             })}
