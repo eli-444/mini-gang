@@ -71,7 +71,7 @@ export function SellOrderAdminActions({
         setMessage(payload.error ?? "Decision impossible");
         return;
       }
-      setMessage("Decision enregistree. Wallet credite si applicable.");
+      setMessage("Décision enregistrée. Wallet crédité si applicable.");
       window.location.reload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Erreur inconnue");

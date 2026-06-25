@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const settings = await getSiteContentSettings();
   if (!settings.shop_enabled) {
     return NextResponse.json(
-      { error: settings.shop_closed_message || "La boutique est temporairement fermee." },
+      { error: settings.shop_closed_message || "La boutique est temporairement fermée." },
       { status: 503 },
     );
   }

@@ -28,7 +28,7 @@ export default async function CheckoutSuccessPage({
       <p className="text-sm font-bold text-[var(--mg-ink)]/70">
         {isConfirmed
           ? "Merci. Votre commande est confirmee et passe en preparation."
-          : "Merci. Le paiement a ete lance et la confirmation finale peut prendre quelques instants via le webhook."}
+          : "Merci. Le paiement a été lancé et la confirmation finale peut prendre quelques instants via le webhook."}
       </p>
       {orderId ? <p className="text-xs text-[var(--mg-ink)]/60">Commande {orderId.slice(0, 8)}</p> : null}
       <Link href="/mon-compte/commandes" className="inline-flex rounded-full border border-black/15 px-5 py-2 text-sm font-semibold">

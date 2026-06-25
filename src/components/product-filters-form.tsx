@@ -49,7 +49,7 @@ export function ProductFiltersForm({ values }: ProductFiltersFormProps) {
 
       <div className="border-y border-white/45 py-3 md:py-4">
         <div className="mb-3 flex items-center justify-between text-base font-black md:text-xl">
-          <span>Categorie</span>
+          <span>Catégorie</span>
         </div>
         <div className="grid max-h-[17.5rem] gap-1.5 overflow-auto pr-1">
           {productCategoryOptions.map((category) => (
@@ -67,8 +67,8 @@ export function ProductFiltersForm({ values }: ProductFiltersFormProps) {
         </div>
       </div>
 
-      <FilterSelect name="age_range" label="Age" value={values.age_range} options={ageRangeOptions.map((age) => ({ value: age, label: age }))} />
-      <FilterSelect name="genre" label="Genre" value={values.genre} options={[{ value: "femme", label: "Fille" }, { value: "homme", label: "Garcon" }]} />
+      <FilterSelect name="age_range" label="Âge" value={values.age_range} options={ageRangeOptions.map((age) => ({ value: age, label: age }))} />
+      <FilterSelect name="genre" label="Genre" value={values.genre} options={[{ value: "femme", label: "Fille" }, { value: "homme", label: "Garçon" }]} />
       <FilterSelect name="saison" label="Saison" value={values.saison} options={productSeasonOptions.map((season) => ({ value: season.value, label: season.label }))} />
 
       <div className="flex flex-wrap items-center gap-6 pt-1">
@@ -76,7 +76,7 @@ export function ProductFiltersForm({ values }: ProductFiltersFormProps) {
           Filtrer
         </button>
         <Link href="/boutique" className="text-sm font-black underline md:text-base">
-          Supprimer les Filtre
+          Supprimer les filtres
         </Link>
       </div>
     </form>

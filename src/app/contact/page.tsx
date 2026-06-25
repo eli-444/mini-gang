@@ -55,7 +55,7 @@ export default function ContactPage() {
                 contact@leminigang.com
               </a>
             </h2>
-            <p className="mt-2 text-[1.05rem] font-black leading-tight md:text-2xl">Reponse moyenne sous 24/48 heures ouvrables.</p>
+            <p className="mt-2 text-[1.05rem] font-black leading-tight md:text-2xl">Réponse moyenne sous 24/48 heures ouvrables.</p>
 
             <p className="mt-8 max-w-4xl text-[1.28rem] font-black leading-tight text-[var(--mg-pop-rose)] md:mt-12 md:text-3xl">
               Suivez nos coulisses

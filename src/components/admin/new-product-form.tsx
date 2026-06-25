@@ -128,7 +128,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
 
       const uploadUrlPayload: ApiErrorPayload & { path?: string; token?: string } = await uploadUrlRes.json().catch(() => ({}));
       if (!uploadUrlRes.ok || !uploadUrlPayload.path || !uploadUrlPayload.token) {
-        throw new Error(formatApiError(`Image ${index + 1}: generation URL`, uploadUrlPayload));
+        throw new Error(formatApiError(`Image ${index + 1}: génération URL`, uploadUrlPayload));
       }
 
       const { error: uploadError } = await supabase.storage
@@ -136,7 +136,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
         .uploadToSignedUrl(uploadUrlPayload.path, uploadUrlPayload.token, file);
 
       if (uploadError) {
-        throw new Error(`Upload image echoue (${file.name}): ${uploadError.message}`);
+        throw new Error(`Upload image échoué (${file.name}): ${uploadError.message}`);
       }
 
       const imageRes = await fetch(`/api/admin/products/${productId}/images`, {
@@ -150,7 +150,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
       });
       const imagePayload: ApiErrorPayload = await imageRes.json().catch(() => ({}));
       if (!imageRes.ok) {
-        throw new Error(formatApiError(`Image ${index + 1}: liaison vetement`, imagePayload));
+        throw new Error(formatApiError(`Image ${index + 1}: liaison vêtement`, imagePayload));
       }
     }
 
@@ -165,11 +165,11 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
     try {
       const cleanTitle = form.title.trim();
       if (cleanTitle.length < 3) {
-        setStatus("Validation - Le nom doit contenir au moins 3 caracteres.");
+        setStatus("Validation - Le nom doit contenir au moins 3 caractères.");
         return;
       }
       if (!Number.isInteger(form.price_cents) || form.price_cents < 50) {
-        setStatus("Validation - Le prix de vente doit etre au minimum de CHF 0.50.");
+        setStatus("Validation - Le prix de vente doit être au minimum de CHF 0.50.");
         return;
       }
 
@@ -183,13 +183,13 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
       });
       const payload: ApiErrorPayload & { id?: string } = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setStatus(formatApiError("Creation vetement", payload));
+        setStatus(formatApiError("Création vêtement", payload));
         return;
       }
 
       const productId = payload.id;
       if (!productId) {
-        setStatus("Creation vetement - Reponse invalide (id manquant).");
+        setStatus("Création vêtement - Réponse invalide (id manquant).");
         return;
       }
 
@@ -197,12 +197,12 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
         const uploadedCount = await uploadImages(productId, images);
         setStatus(
           form.status === "disponible"
-            ? `Vetement cree et visible en boutique: ${productId}${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`
-            : `Vetement cree en ${form.status}. Il ne sera visible en boutique qu'avec le statut En ligne.${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`,
+            ? `Vêtement créé et visible en boutique: ${productId}${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`
+            : `Vêtement créé en ${form.status}. Il ne sera visible en boutique qu'avec le statut En ligne.${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`,
         );
       } catch (uploadError) {
         const uploadMessage = uploadError instanceof Error ? uploadError.message : "Erreur upload images.";
-        setStatus(`Vetement cree: ${productId}. ${uploadMessage}`);
+        setStatus(`Vêtement créé: ${productId}. ${uploadMessage}`);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erreur inconnue";
@@ -234,7 +234,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
               className={inputClass}
             />
           </Field>
-          <Field label="Reference">
+          <Field label="Référence">
             <input
               value={form.reference_code}
               onChange={(event) => setForm((prev) => ({ ...prev, reference_code: event.target.value }))}
@@ -352,7 +352,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
             />
           </Field>
           {isMerchCategory(form.categorie) ? (
-            <Field label="Quantite merch">
+            <Field label="Quantité merch">
               <input
                 type="number"
                 min={0}
@@ -376,7 +376,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
             <input
               value={form.matiere}
               onChange={(event) => setForm((prev) => ({ ...prev, matiere: event.target.value }))}
-              placeholder="Matiere"
+              placeholder="Matière"
               className={inputClass}
             />
           </Field>
@@ -414,7 +414,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
 
       <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur">
         <div>
-          <p className="text-sm font-bold text-slate-950">Pret a enregistrer ?</p>
+          <p className="text-sm font-bold text-slate-950">Prêt à enregistrer ?</p>
         </div>
         <button type="submit" disabled={isSubmitting} className="rounded-md bg-slate-900 px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60">
           {isSubmitting ? "Enregistrement..." : "Enregistrer le vêtement"}

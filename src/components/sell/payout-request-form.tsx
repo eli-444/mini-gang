@@ -22,7 +22,7 @@ export function PayoutRequestForm({ maxAmountCents }: { maxAmountCents: number }
         setStatus(payload.error ?? "Demande de retrait impossible.");
         return;
       }
-      setStatus("Demande de retrait envoyee.");
+      setStatus("Demande de retrait envoyée.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Erreur inconnue.");
     } finally {
@@ -33,7 +33,7 @@ export function PayoutRequestForm({ maxAmountCents }: { maxAmountCents: number }
   return (
     <form onSubmit={submit} className="space-y-2">
       <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--mg-accent-strong)]">
-        Montant a retirer (centimes)
+        Montant à retirer (centimes)
       </label>
       <input
         type="number"

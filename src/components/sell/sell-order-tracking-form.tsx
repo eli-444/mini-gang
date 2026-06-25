@@ -24,10 +24,10 @@ export function SellOrderTrackingForm({ sellOrderId, currentTracking }: { sellOr
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setStatus(payload.error ?? "Mise a jour impossible.");
+        setStatus(payload.error ?? "Mise à jour impossible.");
         return;
       }
-      setStatus("Tracking enregistre.");
+      setStatus("Tracking enregistré.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Erreur inconnue.");
     } finally {

@@ -40,7 +40,7 @@ export default async function AdminAnalyticsPage() {
           <p className="mt-2 text-2xl font-bold">{metrics.cards.users}</p>
         </article>
         <article className="admin-kpi p-4">
-          <p className="text-xs font-semibold uppercase text-slate-500">Commandes payees</p>
+          <p className="text-xs font-semibold uppercase text-slate-500">Commandes payées</p>
           <p className="mt-2 text-2xl font-bold">{metrics.cards.ordersPaid}</p>
         </article>
         <article className="admin-kpi p-4">

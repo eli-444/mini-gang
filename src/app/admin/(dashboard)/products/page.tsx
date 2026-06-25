@@ -29,10 +29,10 @@ export default async function AdminProductsPage({
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-5 py-5">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Stock & catalogue</p>
-            <h1 className="mt-1 text-2xl font-bold text-slate-950 md:text-3xl">Vetements</h1>
+            <h1 className="mt-1 text-2xl font-bold text-slate-950 md:text-3xl">Vêtements</h1>
           </div>
           <Link href="/admin/products/new" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-bold text-white">
-            Ajouter un vetement
+            Ajouter un vêtement
           </Link>
         </div>
 
@@ -88,7 +88,7 @@ export default async function AdminProductsPage({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Inventaire</p>
-            <h2 className="text-lg font-bold text-slate-950">Fiches vetements</h2>
+            <h2 className="text-lg font-bold text-slate-950">Fiches vêtements</h2>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -96,10 +96,10 @@ export default async function AdminProductsPage({
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-3 py-2">Produit</th>
-                <th className="px-3 py-2">Reference</th>
+                <th className="px-3 py-2">Référence</th>
                 <th className="px-3 py-2">Marque</th>
                 <th className="px-3 py-2">Taille/Age</th>
-                <th className="px-3 py-2">Categorie</th>
+                <th className="px-3 py-2">Catégorie</th>
                 <th className="px-3 py-2">Saison</th>
                 <th className="px-3 py-2">Emplacement</th>
                 <th className="px-3 py-2">Etat</th>
@@ -130,7 +130,7 @@ export default async function AdminProductsPage({
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-3">
                       <Link href={`/admin/products/${product.id}`} className="font-semibold text-slate-900 underline underline-offset-4">
-                        Editer
+                        Éditer
                       </Link>
                       <DeleteProductButton productId={product.id} productName={product.title} />
                     </div>

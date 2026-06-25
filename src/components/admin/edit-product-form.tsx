@@ -161,7 +161,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
       }
 
       setImages([]);
-      setStatus("Image(s) ajoutee(s).");
+      setStatus("Image(s) ajoutée(s).");
       router.refresh();
     } finally {
       setIsUploading(false);
@@ -189,7 +189,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         return;
       }
 
-      setStatus("Vetement mis a jour.");
+      setStatus("Vêtement mis à jour.");
       router.refresh();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Erreur inconnue.");
@@ -200,14 +200,14 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
 
   return (
     <form onSubmit={submit} className="admin-card grid gap-3 p-4">
-      <h2 className="text-sm font-semibold uppercase text-slate-500">Editer le vetement</h2>
+      <h2 className="text-sm font-semibold uppercase text-slate-500">Éditer le vêtement</h2>
 
       <input
         required
         minLength={3}
         value={form.title}
         onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-        placeholder="Nom du vetement"
+        placeholder="Nom du vêtement"
         className="rounded-md border border-slate-200 px-3 py-2 text-sm"
       />
 
@@ -228,7 +228,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         <input
           value={form.reference_code}
           onChange={(event) => setForm((prev) => ({ ...prev, reference_code: event.target.value }))}
-          placeholder="Reference"
+          placeholder="Référence"
           className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         />
       </div>
@@ -325,7 +325,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
         <input
           value={form.matiere}
           onChange={(event) => setForm((prev) => ({ ...prev, matiere: event.target.value }))}
-          placeholder="Matiere"
+          placeholder="Matière"
           className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         />
       </div>
@@ -344,7 +344,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
             step={1}
             value={form.stock_quantity}
             onChange={(event) => setForm((prev) => ({ ...prev, stock_quantity: Number(event.target.value) }))}
-            placeholder="Quantite merch"
+            placeholder="Quantité merch"
             className="rounded-md border border-slate-200 px-3 py-2 text-sm"
           />
         ) : null}
@@ -404,7 +404,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-xs text-slate-500">Aucune image pour ce vetement.</p>
+          <p className="mt-3 text-xs text-slate-500">Aucune image pour ce vêtement.</p>
         )}
 
         {remainingImageSlots > 0 ? (

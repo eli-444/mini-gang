@@ -64,7 +64,7 @@ export default async function BoutiquePage({
             </div>
           ) : (
             <p className="mt-8 max-w-2xl text-base font-black text-[var(--mg-on-dark-muted)] md:mt-10 md:text-2xl">
-              Aucun article en ligne pour le moment. Les fiches publiees depuis le dashboard apparaitront ici.
+              Aucun article en ligne pour le moment. Les fiches publiées depuis le dashboard apparaîtront ici.
             </p>
           )}
 

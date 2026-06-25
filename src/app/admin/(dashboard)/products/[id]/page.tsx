@@ -105,7 +105,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
 
         <div className="grid gap-3 px-5 py-4 text-sm text-slate-700 md:grid-cols-2 xl:grid-cols-6">
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
-            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Reference</span>
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Référence</span>
             <strong className="mt-1 block text-slate-950">{product.reference_vetement ?? "-"}</strong>
           </div>
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
@@ -125,7 +125,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
             <strong className="mt-1 block text-slate-950">{product.emplacement_stock ?? "-"}</strong>
           </div>
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
-            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Quantite</span>
+            <span className="block text-xs uppercase tracking-[0.1em] text-slate-500">Quantité</span>
             <strong className="mt-1 block text-slate-950">{product.quantite_stock ?? 1}</strong>
           </div>
         </div>
@@ -138,18 +138,18 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Resume</p>
           <h2 className="mt-1 text-lg font-bold text-slate-950">Infos produit</h2>
           <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
-            <div><dt className="text-slate-500">Reference</dt><dd>{product.reference_vetement ?? "-"}</dd></div>
+            <div><dt className="text-slate-500">Référence</dt><dd>{product.reference_vetement ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Marque</dt><dd>{product.marque ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Etat</dt><dd>{getProductConditionLabel(product.etat)}</dd></div>
             <div><dt className="text-slate-500">Taille</dt><dd>{product.taille ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Age</dt><dd>{product.age ?? "-"}</dd></div>
-            <div><dt className="text-slate-500">Categorie</dt><dd>{getProductCategoryLabel(product.categorie)}</dd></div>
+            <div><dt className="text-slate-500">Catégorie</dt><dd>{getProductCategoryLabel(product.categorie)}</dd></div>
             <div><dt className="text-slate-500">Saison</dt><dd>{getProductSeasonLabel(product.saison)}</dd></div>
             <div><dt className="text-slate-500">Genre</dt><dd>{product.genre}</dd></div>
             <div><dt className="text-slate-500">Prix</dt><dd>{toChf(product.prix_centimes)}</dd></div>
             <div><dt className="text-slate-500">Prix neuf barre</dt><dd>{product.prix_neuf_centimes ? toChf(product.prix_neuf_centimes) : "-"}</dd></div>
             <div><dt className="text-slate-500">Emplacement</dt><dd>{product.emplacement_stock ?? "-"}</dd></div>
-            <div><dt className="text-slate-500">Quantite</dt><dd>{product.quantite_stock ?? 1}</dd></div>
+            <div><dt className="text-slate-500">Quantité</dt><dd>{product.quantite_stock ?? 1}</dd></div>
             <div>
               <dt className="text-slate-500">Statut</dt>
               <dd><span className={`admin-status ${product.statut}`}>{getProductStatusLabel(product.statut)}</span></dd>

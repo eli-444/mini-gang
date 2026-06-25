@@ -10,21 +10,21 @@ export default function ConceptPage() {
           <span className="text-[var(--mg-pop-sun)]">locale</span>.
         </h1>
         <p className="mt-7 max-w-3xl text-xl font-black leading-[1.18] tracking-[-0.03em] text-[var(--mg-on-dark)] md:text-3xl">
-          Mini Gang reinvente la seconde main enfant :{" "}
-          <span className="text-[var(--mg-pop-rose)]">selection premium</span>, lavage, controle qualite et experience
+          Mini Gang réinvente la seconde main enfant :{" "}
+          <span className="text-[var(--mg-pop-rose)]">sélection premium</span>, lavage, contrôle qualité et expérience
           d&apos;achat moderne.
         </p>
         <p className="mt-5 max-w-2xl text-base font-bold leading-7 text-[var(--mg-on-dark-muted)]">
-          Chaque piece est choisie pour prolonger son histoire, alleger le quotidien des familles et donner plus de place
+          Chaque pièce est choisie pour prolonger son histoire, alléger le quotidien des familles et donner plus de place
           aux achats utiles, joyeux et durables.
         </p>
       </section>
 
       <section className="mt-10 grid gap-4 md:grid-cols-3">
         {[
-          ["01", "On trie", "Des pieces enfant selectionnees avec soin, selon leur etat, leur style et leur potentiel."],
-          ["02", "On valorise", "Une presentation claire, de belles photos et des informations simples pour acheter sans hesitation."],
-          ["03", "On fait durer", "La seconde main devient un reflexe naturel, accessible et vraiment desirable."],
+          ["01", "On trie", "Des pièces enfant sélectionnées avec soin, selon leur état, leur style et leur potentiel."],
+          ["02", "On valorise", "Une présentation claire, de belles photos et des informations simples pour acheter sans hésitation."],
+          ["03", "On fait durer", "La seconde main devient un réflexe naturel, accessible et vraiment désirable."],
         ].map(([number, title, description], index) => (
           <article key={title} className="border-t border-white/25 pt-5">
             <p className={`text-3xl font-black ${index === 1 ? "text-[var(--mg-pop-sun)]" : "text-[var(--mg-pop-rose)]"}`}>
@@ -38,7 +38,7 @@ export default function ConceptPage() {
 
       <div className="mt-10 flex flex-wrap gap-3">
         <Link href="/boutique" className="rounded-full bg-[var(--mg-pop-sun)] px-5 py-2.5 text-sm font-black text-[var(--mg-ink)]">
-          Decouvrir la boutique
+          Découvrir la boutique
         </Link>
         <Link href="/a-propos" className="rounded-full border border-white/45 px-5 py-2.5 text-sm font-black text-[var(--mg-on-dark)]">
           Qui sommes-nous ?

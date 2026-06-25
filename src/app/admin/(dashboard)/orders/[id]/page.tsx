@@ -44,7 +44,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Order Details</p>
+        <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Détails commande</p>
         <h1 className="mt-1 text-3xl font-bold text-slate-900">Commande {order.id.slice(0, 8)}</h1>
       </div>
       <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
@@ -73,7 +73,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   <p className="hidden truncate text-xs leading-4 text-slate-500 min-[1180px]:block">{item.vetement_id ?? "-"}</p>
                 </div>
                 <div className="min-w-0">
-                  <span className="block text-xs uppercase tracking-[0.1em] text-slate-400">Reference</span>
+                  <span className="block text-xs uppercase tracking-[0.1em] text-slate-400">Référence</span>
                   <strong className="block truncate">{reference}</strong>
                 </div>
                 <div className="min-w-0">
@@ -88,7 +88,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </article>
 
         <article className="admin-card p-4 text-sm">
-          <h2 className="text-sm font-semibold uppercase text-slate-500">Details commande</h2>
+          <h2 className="text-sm font-semibold uppercase text-slate-500">Détails commande</h2>
           <dl className="mt-3 space-y-2">
             <div className="flex justify-between"><dt className="text-slate-500">Email</dt><dd>{order.email}</dd></div>
             <div className="flex justify-between"><dt className="text-slate-500">Sous-total</dt><dd>{toChf(order.sous_total_centimes ?? Math.max(0, order.total_centimes - (order.frais_livraison_centimes ?? 0)))}</dd></div>
@@ -98,9 +98,9 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               <dt className="text-slate-500">Statut</dt>
               <dd><span className={`admin-status ${order.statut}`}>{order.statut}</span></dd>
             </div>
-            <div className="flex justify-between"><dt className="text-slate-500">Prenom</dt><dd>{order.prenom}</dd></div>
+            <div className="flex justify-between"><dt className="text-slate-500">Prénom</dt><dd>{order.prenom}</dd></div>
             <div className="flex justify-between"><dt className="text-slate-500">Nom</dt><dd>{order.nom}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Telephone</dt><dd>{order.telephone ?? "-"}</dd></div>
+            <div className="flex justify-between"><dt className="text-slate-500">Téléphone</dt><dd>{order.telephone ?? "-"}</dd></div>
             <div className="flex justify-between"><dt className="text-slate-500">Adresse</dt><dd className="pl-3 text-right">{order.adresse_ligne_1}{order.adresse_ligne_2 ? `, ${order.adresse_ligne_2}` : ""}, {order.code_postal} {order.ville}, {order.pays}</dd></div>
             <div className="flex justify-between"><dt className="text-slate-500">Provider</dt><dd>{order.payment_provider ?? (order.stripe_session_id ? "stripe" : "-")}</dd></div>
             <div className="flex justify-between"><dt className="text-slate-500">Session paiement</dt><dd className="truncate pl-3">{order.provider_session_id ?? order.stripe_session_id ?? "-"}</dd></div>
@@ -119,12 +119,12 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               rel="noreferrer"
               className="mt-3 inline-flex rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
             >
-              Generer un bordereau d&apos;envoi
+              Générer un bordereau d&apos;envoi
             </a>
           ) : null}
           {canGenerateShippingLabel && latestShipment ? (
             <div className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm">
-              <p className="font-semibold text-emerald-950">Bordereau deja genere</p>
+              <p className="font-semibold text-emerald-950">Bordereau déjà généré</p>
               <p className="mt-1 text-emerald-900">{latestShipment.tracking_number}</p>
               <div className="mt-3 flex flex-wrap gap-3">
                 {latestShipment.tracking_url ? (
@@ -138,19 +138,19 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   rel="noreferrer"
                   className="font-semibold text-slate-700 underline"
                 >
-                  Regenerer
+                  Régénérer
                 </a>
               </div>
             </div>
           ) : null}
           <div className="mt-3 space-y-2 text-sm">
-            {uniqueShipments.length === 0 ? <p className="text-slate-500">Aucun tracking enregistre.</p> : null}
+            {uniqueShipments.length === 0 ? <p className="text-slate-500">Aucun tracking enregistré.</p> : null}
             {uniqueShipments.map((shipment) => (
               <div key={shipment.id} className="rounded-md border border-slate-100 p-2">
                 <p className="font-semibold">{shipment.carrier} - {shipment.status}</p>
-                <p>{shipment.tracking_number ?? "Sans numero"}</p>
+                <p>{shipment.tracking_number ?? "Sans numéro"}</p>
                 {shipment.tracking_url ? <a href={shipment.tracking_url} className="underline">Tracking</a> : null}
-                <p className="text-xs text-slate-500">{shipment.shipped_at ? new Date(shipment.shipped_at).toLocaleString("fr-FR") : "Pas encore expedie"}</p>
+                <p className="text-xs text-slate-500">{shipment.shipped_at ? new Date(shipment.shipped_at).toLocaleString("fr-FR") : "Pas encore expédié"}</p>
               </div>
             ))}
           </div>

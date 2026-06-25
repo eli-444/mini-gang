@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   const settings = await getSiteContentSettings();
   if (!settings.sell_service_enabled) {
     return NextResponse.json(
-      { error: settings.sell_closed_message || "Le service de rachat est temporairement ferme." },
+      { error: settings.sell_closed_message || "Le service de rachat est temporairement fermé." },
       { status: 403 },
     );
   }

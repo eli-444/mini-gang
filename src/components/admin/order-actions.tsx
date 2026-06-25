@@ -4,9 +4,9 @@ import { useState } from "react";
 import type { OrderStatus } from "@/lib/types";
 
 const actions: Array<{ status: OrderStatus; label: string }> = [
-  { status: "payee", label: "Marquer payee" },
-  { status: "preparee", label: "Preparer" },
-  { status: "envoyee", label: "Expedier" },
+  { status: "payee", label: "Marquer payée" },
+  { status: "preparee", label: "Préparer" },
+  { status: "envoyee", label: "Expédier" },
   { status: "livree", label: "Livrer" },
   { status: "annulee", label: "Annuler" },
   { status: "remboursee", label: "Rembourser manuel" },
@@ -31,7 +31,7 @@ export function AdminOrderActions({ orderId, initialNotes }: { orderId: string; 
         body: JSON.stringify({ status, internal_notes: notes }),
       });
       if (!response.ok) throw new Error((await response.json()).error ?? "Action impossible");
-      setMessage("Commande mise a jour.");
+      setMessage("Commande mise à jour.");
       window.location.reload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Erreur inconnue");
@@ -56,7 +56,7 @@ export function AdminOrderActions({ orderId, initialNotes }: { orderId: string; 
         }),
       });
       if (!response.ok) throw new Error((await response.json()).error ?? "Livraison impossible");
-      setMessage("Livraison enregistree.");
+      setMessage("Livraison enregistrée.");
       window.location.reload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Erreur inconnue");
@@ -96,12 +96,12 @@ export function AdminOrderActions({ orderId, initialNotes }: { orderId: string; 
         <div className="grid gap-2 md:grid-cols-2">
           <input value={carrier} onChange={(event) => setCarrier(event.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
           <select value={shipmentStatus} onChange={(event) => setShipmentStatus(event.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm">
-            <option value="preparation">Preparation</option>
-            <option value="expediee">Expediee</option>
-            <option value="livree">Livree</option>
+            <option value="preparation">Préparation</option>
+            <option value="expediee">Expédiée</option>
+            <option value="livree">Livrée</option>
             <option value="incident">Incident</option>
           </select>
-          <input value={trackingNumber} onChange={(event) => setTrackingNumber(event.target.value)} placeholder="Numero de suivi" className="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+          <input value={trackingNumber} onChange={(event) => setTrackingNumber(event.target.value)} placeholder="Numéro de suivi" className="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
           <input value={trackingUrl} onChange={(event) => setTrackingUrl(event.target.value)} placeholder="URL tracking" className="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
         </div>
         <button type="submit" disabled={busy || carrier.length < 2} className="w-fit rounded-md bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">

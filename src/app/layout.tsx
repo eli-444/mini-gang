@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Le Mini Gang",
-  description: "E-shop de vetements de seconde main pour enfants.",
+  description: "E-shop de vêtements de seconde main pour enfants.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -55,12 +55,12 @@ export default async function AdminDashboardPage() {
 
   const orderLines = [
     { label: "En attente", value: metrics.ordersByStatus.en_attente, tone: "bg-amber-400" },
-    { label: "Payees", value: metrics.ordersByStatus.payee, tone: "bg-emerald-500" },
-    { label: "Preparees", value: metrics.ordersByStatus.preparee, tone: "bg-sky-500" },
-    { label: "Envoyees", value: metrics.ordersByStatus.envoyee, tone: "bg-indigo-500" },
-    { label: "Livrees", value: metrics.ordersByStatus.livree, tone: "bg-slate-700" },
+    { label: "Payées", value: metrics.ordersByStatus.payee, tone: "bg-emerald-500" },
+    { label: "Préparées", value: metrics.ordersByStatus.preparee, tone: "bg-sky-500" },
+    { label: "Envoyées", value: metrics.ordersByStatus.envoyee, tone: "bg-indigo-500" },
+    { label: "Livrées", value: metrics.ordersByStatus.livree, tone: "bg-slate-700" },
     {
-      label: "Annulees / remboursees",
+      label: "Annulées / remboursées",
       value: metrics.ordersByStatus.annulee + metrics.ordersByStatus.remboursee,
       tone: "bg-rose-400",
     },
@@ -85,13 +85,13 @@ export default async function AdminDashboardPage() {
           <h1 className="mt-1 text-2xl font-bold text-slate-950 md:text-3xl">Tableau de bord</h1>
         </div>
         <Link href="/admin/products/new" className="rounded-md bg-[#164f31] px-4 py-2 text-sm font-bold text-white">
-          Ajouter un vetement
+          Ajouter un vêtement
         </Link>
       </div>
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="CA 30 jours" value={toChf(metrics.cards.revenueCents)} />
-        <MetricCard label="Commandes payees" value={String(metrics.cards.ordersPaid)} />
+        <MetricCard label="Commandes payées" value={String(metrics.cards.ordersPaid)} />
         <MetricCard label="A preparer" value={String(metrics.alerts.paidToPrepare)} />
         <MetricCard label="Articles en ligne" value={String(metrics.stock.active)} />
       </section>
@@ -124,11 +124,11 @@ export default async function AdminDashboardPage() {
             </div>
             <div className="rounded-md border border-slate-200 p-3">
               <p className="text-2xl font-bold text-slate-950">{metrics.alerts.reservedProducts}</p>
-              <p className="text-sm text-slate-500">vetement(s) reserves</p>
+              <p className="text-sm text-slate-500">vêtement(s) réservés</p>
             </div>
             <div className="rounded-md border border-slate-200 p-3">
               <p className="text-2xl font-bold text-slate-950">{metrics.alerts.draftProducts}</p>
-              <p className="text-sm text-slate-500">brouillon(s) a completer</p>
+              <p className="text-sm text-slate-500">brouillon(s) à compléter</p>
             </div>
           </div>
         </article>
@@ -147,12 +147,12 @@ export default async function AdminDashboardPage() {
 
         <article className="admin-card p-5">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Acces rapides</p>
-          <h2 className="mt-1 text-lg font-bold text-slate-950">Operations courantes</h2>
+          <h2 className="mt-1 text-lg font-bold text-slate-950">Opérations courantes</h2>
           <div className="mt-4">
-            <ActionLink href="/admin/products/new" label="Ajouter une fiche vetement" />
+            <ActionLink href="/admin/products/new" label="Ajouter une fiche vêtement" />
             <ActionLink href="/admin/products" label="Gerer le stock" />
             <ActionLink href="/admin/orders" label="Suivre les commandes" />
-            <ActionLink href="/admin/settings" label="Reglages boutique" />
+            <ActionLink href="/admin/settings" label="Réglages boutique" />
           </div>
         </article>
       </section>

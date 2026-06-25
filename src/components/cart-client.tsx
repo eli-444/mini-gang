@@ -402,7 +402,7 @@ export function CartClient({
           <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
             <div className="mb-4">
               <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Paiement</p>
-              <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Formulaire securise Stripe</h2>
+              <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Formulaire sécurisé Stripe</h2>
             </div>
             {isStripeLoading ? <p className="text-sm font-semibold text-[var(--mg-ink)]/70">Chargement du formulaire Stripe...</p> : null}
             <div id="stripe-embedded-checkout" className="min-h-[560px]" />
@@ -600,7 +600,7 @@ export function CartClient({
                 onClick={createCheckout}
                 className="mt-4 w-full rounded-full bg-[var(--mg-accent)] px-4 py-3 text-sm font-black text-white transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isCreatingCheckout ? "Preparation du paiement..." : "Afficher le formulaire de paiement"}
+                {isCreatingCheckout ? "Préparation du paiement..." : "Afficher le formulaire de paiement"}
               </button>
             ) : null}
           </section>

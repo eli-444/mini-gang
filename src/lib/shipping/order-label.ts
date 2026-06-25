@@ -140,7 +140,7 @@ async function createInternalOrderLabel(input: OrderShippingLabelInput) {
   line(page, bodyFont, orderRef, 348, 132, 10);
   line(page, bodyFont, "Code barre interne - remplacable par le bordereau La Poste", 292, 116, 8.5);
 
-  line(page, bodyFont, "A imprimer et coller sur le colis apres generation.", 46, 88, 9);
+  line(page, bodyFont, "À imprimer et coller sur le colis après génération.", 46, 88, 9);
   return {
     pdfBytes: await pdfDoc.save(),
     trackingNumber: null,

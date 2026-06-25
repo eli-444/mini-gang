@@ -73,7 +73,7 @@ export async function sendOrderPaidEmails(input: {
     to: input.customerEmail,
     subject: `Commande ${input.orderId} confirmee`,
     html: `
-      <p>Merci${input.customerName ? ` ${escapeHtml(input.customerName)}` : ""}, votre commande <strong>${input.orderId}</strong> est bien payee.</p>
+      <p>Merci${input.customerName ? ` ${escapeHtml(input.customerName)}` : ""}, votre commande <strong>${input.orderId}</strong> est bien payée.</p>
       <ul>${itemRows}</ul>
       <p>Sous-total: <strong>${formatShopMoney(input.subtotalCents)}</strong><br />
       Livraison: <strong>${formatShopMoney(input.shippingCents)}</strong><br />
@@ -88,9 +88,9 @@ export async function sendOrderPaidEmails(input: {
   const adminPromise = env.adminNotificationEmail
     ? sendEmail({
         to: env.adminNotificationEmail,
-        subject: `Nouvelle commande payee ${input.orderId}`,
+        subject: `Nouvelle commande payée ${input.orderId}`,
         html: `
-          <p>Commande <strong>${input.orderId}</strong> payee.</p>
+          <p>Commande <strong>${input.orderId}</strong> payée.</p>
           <p>Client: ${escapeHtml(input.customerEmail)}</p>
           <ul>${itemRows}</ul>
           <p>Total: <strong>${formatShopMoney(input.totalCents)}</strong></p>
@@ -125,9 +125,9 @@ export async function sendShipmentEmail(input: {
   try {
     await sendEmail({
       to: input.customerEmail,
-      subject: `Commande ${input.orderId} expediee`,
+      subject: `Commande ${input.orderId} expédiée`,
       html: `
-        <p>Votre commande <strong>${input.orderId}</strong> a ete confiee a ${escapeHtml(input.carrier)}.</p>
+        <p>Votre commande <strong>${input.orderId}</strong> a été confiée à ${escapeHtml(input.carrier)}.</p>
         ${trackingLine}
         ${trackingLink}
         <p>Vous pouvez aussi retrouver ces informations dans votre espace client.</p>
@@ -152,7 +152,7 @@ export async function sendSellOrderCreatedEmail(input: { customerEmail: string; 
       subject: `Dossier de vente ${input.orderNumber} cree`,
       html: `
         <p>Votre dossier de vente <strong>${input.orderNumber}</strong> est cree.</p>
-        <p>Prochaine etape: imprimez le bordereau, preparez votre colis, puis deposez-le au transporteur choisi.</p>
+        <p>Prochaine étape: imprimez le bordereau, préparez votre colis, puis déposez-le au transporteur choisi.</p>
         ${labelLink}
       `,
     });

@@ -12,7 +12,7 @@ const profileSchema = z.object({
 export async function PATCH(request: Request) {
   const { user } = await getAuthenticatedUser();
   if (!user) {
-    return NextResponse.json({ error: "Vous devez etre connecte." }, { status: 401 });
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const json = await request.json().catch(() => ({}));

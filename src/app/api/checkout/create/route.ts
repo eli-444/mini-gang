@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   }
   if (!siteSettings.shop_enabled) {
     return NextResponse.json(
-      { error: siteSettings.shop_closed_message || "La boutique est temporairement fermee." },
+      { error: siteSettings.shop_closed_message || "La boutique est temporairement fermée." },
       { status: 403 },
     );
   }

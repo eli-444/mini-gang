@@ -32,12 +32,12 @@ export function FavoriteButton({ productId, initialIsFavorite = false, variant =
 
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
-        alert(payload.error ?? "Impossible de mettre a jour les favoris.");
+        alert(payload.error ?? "Impossible de mettre à jour les favoris.");
         setIsFavorite(!nextValue);
       }
     } catch {
       setIsFavorite(!nextValue);
-      alert("Impossible de mettre a jour les favoris pour le moment.");
+      alert("Impossible de mettre à jour les favoris pour le moment.");
     } finally {
       setIsBusy(false);
     }

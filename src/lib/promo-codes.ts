@@ -103,7 +103,7 @@ export async function validatePromoCodeForUser(input: {
       .maybeSingle();
 
     if (usageError) throw new Error(usageError.message);
-    if (usage) throw new Error("Ce code promo a deja ete utilise.");
+    if (usage) throw new Error("Ce code promo a déjà été utilisé.");
   }
 
   return {

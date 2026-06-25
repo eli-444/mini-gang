@@ -22,10 +22,10 @@ export default async function AdminCustomersPage() {
               <tr>
                 <th className="px-3 py-2">Client</th>
                 <th className="px-3 py-2">Email</th>
-                <th className="px-3 py-2">Telephone</th>
+                <th className="px-3 py-2">Téléphone</th>
                 <th className="px-3 py-2">Role</th>
                 <th className="px-3 py-2">Commandes</th>
-                <th className="px-3 py-2">Commandes payees</th>
+                <th className="px-3 py-2">Commandes payées</th>
                 <th className="px-3 py-2">Total depense</th>
               </tr>
             </thead>

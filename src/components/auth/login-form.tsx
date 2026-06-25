@@ -40,7 +40,7 @@ export function LoginForm({ next }: LoginFormProps) {
         }),
       });
       if (!syncResponse.ok) {
-        setError("Connexion reussie, mais la session serveur n'a pas pu etre synchronisee.");
+        setError("Connexion réussie, mais la session serveur n'a pas pu être synchronisée.");
         return;
       }
     }
@@ -52,7 +52,7 @@ export function LoginForm({ next }: LoginFormProps) {
   return (
     <section className="mx-auto max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_16px_40px_rgba(45,34,64,0.06)]">
       <h1 className="font-display text-3xl">Connexion</h1>
-      <p className="mt-2 text-sm text-black/60">Accedez a votre espace vendeur et a votre cagnotte.</p>
+      <p className="mt-2 text-sm text-black/60">Accédez à votre espace vendeur et à votre cagnotte.</p>
       <form onSubmit={onSubmit} className="mt-4 space-y-3">
         <input
           value={email}
@@ -78,7 +78,7 @@ export function LoginForm({ next }: LoginFormProps) {
       <p className="mt-4 text-sm text-black/60">
         Pas encore de compte ?{" "}
         <Link href={signupHref} className="font-semibold text-[var(--mg-accent-strong)] underline">
-          Creer un compte
+          Créer un compte
         </Link>
       </p>
     </section>

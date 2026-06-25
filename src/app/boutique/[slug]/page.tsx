@@ -43,7 +43,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               <strong>Etat:</strong> {getProductConditionLabel(product.condition)}
             </li>
             <li>
-              <strong>Categorie:</strong> {getProductCategoryLabel(product.category)}
+              <strong>Catégorie:</strong> {getProductCategoryLabel(product.category)}
             </li>
             <li>
               <strong>Taille:</strong> {product.size_label || "-"}

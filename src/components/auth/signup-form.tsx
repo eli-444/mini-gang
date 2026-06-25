@@ -52,7 +52,7 @@ export function SignupForm({ next }: SignupFormProps) {
 
       const payload: { error?: string } = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setError(payload.error ?? "Creation du compte impossible.");
+        setError(payload.error ?? "Création du compte impossible.");
         return;
       }
 
@@ -77,12 +77,12 @@ export function SignupForm({ next }: SignupFormProps) {
           }),
         });
         if (!syncResponse.ok) {
-          setError("Compte cree, mais la session serveur n'a pas pu etre synchronisee.");
+          setError("Compte créé, mais la session serveur n'a pas pu être synchronisée.");
           return;
         }
       }
 
-      setMessage("Compte cree.");
+      setMessage("Compte créé.");
       router.push(next || "/mon-compte");
       router.refresh();
     } finally {
@@ -92,9 +92,9 @@ export function SignupForm({ next }: SignupFormProps) {
 
   return (
     <section className="mx-auto max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_16px_40px_rgba(45,34,64,0.06)]">
-      <h1 className="font-display text-3xl">Creer un compte</h1>
+      <h1 className="font-display text-3xl">Créer un compte</h1>
       <p className="mt-2 text-sm text-black/60">
-        Inscrivez-vous pour vendre vos vetements, suivre vos dossiers et acceder a votre espace Mini Gang.
+        Inscrivez-vous pour vendre vos vêtements, suivre vos dossiers et accéder à votre espace Mini Gang.
       </p>
 
       <form onSubmit={onSubmit} className="mt-5 space-y-3">
@@ -106,7 +106,7 @@ export function SignupForm({ next }: SignupFormProps) {
             autoComplete="given-name"
             required
             minLength={2}
-            placeholder="Prenom"
+            placeholder="Prénom"
             className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
           />
           <input
@@ -127,7 +127,7 @@ export function SignupForm({ next }: SignupFormProps) {
           autoComplete="tel"
           required
           minLength={6}
-          placeholder="Numero de telephone"
+          placeholder="Numéro de téléphone"
           className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
         />
         <input
@@ -168,12 +168,12 @@ export function SignupForm({ next }: SignupFormProps) {
           disabled={isSubmitting}
           className="w-full rounded-full bg-[var(--mg-accent)] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSubmitting ? "Creation..." : "Creer mon compte"}
+          {isSubmitting ? "Création..." : "Créer mon compte"}
         </button>
       </form>
 
       <p className="mt-4 text-sm text-black/60">
-        Vous avez deja un compte ?{" "}
+        Vous avez déjà un compte ?{" "}
         <Link href={loginHref} className="font-semibold text-[var(--mg-accent-strong)] underline">
           Se connecter
         </Link>

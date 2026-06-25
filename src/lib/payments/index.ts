@@ -14,7 +14,7 @@ const providerLabels = {
 } as const;
 
 const providerDescriptions = {
-  stripe: "Paiement securise par carte.",
+  stripe: "Paiement sécurisé par carte.",
   klarna: "Paiement via Klarna.",
   twint: "Paiement mobile populaire en Suisse.",
 } as const;

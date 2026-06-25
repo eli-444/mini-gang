@@ -8,7 +8,7 @@ export async function GET(_: Request, context: { params: Promise<{ id: string }>
   const settings = await getSiteContentSettings();
   if (!settings.shop_enabled) {
     return NextResponse.json(
-      { error: settings.shop_closed_message || "La boutique est temporairement fermee." },
+      { error: settings.shop_closed_message || "La boutique est temporairement fermée." },
       { status: 503 },
     );
   }

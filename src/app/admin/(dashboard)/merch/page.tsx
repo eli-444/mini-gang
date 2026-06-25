@@ -72,8 +72,8 @@ export default async function AdminMerchPage({
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-3 py-2">Article</th>
-                <th className="px-3 py-2">Reference</th>
-                <th className="px-3 py-2">Categorie</th>
+                <th className="px-3 py-2">Référence</th>
+                <th className="px-3 py-2">Catégorie</th>
                 <th className="px-3 py-2">Saison</th>
                 <th className="px-3 py-2">Stock</th>
                 <th className="px-3 py-2">Prix</th>
@@ -96,7 +96,7 @@ export default async function AdminMerchPage({
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-3">
                       <Link href={`/admin/products/${product.id}`} className="font-semibold text-slate-900 underline underline-offset-4">
-                        Editer
+                        Éditer
                       </Link>
                       <DeleteProductButton productId={product.id} productName={product.title} />
                     </div>

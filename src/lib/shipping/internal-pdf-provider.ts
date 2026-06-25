@@ -72,7 +72,7 @@ export class InternalPdfProvider implements ShippingLabelProvider {
       size: 12,
       font: titleFont,
     });
-    page.drawText(`Transporteur selectionne: ${input.shippingProvider}`, {
+    page.drawText(`Transporteur sélectionné: ${input.shippingProvider}`, {
       x: 40,
       y: 748,
       size: 10,
@@ -129,7 +129,7 @@ export class InternalPdfProvider implements ShippingLabelProvider {
     page.drawText(
       input.estimatedTotalCents > 0
         ? `Estimation indicative: ${toMoney(input.estimatedTotalCents)}`
-        : "Estimation indicative: a confirmer apres controle",
+        : "Estimation indicative: à confirmer après contrôle",
       {
       x: 40,
       y: rowY - 22,
@@ -138,7 +138,7 @@ export class InternalPdfProvider implements ShippingLabelProvider {
       },
     );
     page.drawText(
-      "L'estimation est confirmee apres controle qualite par l'atelier. Les articles refuses suivent la politique de rachat Mini Gang.",
+      "L'estimation est confirmée après contrôle qualité par l'atelier. Les articles refusés suivent la politique de rachat Mini Gang.",
       { x: 40, y: rowY - 46, size: 9, maxWidth: 520, lineHeight: 12, font: bodyFont },
     );
 
@@ -148,7 +148,7 @@ export class InternalPdfProvider implements ShippingLabelProvider {
       const qrBytes = decodeBase64ToBytes(base64);
       const qrPng = await pdfDoc.embedPng(qrBytes);
       page.drawImage(qrPng, { x: 425, y: 102, width: 130, height: 130 });
-      page.drawText("Code du dossier et des vetements", { x: 398, y: 88, size: 9, font: bodyFont });
+      page.drawText("Code du dossier et des vêtements", { x: 398, y: 88, size: 9, font: bodyFont });
     } catch {
       page.drawText(`Code: ${input.orderNumber}`, { x: 420, y: 260, size: 10, font: titleFont });
     }

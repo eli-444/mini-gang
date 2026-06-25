@@ -25,7 +25,7 @@ export function ReturnRequestForm({ orderId }: { orderId: string }) {
       }
       setReason("");
       setMessage("");
-      setStatus("Demande envoyee. Nous revenons vers vous par email.");
+      setStatus("Demande envoyée. Nous revenons vers vous par email.");
     } finally {
       setBusy(false);
     }
@@ -39,7 +39,7 @@ export function ReturnRequestForm({ orderId }: { orderId: string }) {
         required
         minLength={5}
         maxLength={120}
-        placeholder="Motif: taille, defaut, colis, autre"
+        placeholder="Motif: taille, défaut, colis, autre"
         className="border-0 border-b-2 border-[var(--mg-ring)] bg-transparent px-0 py-3 text-base font-semibold outline-none transition placeholder:text-[var(--mg-ink)]/40 focus:border-[var(--mg-ink)]"
       />
       <textarea
@@ -48,7 +48,7 @@ export function ReturnRequestForm({ orderId }: { orderId: string }) {
         required
         minLength={10}
         rows={4}
-        placeholder="Expliquez le probleme. Ajoutez les details utiles."
+        placeholder="Expliquez le problème. Ajoutez les détails utiles."
         className="border-0 border-b-2 border-[var(--mg-ring)] bg-transparent px-0 py-3 text-base font-semibold outline-none transition placeholder:text-[var(--mg-ink)]/40 focus:border-[var(--mg-ink)]"
       />
       <button type="submit" disabled={busy} className="w-fit rounded-full bg-[var(--mg-ink)] px-6 py-3 text-base font-black text-white disabled:opacity-60">

@@ -16,7 +16,7 @@ const signupSchema = z.object({
 export async function POST(request: Request) {
   if (!env.supabaseServiceRoleKey) {
     return NextResponse.json(
-      { error: "SUPABASE_SERVICE_ROLE_KEY est requis pour creer un compte sans confirmation email." },
+      { error: "SUPABASE_SERVICE_ROLE_KEY est requis pour créer un compte sans confirmation email." },
       { status: 500 },
     );
   }

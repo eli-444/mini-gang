@@ -7,12 +7,12 @@ import { toChf } from "@/lib/utils";
 
 const statusLabels: Record<string, string> = {
   en_attente: "En attente de confirmation",
-  payee: "Payee",
-  preparee: "En preparation",
-  envoyee: "Envoyee",
-  livree: "Livree",
-  annulee: "Annulee",
-  remboursee: "Remboursee",
+  payee: "Payée",
+  preparee: "En préparation",
+  envoyee: "Envoyée",
+  livree: "Livrée",
+  annulee: "Annulée",
+  remboursee: "Remboursée",
 };
 
 export default async function AccountOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -79,11 +79,11 @@ export default async function AccountOrderDetailPage({ params }: { params: Promi
         <article>
           <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">Tracking</h3>
           <div className="mt-4 space-y-4">
-            {(order.shipments ?? []).length === 0 ? <p className="border-l-4 border-[var(--mg-pop-rose)] py-2 pl-4 text-base font-semibold leading-7 text-[var(--mg-ink)]/68">Le suivi apparaitra ici des que la commande sera expediee.</p> : null}
+            {(order.shipments ?? []).length === 0 ? <p className="border-l-4 border-[var(--mg-pop-rose)] py-2 pl-4 text-base font-semibold leading-7 text-[var(--mg-ink)]/68">Le suivi apparaîtra ici dès que la commande sera expédiée.</p> : null}
             {(order.shipments ?? []).map((shipment: { id: string; carrier: string; status: string; tracking_number: string | null; tracking_url: string | null }) => (
               <div key={shipment.id} className="border-l-4 border-[var(--mg-ring)] py-1 pl-4 text-base">
                 <p className="font-black">{shipment.carrier} - {shipment.status}</p>
-                <p>{shipment.tracking_number ?? "Numero a venir"}</p>
+                <p>{shipment.tracking_number ?? "Numéro à venir"}</p>
                 {shipment.tracking_url ? <a href={shipment.tracking_url} className="font-semibold underline">Ouvrir le suivi</a> : null}
               </div>
             ))}
@@ -91,7 +91,7 @@ export default async function AccountOrderDetailPage({ params }: { params: Promi
         </article>
 
         <article>
-          <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">Retour ou probleme</h3>
+          <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">Retour ou problème</h3>
           {(order.returns ?? []).length > 0 ? (
             <div className="mt-4 space-y-4">
               {(order.returns ?? []).map((ret: { id: string; status: string; reason: string }) => (

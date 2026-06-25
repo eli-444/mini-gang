@@ -58,7 +58,7 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Merc
       }
 
       if (payload.settings) setForm(toFormState(payload.settings));
-      setStatus("Parametres de paiement enregistres.");
+      setStatus("Paramètres de paiement enregistrés.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Erreur inconnue");
     } finally {

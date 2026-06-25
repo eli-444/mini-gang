@@ -34,7 +34,7 @@ const defaultSiteContentSettings: SiteContentSettings = {
   shop_closed_message: "La boutique prend une petite pause. Nous revenons tres bientot avec de nouvelles pepites Mini Gang.",
   shop_reopen_date: "",
   sell_service_enabled: false,
-  sell_closed_message: "Le service de rachat est temporairement ferme. Nous rouvrirons prochainement les demandes d'envoi de vetements.",
+  sell_closed_message: "Le service de rachat est temporairement fermé. Nous rouvrirons prochainement les demandes d'envoi de vêtements.",
   sell_conditions_text: "",
   sell_refused_brands_text: "",
   sell_explanation_text: "",

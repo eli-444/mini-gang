@@ -27,7 +27,7 @@ export default async function AdminSettingsPage() {
   return (
     <div className="space-y-5">
       <div className="admin-card p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Reglages</p>
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Réglages</p>
         <h1 className="mt-1 text-2xl font-bold text-slate-950 md:text-3xl">Configuration boutique</h1>
       </div>
 

@@ -15,7 +15,7 @@ function escapeHtml(value: string) {
 
 function shippingLabelErrorResponse(message: string) {
   return new Response(
-    `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bordereau indisponible</title><style>body{font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a;padding:32px}main{max-width:720px;margin:auto;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:24px}h1{font-size:24px;margin:0 0 12px}pre{white-space:pre-wrap;background:#f1f5f9;border-radius:8px;padding:12px}</style></head><body><main><h1>Bordereau indisponible</h1><p>La generation du bordereau a echoue.</p><pre>${escapeHtml(message)}</pre><p>Verifiez les variables La Poste et le service code, puis relancez la generation.</p></main></body></html>`,
+    `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bordereau indisponible</title><style>body{font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a;padding:32px}main{max-width:720px;margin:auto;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:24px}h1{font-size:24px;margin:0 0 12px}pre{white-space:pre-wrap;background:#f1f5f9;border-radius:8px;padding:12px}</style></head><body><main><h1>Bordereau indisponible</h1><p>La génération du bordereau a échoué.</p><pre>${escapeHtml(message)}</pre><p>Vérifiez les variables La Poste et le service code, puis relancez la génération.</p></main></body></html>`,
     {
       status: 500,
       headers: { "Content-Type": "text/html; charset=utf-8" },
@@ -24,13 +24,13 @@ function shippingLabelErrorResponse(message: string) {
 }
 
 function existingLabelResponse(orderId: string, shipment: { tracking_number?: string | null; tracking_url?: string | null }) {
-  const tracking = shipment.tracking_number ?? "Sans numero";
+  const tracking = shipment.tracking_number ?? "Sans numéro";
   const trackingLink = shipment.tracking_url
     ? `<a href="${escapeHtml(shipment.tracking_url)}" target="_blank" rel="noreferrer">Ouvrir le suivi</a>`
     : "";
 
   return new Response(
-    `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bordereau deja genere</title><style>body{font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a;padding:32px}main{max-width:720px;margin:auto;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:24px}h1{font-size:24px;margin:0 0 12px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}a{color:#14532d;font-weight:700}.button{display:inline-flex;border-radius:8px;background:#0f172a;color:white;padding:10px 14px;text-decoration:none}</style></head><body><main><h1>Bordereau deja genere</h1><p>Un bordereau La Poste existe deja pour cette commande.</p><p><strong>${escapeHtml(tracking)}</strong></p>${trackingLink}<div class="actions"><a class="button" href="/api/admin/orders/${escapeHtml(orderId)}/shipping-label?force=1">Regenerer volontairement</a></div></main></body></html>`,
+    `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Bordereau déjà généré</title><style>body{font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a;padding:32px}main{max-width:720px;margin:auto;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:24px}h1{font-size:24px;margin:0 0 12px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}a{color:#14532d;font-weight:700}.button{display:inline-flex;border-radius:8px;background:#0f172a;color:white;padding:10px 14px;text-decoration:none}</style></head><body><main><h1>Bordereau déjà généré</h1><p>Un bordereau La Poste existe déjà pour cette commande.</p><p><strong>${escapeHtml(tracking)}</strong></p>${trackingLink}<div class="actions"><a class="button" href="/api/admin/orders/${escapeHtml(orderId)}/shipping-label?force=1">Régénérer volontairement</a></div></main></body></html>`,
     {
       status: 409,
       headers: { "Content-Type": "text/html; charset=utf-8" },

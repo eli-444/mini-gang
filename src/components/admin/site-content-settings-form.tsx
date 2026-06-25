@@ -33,7 +33,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
   const [isUploading, setIsUploading] = useState(false);
   const previewImage = useMemo(() => toPublicUrl(form.home_event_image_path), [form.home_event_image_path]);
 
-  const saveSettings = async (nextForm: SiteContentSettings, successMessage = "Contenu enregistre.") => {
+  const saveSettings = async (nextForm: SiteContentSettings, successMessage = "Contenu enregistré.") => {
     const response = await fetch("/api/admin/settings/site-content", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -82,7 +82,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
     try {
       const path = await uploadImage(file);
       setForm((prev) => ({ ...prev, home_event_image_path: path }));
-      setStatus("Image de l'event chargee.");
+      setStatus("Image de l'événement chargée.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Erreur upload image.");
     } finally {
@@ -97,7 +97,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
     setIsSubmitting(true);
 
     try {
-      await saveSettings(form, "Contenu du site enregistre.");
+      await saveSettings(form, "Contenu du site enregistré.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Erreur inconnue");
     } finally {
@@ -114,7 +114,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
     try {
       await saveSettings(
         nextForm,
-        nextForm.shop_enabled ? "Boutique rouverte." : "Boutique fermee. La page de pause est active.",
+        nextForm.shop_enabled ? "Boutique rouverte." : "Boutique fermée. La page de pause est active.",
       );
     } catch (error) {
       setForm(form);
@@ -131,7 +131,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
           <div>
             <h3 className="text-sm font-semibold uppercase text-slate-500">Boutique</h3>
             <p className="mt-1 text-lg font-bold text-slate-900">
-              {form.shop_enabled ? "Boutique ouverte" : "Boutique fermee"}
+              {form.shop_enabled ? "Boutique ouverte" : "Boutique fermée"}
             </p>
             <p className="mt-1 text-sm text-slate-600">
               Un clic suffit pour remplacer la boutique par une page friendly de pause.
@@ -175,12 +175,12 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
           checked={form.home_event_enabled}
           onChange={(event) => setForm((prev) => ({ ...prev, home_event_enabled: event.target.checked }))}
         />
-        Afficher l&apos;event sur la page d&apos;accueil
+        Afficher l&apos;événement sur la page d&apos;accueil
       </label>
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1 text-sm font-semibold text-slate-700">
-          Titre de l&apos;event
+          Titre de l&apos;événement
           <input
             value={form.home_event_title}
             onChange={(event) => setForm((prev) => ({ ...prev, home_event_title: event.target.value }))}
@@ -201,7 +201,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
 
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_260px]">
         <label className="grid gap-1 text-sm font-semibold text-slate-700">
-          Texte de l&apos;event
+          Texte de l&apos;événement
           <textarea
             value={form.home_event_text}
             onChange={(event) => setForm((prev) => ({ ...prev, home_event_text: event.target.value }))}
@@ -211,7 +211,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
         </label>
         <div className="grid gap-2">
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
-            Libelle du CTA
+            Libellé du CTA
             <input
               value={form.home_event_cta_label}
               onChange={(event) => setForm((prev) => ({ ...prev, home_event_cta_label: event.target.value }))}
@@ -226,16 +226,16 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
           {previewImage ? (
             <div className="overflow-hidden rounded-md border border-slate-200 bg-slate-50">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={previewImage} alt="Apercu event" className="h-36 w-full object-cover" />
+              <img src={previewImage} alt="Aperçu événement" className="h-36 w-full object-cover" />
             </div>
           ) : (
-            <div className="rounded-md border border-dashed border-slate-200 p-4 text-xs text-slate-500">Aucune image d&apos;event chargee.</div>
+            <div className="rounded-md border border-dashed border-slate-200 p-4 text-xs text-slate-500">Aucune image d&apos;événement chargée.</div>
           )}
         </div>
       </div>
 
       <div className="border-t border-slate-200 pt-4">
-        <h3 className="text-sm font-semibold uppercase text-slate-500">Rachat / depot</h3>
+        <h3 className="text-sm font-semibold uppercase text-slate-500">Rachat / dépôt</h3>
         <label className="mt-3 flex items-center gap-2 rounded-md border border-slate-200 p-3 text-sm font-semibold text-slate-700">
           <input
             type="checkbox"
@@ -245,7 +245,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
           Service de rachat ouvert
         </label>
         <label className="mt-3 grid gap-1 text-sm font-semibold text-slate-700">
-          Message quand le rachat est ferme
+          Message quand le rachat est fermé
           <textarea
             value={form.sell_closed_message}
             onChange={(event) => setForm((prev) => ({ ...prev, sell_closed_message: event.target.value }))}
@@ -263,7 +263,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             />
           </label>
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
-            Marques refusees
+            Marques refusées
             <textarea
               value={form.sell_refused_brands_text}
               onChange={(event) => setForm((prev) => ({ ...prev, sell_refused_brands_text: event.target.value }))}
@@ -295,7 +295,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
         </label>
         <div className="mt-3 grid gap-3 md:grid-cols-[1fr_220px]">
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
-            Message quand les commandes sont fermees
+            Message quand les commandes sont fermées
             <textarea
               value={form.orders_closed_message}
               onChange={(event) => setForm((prev) => ({ ...prev, orders_closed_message: event.target.value }))}
@@ -303,7 +303,7 @@ export function SiteContentSettingsForm({ initialSettings }: { initialSettings: 
             />
           </label>
           <label className="grid gap-1 text-sm font-semibold text-slate-700">
-            Date de reouverture
+            Date de réouverture
             <input
               type="date"
               value={form.orders_reopen_date}

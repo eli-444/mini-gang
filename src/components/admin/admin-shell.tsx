@@ -8,16 +8,16 @@ import { LogoutButton } from "@/components/auth/logout-button";
 
 const navItems = [
   { href: "/admin", label: "Tableau de bord", section: "Pilotage", icon: "01" },
-  { href: "/admin/products", label: "Vetements", section: "Boutique", icon: "02" },
+  { href: "/admin/products", label: "Vêtements", section: "Boutique", icon: "02" },
   { href: "/admin/merch", label: "Merch", section: "Boutique", icon: "03" },
   { href: "/admin/orders", label: "Commandes", section: "Boutique", icon: "04" },
   { href: "/admin/customers", label: "Clients", section: "Boutique", icon: "05" },
   { href: "/admin/promo-codes", label: "Codes promo", section: "Boutique", icon: "06" },
-  { href: "/admin/sell-orders", label: "Rachat", section: "Operations", icon: "07" },
-  { href: "/admin/settings", label: "Reglages", section: "Systeme", icon: "08" },
+  { href: "/admin/sell-orders", label: "Rachat", section: "Opérations", icon: "07" },
+  { href: "/admin/settings", label: "Réglages", section: "Système", icon: "08" },
 ];
 
-const navSections = ["Pilotage", "Boutique", "Operations", "Systeme"];
+const navSections = ["Pilotage", "Boutique", "Opérations", "Système"];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

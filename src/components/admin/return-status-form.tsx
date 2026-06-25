@@ -16,10 +16,10 @@ export function ReturnStatusForm({ returnId, initialStatus }: { returnId: string
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      setMessage(payload.error ?? "Mise a jour impossible");
+      setMessage(payload.error ?? "Mise à jour impossible");
       return;
     }
-    setMessage("Retour mis a jour.");
+    setMessage("Retour mis à jour.");
     window.location.reload();
   };
 

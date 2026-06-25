@@ -44,7 +44,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         return;
       }
 
-      setMessage("Profil mis a jour.");
+      setMessage("Profil mis à jour.");
     } finally {
       setIsSaving(false);
     }
@@ -58,7 +58,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       </div>
 
       <label>
-        <span className={labelClass}>Prenom</span>
+        <span className={labelClass}>Prénom</span>
         <input
           value={prenom}
           onChange={(event) => setPrenom(event.target.value)}
@@ -80,7 +80,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       </label>
 
       <label>
-        <span className={labelClass}>Telephone</span>
+        <span className={labelClass}>Téléphone</span>
         <input
           value={telephone}
           onChange={(event) => setTelephone(event.target.value)}

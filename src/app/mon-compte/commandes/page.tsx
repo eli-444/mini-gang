@@ -7,12 +7,12 @@ const currentStatuses = new Set(["en_attente", "payee", "preparee", "envoyee"]);
 
 const statusLabels: Record<string, string> = {
   en_attente: "En attente",
-  payee: "Payee",
-  preparee: "Preparee",
-  envoyee: "Envoyee",
-  livree: "Livree",
-  annulee: "Annulee",
-  remboursee: "Remboursee",
+  payee: "Payée",
+  preparee: "Préparée",
+  envoyee: "Envoyée",
+  livree: "Livrée",
+  annulee: "Annulée",
+  remboursee: "Remboursée",
 };
 
 type OrderItem = {
@@ -106,9 +106,9 @@ export default async function MonCompteCommandesPage() {
 
         <div>
           <h3 className="mb-4 text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">
-            Commandes passees
+            Commandes passées
           </h3>
-          <OrderList orders={pastOrders} emptyLabel="Aucune commande passee pour le moment." />
+          <OrderList orders={pastOrders} emptyLabel="Aucune commande passée pour le moment." />
         </div>
       </div>
     </section>

@@ -184,7 +184,7 @@ export const sellOrderCreateSchema = z.object({
     city: z.string().trim().min(2).max(100),
     country: z.string().trim().min(2).max(2).default("CH"),
   }),
-  items: z.array(sellOrderItemSchema).min(10, "Minimum 10 vetements par colis").max(50, "Maximum 50 vetements par colis"),
+  items: z.array(sellOrderItemSchema).min(10, "Minimum 10 vêtements par colis").max(50, "Maximum 50 vêtements par colis"),
 });
 
 export const sellOrderTrackingSchema = z.object({
