@@ -3,6 +3,16 @@ import { AdminOrderActions } from "@/components/admin/order-actions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { toChf } from "@/lib/utils";
 
+type ShipmentRow = {
+  id: string;
+  carrier: string;
+  status: string;
+  tracking_number: string | null;
+  tracking_url: string | null;
+  shipped_at: string | null;
+  created_at?: string | null;
+};
+
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createSupabaseAdminClient();
@@ -23,6 +33,13 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
   if (!order) notFound();
   const canGenerateShippingLabel = ["payee", "preparee", "envoyee", "livree"].includes(order.statut);
+  const uniqueShipments = [...((order.shipments ?? []) as ShipmentRow[])]
+    .sort((a, b) => new Date(b.created_at ?? "").getTime() - new Date(a.created_at ?? "").getTime())
+    .filter((shipment, index, shipments) => {
+      const key = shipment.tracking_number ?? shipment.id;
+      return shipments.findIndex((item) => (item.tracking_number ?? item.id) === key) === index;
+    });
+  const latestShipment = uniqueShipments.find((shipment) => shipment.tracking_number);
 
   return (
     <div className="space-y-5">
@@ -92,7 +109,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
         <article className="admin-card p-4">
           <h2 className="text-sm font-semibold uppercase text-slate-500">Livraison</h2>
-          {canGenerateShippingLabel ? (
+          {canGenerateShippingLabel && !latestShipment ? (
             <a
               href={`/api/admin/orders/${order.id}/shipping-label`}
               target="_blank"
@@ -102,9 +119,30 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               Generer un bordereau d&apos;envoi
             </a>
           ) : null}
+          {canGenerateShippingLabel && latestShipment ? (
+            <div className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm">
+              <p className="font-semibold text-emerald-950">Bordereau deja genere</p>
+              <p className="mt-1 text-emerald-900">{latestShipment.tracking_number}</p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {latestShipment.tracking_url ? (
+                  <a href={latestShipment.tracking_url} target="_blank" rel="noreferrer" className="font-semibold underline">
+                    Suivi La Poste
+                  </a>
+                ) : null}
+                <a
+                  href={`/api/admin/orders/${order.id}/shipping-label?force=1`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-slate-700 underline"
+                >
+                  Regenerer
+                </a>
+              </div>
+            </div>
+          ) : null}
           <div className="mt-3 space-y-2 text-sm">
-            {(order.shipments ?? []).length === 0 ? <p className="text-slate-500">Aucun tracking enregistre.</p> : null}
-            {(order.shipments ?? []).map((shipment: { id: string; carrier: string; status: string; tracking_number: string | null; tracking_url: string | null; shipped_at: string | null }) => (
+            {uniqueShipments.length === 0 ? <p className="text-slate-500">Aucun tracking enregistre.</p> : null}
+            {uniqueShipments.map((shipment) => (
               <div key={shipment.id} className="rounded-md border border-slate-100 p-2">
                 <p className="font-semibold">{shipment.carrier} - {shipment.status}</p>
                 <p>{shipment.tracking_number ?? "Sans numero"}</p>
