@@ -17,6 +17,7 @@ interface ListProductsOptions {
   min_price?: number;
   max_price?: number;
   sort?: "newest" | "price_asc" | "price_desc";
+  featured?: boolean;
   featuredFirst?: boolean;
   cursor?: string;
   limit?: number;
@@ -244,6 +245,7 @@ export async function listProducts(options: ListProductsOptions) {
     if (options.brand) query = query.ilike("marque", `%${options.brand}%`);
     if (options.condition) query = query.eq("etat", options.condition);
     if (includeExpansion && options.saison) query = query.eq("saison", options.saison);
+    if (includeExpansion && typeof options.featured === "boolean") query = query.eq("mis_en_avant", options.featured);
     if (options.size_label) query = query.eq("taille", options.size_label);
     if (typeof options.min_price === "number") query = query.gte("prix_centimes", options.min_price);
     if (typeof options.max_price === "number") query = query.lte("prix_centimes", options.max_price);

@@ -7,10 +7,14 @@ import { getSiteContentSettings } from "@/lib/site-content-settings";
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [{ products }, siteContent] = await Promise.all([
-    listProducts({ limit: 4, sort: "newest", featuredFirst: true, shop_section: "vetements" }),
+  const [featuredProducts, siteContent] = await Promise.all([
+    listProducts({ limit: 4, sort: "newest", featured: true, shop_section: "vetements" }),
     getSiteContentSettings(),
   ]);
+  const { products } =
+    featuredProducts.products.length > 0
+      ? featuredProducts
+      : await listProducts({ limit: 4, sort: "newest", shop_section: "vetements" });
 
   return (
     <div className="bg-[var(--mg-bg)] text-[var(--mg-on-dark)]">

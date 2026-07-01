@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminApi } from "@/lib/admin-api";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { adminProductSchema } from "@/lib/validation";
@@ -55,6 +56,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  revalidatePath("/");
+  revalidatePath("/boutique");
+  revalidatePath(`/boutique/${id}`);
   return NextResponse.json(data);
 }
 

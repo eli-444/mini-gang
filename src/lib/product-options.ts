@@ -3,7 +3,7 @@ import type { ProductCondition, ProductStatus } from "@/lib/types";
 export const productConditionOptions: Array<{ value: ProductCondition; label: string }> = [
   { value: "beaucoup_aime", label: "Beaucoup aimé, beaucoup porté" },
   { value: "bon", label: "Bon état" },
-  { value: "tres_bon", label: "Tres bon état" },
+  { value: "tres_bon", label: "Très bon état" },
   { value: "comme_neuf", label: "Comme neuf" },
   { value: "neuf_etiquettes", label: "Neuf avec étiquettes" },
 ];

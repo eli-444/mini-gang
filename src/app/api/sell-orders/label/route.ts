@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 const conditionLabels: Record<string, string> = {
   new: "Neuf avec étiquettes",
   like_new: "Comme neuf",
-  very_good: "Tres bon état",
+  very_good: "Très bon état",
   good: "Bon état",
   fair: "Beaucoup aimé, beaucoup porté",
 };
