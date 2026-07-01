@@ -8,11 +8,11 @@ import { sellOrderCreateSchema } from "@/lib/validation";
 export const runtime = "nodejs";
 
 const conditionLabels: Record<string, string> = {
-  new: "Neuf avec etiquettes",
+  new: "Neuf avec étiquettes",
   like_new: "Comme neuf",
-  very_good: "Tres bon etat",
-  good: "Bon etat",
-  fair: "Beaucoup aime, beaucoup porte",
+  very_good: "Tres bon état",
+  good: "Bon état",
+  fair: "Beaucoup aimé, beaucoup porté",
 };
 
 function createOrderNumber() {

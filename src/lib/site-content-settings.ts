@@ -1,4 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { env } from "@/lib/env";
 
 export const SITE_CONTENT_BUCKET = "site-content";
 const SITE_CONTENT_PATH = "settings/site-content.json";
@@ -66,6 +67,8 @@ function sanitizeSettings(input: Partial<SiteContentSettings> | null | undefined
 }
 
 export async function ensureSiteContentBucket() {
+  if (!env.supabaseUrl || (!env.supabaseServiceRoleKey && !env.supabaseAnonKey)) return;
+
   const supabase = createSupabaseAdminClient();
   const { error: bucketError } = await supabase.storage.getBucket(SITE_CONTENT_BUCKET);
   if (!bucketError) return;
@@ -82,6 +85,10 @@ export async function ensureSiteContentBucket() {
 }
 
 export async function getSiteContentSettings(): Promise<SiteContentSettings> {
+  if (!env.supabaseUrl || (!env.supabaseServiceRoleKey && !env.supabaseAnonKey)) {
+    return defaultSiteContentSettings;
+  }
+
   const supabase = createSupabaseAdminClient();
   await ensureSiteContentBucket();
 

@@ -8,7 +8,7 @@ export const revalidate = 300;
 
 export default async function HomePage() {
   const [{ products }, siteContent] = await Promise.all([
-    listProducts({ limit: 4, sort: "newest", shop_section: "vetements" }),
+    listProducts({ limit: 4, sort: "newest", featuredFirst: true, shop_section: "vetements" }),
     getSiteContentSettings(),
   ]);
 

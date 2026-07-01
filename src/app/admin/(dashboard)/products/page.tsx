@@ -105,6 +105,7 @@ export default async function AdminProductsPage({
                 <th className="px-3 py-2">Etat</th>
                 <th className="px-3 py-2">Prix</th>
                 <th className="px-3 py-2">Statut</th>
+                <th className="px-3 py-2">Mise en avant</th>
                 <th className="px-3 py-2">Ajoute</th>
                 <th className="px-3 py-2">Action</th>
               </tr>
@@ -125,6 +126,9 @@ export default async function AdminProductsPage({
                   <td className="px-3 py-2">{toChf(product.price_cents)}</td>
                   <td className="px-3 py-2">
                     <span className={`admin-status ${product.status}`}>{getProductStatusLabel(product.status)}</span>
+                  </td>
+                  <td className="px-3 py-2">
+                    {product.featured ? <span className="admin-status active">Oui</span> : "-"}
                   </td>
                   <td className="px-3 py-2">{new Date(product.created_at).toLocaleDateString("fr-FR")}</td>
                   <td className="px-3 py-2">

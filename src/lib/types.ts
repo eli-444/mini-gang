@@ -37,6 +37,7 @@ export interface Product {
   status: ProductStatus;
   stock_quantity: number | null;
   stock_location: string | null;
+  featured: boolean;
   reserved_until: string | null;
   created_at: string;
   product_images?: ProductImage[];

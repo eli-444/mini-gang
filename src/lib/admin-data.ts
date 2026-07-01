@@ -20,6 +20,7 @@ type AdminProductRow = {
   prix_neuf_centimes?: number | null;
   statut: string;
   quantite_stock?: number | null;
+  mis_en_avant?: boolean | null;
   saison?: string | null;
   emplacement_stock?: string | null;
   cree_le: string;
@@ -115,7 +116,7 @@ export async function listAdminProducts(input: {
   const to = from + input.pageSize - 1;
 
   const runQuery = async (includeAge: boolean, includeExpansion: boolean) => {
-    const expansionColumns = includeExpansion ? "reference_vetement,prix_neuf_centimes,saison,emplacement_stock,quantite_stock," : "";
+    const expansionColumns = includeExpansion ? "reference_vetement,prix_neuf_centimes,saison,emplacement_stock,quantite_stock,mis_en_avant," : "";
     let query = supabase
       .from("vetements")
       .select(`id,nom,marque,taille,categorie,${includeAge ? "age," : ""}etat,prix_centimes,${expansionColumns}statut,cree_le,photos_vetements(url)`, {
@@ -137,12 +138,12 @@ export async function listAdminProducts(input: {
   };
 
   let { data, count, error } = await runQuery(true, true);
-  if (error?.message?.toLowerCase().includes("reference_vetement") || error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock") || error?.message?.toLowerCase().includes("quantite_stock")) {
+  if (error?.message?.toLowerCase().includes("reference_vetement") || error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock") || error?.message?.toLowerCase().includes("quantite_stock") || error?.message?.toLowerCase().includes("mis_en_avant")) {
     ({ data, count, error } = await runQuery(true, false));
   }
   if (error?.message?.toLowerCase().includes("vetements.age")) {
     ({ data, count, error } = await runQuery(false, true));
-    if (error?.message?.toLowerCase().includes("reference_vetement") || error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock") || error?.message?.toLowerCase().includes("quantite_stock")) {
+    if (error?.message?.toLowerCase().includes("reference_vetement") || error?.message?.toLowerCase().includes("prix_neuf_centimes") || error?.message?.toLowerCase().includes("saison") || error?.message?.toLowerCase().includes("emplacement_stock") || error?.message?.toLowerCase().includes("quantite_stock") || error?.message?.toLowerCase().includes("mis_en_avant")) {
       ({ data, count, error } = await runQuery(false, false));
     }
   }
@@ -165,6 +166,7 @@ export async function listAdminProducts(input: {
       currency: SHOP_CURRENCY,
       status: product.statut,
       stock_quantity: product.quantite_stock ?? null,
+      featured: Boolean(product.mis_en_avant),
       season: product.saison ?? null,
       stock_location: product.emplacement_stock ?? null,
       created_at: product.cree_le,
