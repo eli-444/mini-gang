@@ -33,7 +33,7 @@ export default async function AdminSettingsPage() {
 
       <section className="admin-card p-5">
         <div className="mb-4">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Etat actuel</p>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">État actuel</p>
           <h2 className="mt-1 text-lg font-bold text-slate-950">Services actifs</h2>
         </div>
         <dl className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-4">

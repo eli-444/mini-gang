@@ -8,7 +8,7 @@ export function DeleteProductButton({ productId, productName }: { productId: str
   const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteProduct = async () => {
-    const confirmed = window.confirm(`Supprimer "${productName}" ? Cette action est definitive.`);
+    const confirmed = window.confirm(`Supprimer "${productName}" ? Cette action est définitive.`);
     if (!confirmed) return;
 
     setIsDeleting(true);

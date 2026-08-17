@@ -140,7 +140,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
           <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
             <div><dt className="text-slate-500">Référence</dt><dd>{product.reference_vetement ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Marque</dt><dd>{product.marque ?? "-"}</dd></div>
-            <div><dt className="text-slate-500">Etat</dt><dd>{getProductConditionLabel(product.etat)}</dd></div>
+            <div><dt className="text-slate-500">État</dt><dd>{getProductConditionLabel(product.etat)}</dd></div>
             <div><dt className="text-slate-500">Taille</dt><dd>{product.taille ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Age</dt><dd>{product.age ?? "-"}</dd></div>
             <div><dt className="text-slate-500">Catégorie</dt><dd>{getProductCategoryLabel(product.categorie)}</dd></div>
@@ -154,7 +154,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
               <dt className="text-slate-500">Statut</dt>
               <dd><span className={`admin-status ${product.statut}`}>{getProductStatusLabel(product.statut)}</span></dd>
             </div>
-            <div><dt className="text-slate-500">Ajoute le</dt><dd>{new Date(product.cree_le).toLocaleDateString("fr-FR")}</dd></div>
+            <div><dt className="text-slate-500">Ajouté le</dt><dd>{new Date(product.cree_le).toLocaleDateString("fr-FR")}</dd></div>
           </dl>
           <p className="mt-4 text-sm text-slate-700">{product.description ?? "Sans description."}</p>
         </article>

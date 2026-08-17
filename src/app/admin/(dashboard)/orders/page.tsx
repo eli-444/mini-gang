@@ -76,7 +76,7 @@ export default async function AdminOrdersPage({
           href={`/admin/orders?page=${Math.max(1, data.page - 1)}`}
           className={`rounded-md border px-3 py-1.5 text-sm ${hasPrev ? "border-slate-300 text-slate-700" : "pointer-events-none border-slate-100 text-slate-300"}`}
         >
-          Precedent
+          Précédent
         </Link>
         <Link
           href={`/admin/orders?page=${data.page + 1}`}

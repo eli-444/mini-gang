@@ -18,6 +18,15 @@ type StripeErrorPayload = {
   };
 };
 
+type StripeCheckoutSessionPayload = {
+  id: string;
+  client_reference_id?: string | null;
+  metadata?: Record<string, string | undefined> | null;
+  payment_intent?: string | null;
+  payment_status?: string | null;
+  status?: string | null;
+};
+
 function parseStripeSignature(signatureHeader: string) {
   const parts = signatureHeader.split(",").map((part) => part.trim());
   const timestamp = parts.find((part) => part.startsWith("t="))?.slice(2);
@@ -125,6 +134,26 @@ export async function createStripeCheckoutSession(
   };
 }
 
+export async function retrieveStripeCheckoutSession(sessionId: string) {
+  if (!env.stripeSecretKey) {
+    throw new Error("Stripe is not configured.");
+  }
+
+  const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+    headers: {
+      Authorization: `Bearer ${env.stripeSecretKey}`,
+    },
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as StripeErrorPayload | null;
+    const message = payload?.error?.message ? `: ${payload.error.message}` : "";
+    throw new Error(`Stripe checkout lookup failed (${response.status})${message}`);
+  }
+
+  return (await response.json()) as StripeCheckoutSessionPayload;
+}
+
 export class StripeProvider implements PaymentProvider {
   name = "stripe" as const;
 
@@ -169,6 +198,12 @@ export class StripeProvider implements PaymentProvider {
 
   extractOrderId(event: PaymentWebhookEvent) {
     const object = ((event.payload.data as { object?: Record<string, unknown> })?.object ?? {}) as Record<string, unknown>;
-    return (object.client_reference_id as string | null) ?? null;
+    const metadata = (object.metadata ?? {}) as Record<string, unknown>;
+    return (
+      (object.client_reference_id as string | null | undefined) ??
+      (metadata.orderId as string | null | undefined) ??
+      (metadata.order_id as string | null | undefined) ??
+      null
+    );
   }
 }

@@ -71,7 +71,7 @@ export async function sendOrderPaidEmails(input: {
 
   const customerPromise = sendEmail({
     to: input.customerEmail,
-    subject: `Commande ${input.orderId} confirmee`,
+    subject: `Commande ${input.orderId} confirmée`,
     html: `
       <p>Merci${input.customerName ? ` ${escapeHtml(input.customerName)}` : ""}, votre commande <strong>${input.orderId}</strong> est bien payée.</p>
       <ul>${itemRows}</ul>

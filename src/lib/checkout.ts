@@ -308,7 +308,7 @@ export async function saveProviderSession(
 
 export async function markOrderPaid(input: { orderId: string; providerPaymentId?: string | null }) {
   const supabase = createSupabaseAdminClient();
-  let { data: order, error: orderError } = await supabase
+  let { data: updatedOrder, error: orderError } = await supabase
     .from("commandes")
     .update({
       statut: "payee",
@@ -321,7 +321,7 @@ export async function markOrderPaid(input: { orderId: string; providerPaymentId?
     .maybeSingle();
 
   if (orderError?.message?.toLowerCase().includes("provider_payment_id")) {
-    ({ data: order, error: orderError } = await supabase
+    ({ data: updatedOrder, error: orderError } = await supabase
       .from("commandes")
       .update({
         statut: "payee",
@@ -333,7 +333,17 @@ export async function markOrderPaid(input: { orderId: string; providerPaymentId?
       .maybeSingle());
   }
   if (orderError) throw new Error(orderError.message);
-  if (!order) return;
+
+  if (!updatedOrder) {
+    const { data: existingOrder, error: existingOrderError } = await supabase
+      .from("commandes")
+      .select("id")
+      .eq("id", input.orderId)
+      .maybeSingle();
+
+    if (existingOrderError) throw new Error(existingOrderError.message);
+    if (!existingOrder) return;
+  }
 
   const { data: orderItems, error: itemsError } = await supabase
     .from("articles_commande")
@@ -341,7 +351,7 @@ export async function markOrderPaid(input: { orderId: string; providerPaymentId?
     .eq("commande_id", input.orderId);
   if (itemsError) throw new Error(itemsError.message);
 
-  const productIds = orderItems.map((item) => item.vetement_id).filter(Boolean);
+  const productIds = (orderItems ?? []).map((item) => item.vetement_id).filter(Boolean);
   if (productIds.length > 0) {
     const { data: products, error: productListError } = await supabase
       .from("vetements")

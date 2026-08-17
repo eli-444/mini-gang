@@ -40,7 +40,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           ) : null}
           <ul className="grid gap-2 rounded-2xl bg-[linear-gradient(120deg,#fff,#fff7ec)] p-4 text-sm text-[var(--mg-ink)]/85">
             <li>
-              <strong>Etat:</strong> {getProductConditionLabel(product.condition)}
+              <strong>État:</strong> {getProductConditionLabel(product.condition)}
             </li>
             <li>
               <strong>Catégorie:</strong> {getProductCategoryLabel(product.category)}

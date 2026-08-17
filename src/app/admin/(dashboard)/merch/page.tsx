@@ -114,7 +114,7 @@ export default async function AdminMerchPage({
           href={pageUrl(Math.max(1, data.page - 1))}
           className={`rounded-md border px-3 py-1.5 text-sm ${hasPrev ? "border-slate-300 text-slate-700" : "pointer-events-none border-slate-100 text-slate-300"}`}
         >
-          Precedent
+          Précédent
         </Link>
         <Link
           href={pageUrl(data.page + 1)}

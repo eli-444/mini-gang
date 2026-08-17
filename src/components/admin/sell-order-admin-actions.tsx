@@ -45,10 +45,10 @@ export function SellOrderAdminActions({
       const response = await fetch(`/api/admin/sell-orders/${orderId}/mark-received`, { method: "POST" });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setMessage(payload.error ?? "Impossible de marquer recu");
+        setMessage(payload.error ?? "Impossible de marquer reçu");
         return;
       }
-      setMessage("Dossier marque recu.");
+      setMessage("Dossier marqué reçu.");
       window.location.reload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Erreur inconnue");
@@ -89,7 +89,7 @@ export function SellOrderAdminActions({
           disabled={loading}
           className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-semibold"
         >
-          Marquer recu
+          Marquer reçu
         </button>
         <button
           type="button"

@@ -332,7 +332,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
         </div>
       </FormSection>
 
-      <FormSection eyebrow="04 - Stock" title="Etat et stock">
+      <FormSection eyebrow="04 - Stock" title="État et stock">
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="État du vêtement">
             <select value={form.condition} onChange={(event) => setForm((prev) => ({ ...prev, condition: event.target.value }))} className={selectClass}>

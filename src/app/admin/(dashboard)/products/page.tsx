@@ -98,14 +98,14 @@ export default async function AdminProductsPage({
                 <th className="px-3 py-2">Produit</th>
                 <th className="px-3 py-2">Référence</th>
                 <th className="px-3 py-2">Marque</th>
-                <th className="px-3 py-2">Taille/Age</th>
+                <th className="px-3 py-2">Taille/Âge</th>
                 <th className="px-3 py-2">Catégorie</th>
                 <th className="px-3 py-2">Saison</th>
                 <th className="px-3 py-2">Emplacement</th>
-                <th className="px-3 py-2">Etat</th>
+                <th className="px-3 py-2">État</th>
                 <th className="px-3 py-2">Prix</th>
                 <th className="px-3 py-2">Statut</th>
-                <th className="px-3 py-2">Ajoute</th>
+                <th className="px-3 py-2">Ajouté</th>
                 <th className="px-3 py-2">Action</th>
               </tr>
             </thead>
@@ -152,7 +152,7 @@ export default async function AdminProductsPage({
           })()}`}
           className={`rounded-md border px-3 py-1.5 text-sm ${hasPrev ? "border-slate-300 text-slate-700" : "pointer-events-none border-slate-100 text-slate-300"}`}
         >
-          Precedent
+          Précédent
         </Link>
         <Link
           href={`/admin/products?${(() => {
