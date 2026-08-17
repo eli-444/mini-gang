@@ -17,6 +17,8 @@ interface ListProductsOptions {
   min_price?: number;
   max_price?: number;
   sort?: "newest" | "price_asc" | "price_desc";
+  featured?: boolean;
+  featuredFirst?: boolean;
   cursor?: string;
   limit?: number;
 }
@@ -37,6 +39,7 @@ type VetementRow = {
   statut: Product["status"];
   quantite_stock?: number | null;
   emplacement_stock?: string | null;
+  mis_en_avant?: boolean | null;
   reserved_until?: string | null;
   cree_le: string;
   photos_vetements?: Array<{
@@ -83,13 +86,13 @@ type SupabaseVetementsTable = {
 };
 
 const vetementSelectWithAgeAndReservation =
-  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,age,taille,genre,statut,quantite_stock,emplacement_stock,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
+  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,age,taille,genre,statut,quantite_stock,emplacement_stock,mis_en_avant,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectWithAge =
-  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,age,taille,genre,statut,quantite_stock,emplacement_stock,cree_le,photos_vetements(id,url,position,principale)";
+  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,age,taille,genre,statut,quantite_stock,emplacement_stock,mis_en_avant,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectWithoutAgeAndReservation =
-  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,taille,genre,statut,quantite_stock,emplacement_stock,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
+  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,taille,genre,statut,quantite_stock,emplacement_stock,mis_en_avant,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectWithoutAge =
-  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,taille,genre,statut,quantite_stock,emplacement_stock,cree_le,photos_vetements(id,url,position,principale)";
+  "id,nom,description,prix_centimes,prix_neuf_centimes,marque,etat,categorie,saison,taille,genre,statut,quantite_stock,emplacement_stock,mis_en_avant,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectLegacyWithAgeAndReservation =
   "id,nom,description,prix_centimes,marque,etat,categorie,age,taille,genre,statut,reserved_until,cree_le,photos_vetements(id,url,position,principale)";
 const vetementSelectLegacyWithAge =
@@ -109,7 +112,7 @@ function isMissingReservedUntilColumn(error: { message?: string } | null) {
 
 function isMissingProductExpansionColumn(error: { message?: string } | null) {
   const message = error?.message?.toLowerCase() ?? "";
-  return ["prix_neuf_centimes", "saison", "emplacement_stock", "quantite_stock", "reference_vetement"].some((column) =>
+  return ["prix_neuf_centimes", "saison", "emplacement_stock", "quantite_stock", "reference_vetement", "mis_en_avant"].some((column) =>
     message.includes(column),
   );
 }
@@ -189,6 +192,7 @@ function mapVetementToProduct(row: VetementRow): Product {
     status: row.statut,
     stock_quantity: row.quantite_stock ?? null,
     stock_location: row.emplacement_stock ?? null,
+    featured: Boolean(row.mis_en_avant),
     reserved_until: row.reserved_until ?? null,
     created_at: row.cree_le,
     product_images: images.map((image) => ({
@@ -241,6 +245,7 @@ export async function listProducts(options: ListProductsOptions) {
     if (options.brand) query = query.ilike("marque", `%${options.brand}%`);
     if (options.condition) query = query.eq("etat", options.condition);
     if (includeExpansion && options.saison) query = query.eq("saison", options.saison);
+    if (includeExpansion && typeof options.featured === "boolean") query = query.eq("mis_en_avant", options.featured);
     if (options.size_label) query = query.eq("taille", options.size_label);
     if (typeof options.min_price === "number") query = query.gte("prix_centimes", options.min_price);
     if (typeof options.max_price === "number") query = query.lte("prix_centimes", options.max_price);
@@ -251,6 +256,7 @@ export async function listProducts(options: ListProductsOptions) {
       if (sort === "price_desc") query = query.lt("prix_centimes", Number(options.cursor));
     }
 
+    if (options.featuredFirst && includeExpansion) query = query.order("mis_en_avant", { ascending: false });
     if (sort === "newest") query = query.order("cree_le", { ascending: false });
     if (sort === "price_asc") query = query.order("prix_centimes", { ascending: true });
     if (sort === "price_desc") query = query.order("prix_centimes", { ascending: false });

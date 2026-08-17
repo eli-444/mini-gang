@@ -1,11 +1,11 @@
 import type { ProductCondition, ProductStatus } from "@/lib/types";
 
 export const productConditionOptions: Array<{ value: ProductCondition; label: string }> = [
-  { value: "beaucoup_aime", label: "Beaucoup aime, beaucoup porte" },
-  { value: "bon", label: "Bon etat" },
-  { value: "tres_bon", label: "Tres bon etat" },
+  { value: "beaucoup_aime", label: "Beaucoup aimé, beaucoup porté" },
+  { value: "bon", label: "Bon état" },
+  { value: "tres_bon", label: "Très bon état" },
   { value: "comme_neuf", label: "Comme neuf" },
-  { value: "neuf_etiquettes", label: "Neuf avec etiquettes" },
+  { value: "neuf_etiquettes", label: "Neuf avec étiquettes" },
 ];
 
 export const productStatusOptions: Array<{ value: ProductStatus; label: string }> = [
@@ -18,7 +18,7 @@ export const productStatusOptions: Array<{ value: ProductStatus; label: string }
 
 export const adminProductStatusOptions: Array<{ value: ProductStatus; label: string }> = [
   ...productStatusOptions,
-  { value: "reserve", label: "Reserve" },
+  { value: "reserve", label: "Reservé" },
 ];
 
 export const productSeasonOptions = [
@@ -29,7 +29,7 @@ export const productSeasonOptions = [
 
 export function getProductConditionLabel(value: string | null | undefined) {
   if (value === "neuf") return "Neuf";
-  if (value === "correct") return "Beaucoup aime, beaucoup porte";
+  if (value === "correct") return "Beaucoup aimé, beaucoup porté";
   return productConditionOptions.find((option) => option.value === value)?.label ?? value ?? "-";
 }
 
