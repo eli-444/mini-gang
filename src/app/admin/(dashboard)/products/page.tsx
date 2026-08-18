@@ -5,6 +5,11 @@ import { getProductCategoryLabel } from "@/lib/product-categories";
 import { adminProductStatusOptions, getProductConditionLabel, getProductSeasonLabel, getProductStatusLabel } from "@/lib/product-options";
 import { toChf } from "@/lib/utils";
 
+function productImageUrl(url: string) {
+  if (url.startsWith("http")) return url;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/vetements/${url}`;
+}
+
 export default async function AdminProductsPage({
   searchParams,
 }: {
@@ -113,7 +118,21 @@ export default async function AdminProductsPage({
             <tbody>
               {data.rows.map((product) => (
                 <tr key={product.id} className="border-t border-slate-100">
-                  <td className="px-3 py-2 font-medium">{product.title}</td>
+                  <td className="px-3 py-2 font-medium">
+                    <div className="flex min-w-44 items-center gap-3">
+                      {product.product_images?.[0]?.url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={productImageUrl(product.product_images[0].url)}
+                          alt=""
+                          className="h-11 w-11 shrink-0 rounded-md border border-slate-200 object-cover"
+                        />
+                      ) : (
+                        <span className="h-11 w-11 shrink-0 rounded-md border border-dashed border-slate-300 bg-slate-50" aria-hidden="true" />
+                      )}
+                      <span>{product.title}</span>
+                    </div>
+                  </td>
                   <td className="px-3 py-2">{product.reference_code ?? "-"}</td>
                   <td className="px-3 py-2">{product.brand ?? "-"}</td>
                   <td className="px-3 py-2">

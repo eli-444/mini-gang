@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
+import { useCartStore } from "@/lib/cart-store";
 
 const leftLinks = [
   { href: "/a-propos", label: "A propos" },
@@ -36,6 +37,25 @@ function CartIcon() {
       <path d="M7.4 8.2h9.2l1.1 11.2a1.6 1.6 0 0 1-1.6 1.8H7.9a1.6 1.6 0 0 1-1.6-1.8L7.4 8.2Z" />
       <path d="M9.2 8.2c0-2.4 1.1-4.2 2.8-4.2s2.8 1.8 2.8 4.2" />
     </svg>
+  );
+}
+
+function CartLink({ className = "" }: { className?: string }) {
+  const count = useCartStore((state) => state.items.length);
+
+  return (
+    <Link
+      href="/panier"
+      aria-label={`Panier${count > 0 ? `, ${count} article${count > 1 ? "s" : ""}` : ""}`}
+      className={`relative inline-flex ${className}`}
+    >
+      <CartIcon />
+      {count > 0 ? (
+        <span className="absolute -right-2.5 -top-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-black leading-none text-white ring-2 ring-[var(--mg-cream)]">
+          {count > 99 ? "99+" : count}
+        </span>
+      ) : null}
+    </Link>
   );
 }
 
@@ -79,15 +99,11 @@ export function Header() {
             <Link href="/mon-compte" aria-label="Mon compte" className={isActive(pathname, "/mon-compte") ? "text-[var(--mg-pop-rose)]" : ""}>
               <AccountIcon />
             </Link>
-            <Link href="/panier" aria-label="Panier">
-              <CartIcon />
-            </Link>
+            <CartLink />
           </div>
         </div>
 
-        <Link href="/panier" aria-label="Panier" className="justify-self-end md:hidden">
-          <CartIcon />
-        </Link>
+        <CartLink className="justify-self-end md:hidden" />
       </div>
 
       {isOpen ? (

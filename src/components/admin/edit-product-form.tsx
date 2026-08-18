@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ageRangeOptions } from "@/lib/age-options";
 import { allProductCategoryOptions, isMerchCategory } from "@/lib/product-categories";
 import { adminProductStatusOptions, productConditionOptions, productSeasonOptions } from "@/lib/product-options";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { uploadProductImage } from "@/lib/product-image-upload";
 
 interface AdminProductEditInput {
   id: string;
@@ -73,6 +73,7 @@ function normalizeSeason(value: string | null | undefined) {
 
 export function EditProductForm({ product }: { product: AdminProductEditInput }) {
   const router = useRouter();
+  const isMerch = isMerchCategory(product.categorie);
   const [status, setStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -119,50 +120,20 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
     setIsUploading(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
       for (let index = 0; index < images.length; index += 1) {
-        const file = images[index];
-        const uploadUrlRes = await fetch("/api/admin/storage/upload-url", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileName: file.name.slice(0, 255),
-            contentType: file.type || undefined,
-          }),
+        await uploadProductImage({
+          productId: product.id,
+          file: images[index],
+          sortOrder: currentImages.length + index,
+          principale: currentImages.length === 0 && index === 0,
         });
-        const uploadPayload: ApiErrorPayload & { path?: string; token?: string } = await uploadUrlRes.json().catch(() => ({}));
-        if (!uploadUrlRes.ok || !uploadPayload.path || !uploadPayload.token) {
-          setStatus(formatApiError(uploadPayload));
-          return;
-        }
-
-        const { error: uploadError } = await supabase.storage
-          .from("vetements")
-          .uploadToSignedUrl(uploadPayload.path, uploadPayload.token, file);
-        if (uploadError) {
-          setStatus(uploadError.message);
-          return;
-        }
-
-        const imageRes = await fetch(`/api/admin/products/${product.id}/images`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            path: uploadPayload.path,
-            sort_order: currentImages.length + index,
-            principale: currentImages.length === 0 && index === 0,
-          }),
-        });
-        const imagePayload: ApiErrorPayload = await imageRes.json().catch(() => ({}));
-        if (!imageRes.ok) {
-          setStatus(formatApiError(imagePayload));
-          return;
-        }
       }
 
       setImages([]);
       setStatus("Image(s) ajoutée(s).");
       router.refresh();
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Impossible d'ajouter les images.");
     } finally {
       setIsUploading(false);
     }
@@ -261,42 +232,20 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
       </div>
 
       <div className="grid gap-2 md:grid-cols-5">
-        <select
-          value={form.categorie}
-          onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))}
-          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
-        >
-          {allProductCategoryOptions.map((category) => (
-            <option key={category.value} value={category.value}>
-              {category.label}
-            </option>
-          ))}
-          {!allProductCategoryOptions.some((category) => category.value === form.categorie) ? (
-            <option value={form.categorie}>{form.categorie}</option>
-          ) : null}
-        </select>
-        <select
-          value={form.saison}
-          onChange={(event) => setForm((prev) => ({ ...prev, saison: event.target.value }))}
-          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
-        >
-          {productSeasonOptions.map((season) => (
-            <option key={season.value} value={season.value}>
-              {season.label}
-            </option>
-          ))}
-        </select>
-        <select
-          value={form.age_range}
-          onChange={(event) => setForm((prev) => ({ ...prev, age_range: event.target.value }))}
-          className="rounded-md border border-slate-200 px-3 py-2 text-sm"
-        >
-          {ageRangeOptions.map((age) => (
-            <option key={age} value={age}>
-              {age}
-            </option>
-          ))}
-        </select>
+        {!isMerch ? (
+          <>
+            <select value={form.categorie} onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))} className="rounded-md border border-slate-200 px-3 py-2 text-sm">
+              {allProductCategoryOptions.map((category) => <option key={category.value} value={category.value}>{category.label}</option>)}
+              {!allProductCategoryOptions.some((category) => category.value === form.categorie) ? <option value={form.categorie}>{form.categorie}</option> : null}
+            </select>
+            <select value={form.saison} onChange={(event) => setForm((prev) => ({ ...prev, saison: event.target.value }))} className="rounded-md border border-slate-200 px-3 py-2 text-sm">
+              {productSeasonOptions.map((season) => <option key={season.value} value={season.value}>{season.label}</option>)}
+            </select>
+            <select value={form.age_range} onChange={(event) => setForm((prev) => ({ ...prev, age_range: event.target.value }))} className="rounded-md border border-slate-200 px-3 py-2 text-sm">
+              {ageRangeOptions.map((age) => <option key={age} value={age}>{age}</option>)}
+            </select>
+          </>
+        ) : null}
         <input
           value={form.size_label}
           onChange={(event) => setForm((prev) => ({ ...prev, size_label: event.target.value }))}
@@ -337,7 +286,7 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
           placeholder="Emplacement"
           className="rounded-md border border-slate-200 px-3 py-2 text-sm"
         />
-        {isMerchCategory(form.categorie) ? (
+        {isMerch ? (
           <input
             type="number"
             min={0}

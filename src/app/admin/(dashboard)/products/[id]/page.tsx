@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditProductForm } from "@/components/admin/edit-product-form";
-import { getProductCategoryLabel } from "@/lib/product-categories";
+import { getProductCategoryLabel, isMerchCategory } from "@/lib/product-categories";
 import { getProductConditionLabel, getProductSeasonLabel, getProductStatusLabel } from "@/lib/product-options";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { toChf } from "@/lib/utils";
@@ -27,6 +27,12 @@ type AdminProductRow = {
   emplacement_stock?: string | null;
   mis_en_avant: boolean;
   cree_le: string;
+  photos_vetements?: Array<{
+    id: string;
+    url: string;
+    position: number;
+    principale: boolean;
+  }>;
 };
 
 type SupabaseTableQuery = {
@@ -85,6 +91,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
   if (productError) throw new Error(productError.message);
   const product = productData as unknown as AdminProductRow | null;
   if (!product) notFound();
+  const isMerch = isMerchCategory(product.categorie);
 
   const views = (productEvents ?? []).filter((event) => event.type === "product_view").length;
   const addToCart = (productEvents ?? []).filter((event) => event.type === "add_to_cart").length;
@@ -142,9 +149,9 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
             <div><dt className="text-slate-500">Marque</dt><dd>{product.marque ?? "-"}</dd></div>
             <div><dt className="text-slate-500">État</dt><dd>{getProductConditionLabel(product.etat)}</dd></div>
             <div><dt className="text-slate-500">Taille</dt><dd>{product.taille ?? "-"}</dd></div>
-            <div><dt className="text-slate-500">Age</dt><dd>{product.age ?? "-"}</dd></div>
-            <div><dt className="text-slate-500">Catégorie</dt><dd>{getProductCategoryLabel(product.categorie)}</dd></div>
-            <div><dt className="text-slate-500">Saison</dt><dd>{getProductSeasonLabel(product.saison)}</dd></div>
+            {!isMerch ? <div><dt className="text-slate-500">Âge</dt><dd>{product.age ?? "-"}</dd></div> : null}
+            {!isMerch ? <div><dt className="text-slate-500">Catégorie</dt><dd>{getProductCategoryLabel(product.categorie)}</dd></div> : null}
+            {!isMerch ? <div><dt className="text-slate-500">Saison</dt><dd>{getProductSeasonLabel(product.saison)}</dd></div> : null}
             <div><dt className="text-slate-500">Genre</dt><dd>{product.genre}</dd></div>
             <div><dt className="text-slate-500">Prix</dt><dd>{toChf(product.prix_centimes)}</dd></div>
             <div><dt className="text-slate-500">Prix neuf barre</dt><dd>{product.prix_neuf_centimes ? toChf(product.prix_neuf_centimes) : "-"}</dd></div>

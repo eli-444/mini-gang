@@ -5,6 +5,7 @@ import type { Product } from "@/lib/types";
 interface Props {
   product: Product;
   isFavorite?: boolean;
+  variant?: "shop" | "merch";
 }
 
 function formatCardPrice(cents: number) {
@@ -12,7 +13,7 @@ function formatCardPrice(cents: number) {
   return Number.isInteger(amount) ? `${amount}.-` : amount.toLocaleString("fr-CH", { minimumFractionDigits: 2 });
 }
 
-export function ProductCard({ product, isFavorite = false }: Props) {
+export function ProductCard({ product, isFavorite = false, variant = "shop" }: Props) {
   const image = product.product_images?.[0]?.url ?? product.product_images?.[0]?.path;
   const imageSrc = image?.startsWith("http")
     ? image
@@ -40,7 +41,9 @@ export function ProductCard({ product, isFavorite = false }: Props) {
           {product.brand ? `${product.brand} ` : ""}
           {product.title}
         </Link>
-        <p className="max-w-[82%]">{product.size_label || product.age_range || "Piece unique"}</p>
+        <p className="max-w-[82%] line-clamp-1">
+          {variant === "merch" ? product.description || "Article Mini Gang" : product.size_label || product.age_range || "Pièce unique"}
+        </p>
         <p className="font-black">{formatCardPrice(product.price_cents)}</p>
         <span className="absolute right-4 top-3 inline-flex text-[var(--mg-ink)]" aria-hidden="true">
           <svg viewBox="0 0 24 24" className="h-5 w-5 md:h-7 md:w-7" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -48,7 +51,7 @@ export function ProductCard({ product, isFavorite = false }: Props) {
             <path d="M9.2 8.2c0-2.4 1.1-4.2 2.8-4.2s2.8 1.8 2.8 4.2" />
           </svg>
         </span>
-        {age ? (
+        {variant === "shop" && age ? (
           <span className="absolute bottom-2.5 right-3 rounded-full bg-[#f3edc9] px-2 py-0.5 text-xs font-black md:bottom-3 md:right-4 md:px-2.5 md:py-1 md:text-sm">
             {age.replace("ans", "ans")}
           </span>

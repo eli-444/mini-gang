@@ -21,18 +21,18 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
 
   const supabase = createSupabaseAdminClient();
-  const { data: existingImages, error: countError } = await supabase
+  const { count: existingImageCount, error: countError } = await supabase
     .from("photos_vetements")
-    .select("id")
+    .select("id", { count: "exact", head: true })
     .eq("vetement_id", id)
-    .limit(3);
+    .limit(6);
 
   if (countError) return NextResponse.json({ error: countError.message }, { status: 500 });
-  if ((existingImages ?? []).length >= 6) {
+  if ((existingImageCount ?? 0) >= 6) {
     return NextResponse.json({ error: "Un vêtement peut avoir 6 images maximum." }, { status: 400 });
   }
 
-  const shouldBeMain = parsed.data.principale || (existingImages ?? []).length === 0;
+  const shouldBeMain = parsed.data.principale || (existingImageCount ?? 0) === 0;
   if (shouldBeMain) {
     const { error: resetError } = await supabase
       .from("photos_vetements")

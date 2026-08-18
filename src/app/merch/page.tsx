@@ -33,7 +33,7 @@ export default async function MerchPage() {
         {products.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-8">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} isFavorite={favoriteSet.has(product.id)} />
+              <ProductCard key={product.id} product={product} isFavorite={favoriteSet.has(product.id)} variant="merch" />
             ))}
           </div>
         ) : (

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { listAdminProducts } from "@/lib/admin-data";
-import { getProductCategoryLabel } from "@/lib/product-categories";
-import { getProductSeasonLabel, getProductStatusLabel } from "@/lib/product-options";
+import { getProductStatusLabel } from "@/lib/product-options";
 import { toChf } from "@/lib/utils";
 
 export default async function AdminMerchPage({
@@ -73,8 +72,6 @@ export default async function AdminMerchPage({
               <tr>
                 <th className="px-3 py-2">Article</th>
                 <th className="px-3 py-2">Référence</th>
-                <th className="px-3 py-2">Catégorie</th>
-                <th className="px-3 py-2">Saison</th>
                 <th className="px-3 py-2">Stock</th>
                 <th className="px-3 py-2">Prix</th>
                 <th className="px-3 py-2">Statut</th>
@@ -86,8 +83,6 @@ export default async function AdminMerchPage({
                 <tr key={product.id} className="border-t border-slate-100">
                   <td className="px-3 py-2 font-medium">{product.title}</td>
                   <td className="px-3 py-2">{product.reference_code ?? "-"}</td>
-                  <td className="px-3 py-2">{getProductCategoryLabel(product.categorie)}</td>
-                  <td className="px-3 py-2">{getProductSeasonLabel(product.season)}</td>
                   <td className="px-3 py-2">{product.stock_quantity ?? 1}</td>
                   <td className="px-3 py-2">{toChf(product.price_cents)}</td>
                   <td className="px-3 py-2">

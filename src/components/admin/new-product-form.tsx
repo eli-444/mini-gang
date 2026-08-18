@@ -1,10 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ageRangeOptions } from "@/lib/age-options";
 import { allProductCategoryOptions, isMerchCategory } from "@/lib/product-categories";
 import { productConditionOptions, productSeasonOptions, productStatusOptions } from "@/lib/product-options";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { uploadProductImage } from "@/lib/product-image-upload";
 
 interface ApiErrorPayload {
   error?: string;
@@ -82,6 +83,8 @@ const textareaClass = `${inputClass} min-h-28 font-normal leading-6`;
 const selectClass = inputClass;
 
 export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCategory?: string }) {
+  const router = useRouter();
+  const isMerch = isMerchCategory(defaultCategory);
   const [status, setStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<File[]>([]);
@@ -101,7 +104,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
     couleur: "",
     matiere: "",
     stock_location: "",
-    stock_quantity: isMerchCategory(defaultCategory) ? 1 : 1,
+    stock_quantity: 1,
     status: "brouillon",
     mis_en_avant: false,
   });
@@ -113,45 +116,14 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
 
   const uploadImages = async (productId: string, files: File[]) => {
     if (files.length === 0) return 0;
-    const supabase = createSupabaseBrowserClient();
 
     for (let index = 0; index < files.length; index += 1) {
-      const file = files[index];
-      const uploadUrlRes = await fetch("/api/admin/storage/upload-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fileName: file.name.slice(0, 255),
-          contentType: file.type || undefined,
-        }),
+      await uploadProductImage({
+        productId,
+        file: files[index],
+        sortOrder: index,
+        principale: index === 0,
       });
-
-      const uploadUrlPayload: ApiErrorPayload & { path?: string; token?: string } = await uploadUrlRes.json().catch(() => ({}));
-      if (!uploadUrlRes.ok || !uploadUrlPayload.path || !uploadUrlPayload.token) {
-        throw new Error(formatApiError(`Image ${index + 1}: génération URL`, uploadUrlPayload));
-      }
-
-      const { error: uploadError } = await supabase.storage
-        .from("vetements")
-        .uploadToSignedUrl(uploadUrlPayload.path, uploadUrlPayload.token, file);
-
-      if (uploadError) {
-        throw new Error(`Upload image échoué (${file.name}): ${uploadError.message}`);
-      }
-
-      const imageRes = await fetch(`/api/admin/products/${productId}/images`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          path: uploadUrlPayload.path,
-          sort_order: index,
-          principale: index === 0,
-        }),
-      });
-      const imagePayload: ApiErrorPayload = await imageRes.json().catch(() => ({}));
-      if (!imageRes.ok) {
-        throw new Error(formatApiError(`Image ${index + 1}: liaison vêtement`, imagePayload));
-      }
     }
 
     return files.length;
@@ -200,6 +172,8 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
             ? `Vêtement créé et visible en boutique: ${productId}${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`
             : `Vêtement créé en ${form.status}. Il ne sera visible en boutique qu'avec le statut En ligne.${uploadedCount > 0 ? ` (${uploadedCount} image(s))` : ""}`,
         );
+        router.push(`/admin/products/${productId}`);
+        router.refresh();
       } catch (uploadError) {
         const uploadMessage = uploadError instanceof Error ? uploadError.message : "Erreur upload images.";
         setStatus(`Vêtement créé: ${productId}. ${uploadMessage}`);
@@ -284,35 +258,31 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
         </div>
       </FormSection>
 
-      <FormSection eyebrow="03 - Classement" title="Catalogue">
+      <FormSection eyebrow="03 - Classement" title={isMerch ? "Détails" : "Catalogue"}>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          <Field label="Catégorie">
-            <select value={form.categorie} onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))} className={selectClass}>
-              {allProductCategoryOptions.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Saison">
-            <select value={form.saison} onChange={(event) => setForm((prev) => ({ ...prev, saison: event.target.value }))} className={selectClass}>
-              {productSeasonOptions.map((season) => (
-                <option key={season.value} value={season.value}>
-                  {season.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Âge">
-            <select value={form.age_range} onChange={(event) => setForm((prev) => ({ ...prev, age_range: event.target.value }))} className={selectClass}>
-              {ageRangeOptions.map((age) => (
-                <option key={age} value={age}>
-                  {age}
-                </option>
-              ))}
-            </select>
-          </Field>
+          {!isMerch ? (
+            <>
+              <Field label="Catégorie">
+                <select value={form.categorie} onChange={(event) => setForm((prev) => ({ ...prev, categorie: event.target.value }))} className={selectClass}>
+                  {allProductCategoryOptions.map((category) => (
+                    <option key={category.value} value={category.value}>{category.label}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Saison">
+                <select value={form.saison} onChange={(event) => setForm((prev) => ({ ...prev, saison: event.target.value }))} className={selectClass}>
+                  {productSeasonOptions.map((season) => (
+                    <option key={season.value} value={season.value}>{season.label}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Âge">
+                <select value={form.age_range} onChange={(event) => setForm((prev) => ({ ...prev, age_range: event.target.value }))} className={selectClass}>
+                  {ageRangeOptions.map((age) => <option key={age} value={age}>{age}</option>)}
+                </select>
+              </Field>
+            </>
+          ) : null}
           <Field label="Taille">
             <input
               value={form.size_label}
@@ -351,7 +321,7 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
               className={inputClass}
             />
           </Field>
-          {isMerchCategory(form.categorie) ? (
+          {isMerch ? (
             <Field label="Quantité merch">
               <input
                 type="number"

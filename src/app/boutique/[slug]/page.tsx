@@ -5,7 +5,7 @@ import { ProductImageCarousel } from "@/components/product-image-carousel";
 import { ShopClosedPage } from "@/components/shop-closed-page";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { isFavoriteProduct } from "@/lib/favorites";
-import { getProductCategoryLabel } from "@/lib/product-categories";
+import { getProductCategoryLabel, isMerchCategory } from "@/lib/product-categories";
 import { getProductById } from "@/lib/products";
 import { getProductConditionLabel, getProductSeasonLabel } from "@/lib/product-options";
 import { getSiteContentSettings } from "@/lib/site-content-settings";
@@ -26,6 +26,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { user } = await getAuthenticatedUser();
   const isFavorite = user ? await isFavoriteProduct(user.id, product.id) : false;
   const images = product.product_images ?? [];
+  const isMerch = isMerchCategory(product.category);
 
   return (
     <div className="mg-container py-10 md:py-14 lg:py-16">
@@ -42,21 +43,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <li>
               <strong>État:</strong> {getProductConditionLabel(product.condition)}
             </li>
-            <li>
-              <strong>Catégorie:</strong> {getProductCategoryLabel(product.category)}
-            </li>
+            {!isMerch ? <li><strong>Catégorie:</strong> {getProductCategoryLabel(product.category)}</li> : null}
             <li>
               <strong>Taille:</strong> {product.size_label || "-"}
             </li>
-            <li>
-              <strong>Age:</strong> {product.age_range || "-"}
-            </li>
+            {!isMerch ? <li><strong>Âge:</strong> {product.age_range || "-"}</li> : null}
             <li>
               <strong>Marque:</strong> <span className="font-black">{product.brand || "-"}</span>
             </li>
-            <li>
-              <strong>Saison:</strong> {getProductSeasonLabel(product.season)}
-            </li>
+            {!isMerch ? <li><strong>Saison:</strong> {getProductSeasonLabel(product.season)}</li> : null}
           </ul>
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--mg-ring)] pt-5">
             <div className="grid gap-1">
