@@ -33,6 +33,8 @@ interface ProductLite {
   image_url?: string | null;
   status: string;
   available: boolean;
+  is_merch: boolean;
+  stock_quantity: number | null;
 }
 
 type CheckoutPayload = {
@@ -141,6 +143,7 @@ export function CartClient({
 }) {
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
+  const setItemQuantity = useCartStore((state) => state.setItemQuantity);
   const [products, setProducts] = useState<ProductLite[]>([]);
   const [email, setEmail] = useState("");
   const provider = defaultProvider;
@@ -225,9 +228,21 @@ export function CartClient({
     };
   }, [checkoutClientSecret, stripePublishableKey]);
 
-  const availableProducts = useMemo(() => products.filter((item) => item.available), [products]);
-  const unavailableProducts = useMemo(() => products.filter((item) => !item.available), [products]);
-  const subtotal = useMemo(() => availableProducts.reduce((sum, item) => sum + item.price_cents, 0), [availableProducts]);
+  const cartProducts = useMemo(
+    () =>
+      products.map((product) => {
+        const quantity = items.find((item) => item.productId === product.id)?.quantity ?? 1;
+        const enoughStock = !product.is_merch || quantity <= (product.stock_quantity ?? 0);
+        return { ...product, quantity, available: product.available && enoughStock };
+      }),
+    [items, products],
+  );
+  const availableProducts = useMemo(() => cartProducts.filter((item) => item.available), [cartProducts]);
+  const unavailableProducts = useMemo(() => cartProducts.filter((item) => !item.available), [cartProducts]);
+  const subtotal = useMemo(
+    () => availableProducts.reduce((sum, item) => sum + item.price_cents * item.quantity, 0),
+    [availableProducts],
+  );
   const effectiveShippingFeeCents = subtotal >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : shippingFeeCents;
   const promoDiscountCents = Math.min(appliedPromo?.discountCents ?? 0, subtotal);
   const discountedSubtotal = Math.max(0, subtotal - promoDiscountCents);
@@ -241,7 +256,7 @@ export function CartClient({
     shipping.postalCode.length > 1 &&
     shipping.city.length > 1;
   const canCheckout =
-    products.length > 0 &&
+    cartProducts.length > 0 &&
     unavailableProducts.length === 0 &&
     requiredFieldsComplete &&
     acceptTerms &&
@@ -261,7 +276,7 @@ export function CartClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         code,
-        items: items.map((item) => ({ productId: item.productId })),
+        items: items.map((item) => ({ productId: item.productId, quantity: item.quantity ?? 1 })),
       }),
     });
     const payload = (await response.json().catch(() => ({}))) as PromoValidationPayload;
@@ -306,7 +321,7 @@ export function CartClient({
       body: JSON.stringify({
         provider,
         email,
-        items: items.map((item) => ({ productId: item.productId })),
+        items: items.map((item) => ({ productId: item.productId, quantity: item.quantity ?? 1 })),
         promoCode: appliedPromo?.code ?? "",
         shipping,
         acceptTerms,
@@ -347,18 +362,18 @@ export function CartClient({
               <h2 className="text-xl font-black text-[var(--mg-ink)]">Articles sélectionnés</h2>
             </div>
             <span className="rounded-full bg-black/[0.04] px-2.5 py-1 text-xs font-black text-[var(--mg-ink)]/70">
-              {products.length} article{products.length > 1 ? "s" : ""}
+              {items.reduce((total, item) => total + (item.quantity ?? 1), 0)} article{items.reduce((total, item) => total + (item.quantity ?? 1), 0) > 1 ? "s" : ""}
             </span>
           </div>
 
-          {products.length === 0 ? (
+          {cartProducts.length === 0 ? (
             <div className="mt-5 rounded-lg border border-dashed border-black/10 p-5">
               <p className="text-sm font-semibold text-[var(--mg-ink)]">Votre panier est vide.</p>
             </div>
           ) : null}
 
           <div className="mt-4 divide-y divide-black/10">
-            {products.map((product) => {
+            {cartProducts.map((product) => {
               const imageSrc = getCartImageSrc(product.image_url);
               const meta = getProductMeta(product);
 
@@ -383,15 +398,30 @@ export function CartClient({
                       <p className="truncate text-base font-black text-[var(--mg-ink)]">{product.title}</p>
                       {meta ? <p className="mt-0.5 truncate text-sm font-semibold text-[var(--mg-ink)]/60">{meta}</p> : null}
                       {product.available ? (
-                        <p className="mt-2 text-base font-black text-[var(--mg-ink)]">{toChf(product.price_cents)}</p>
+                        <p className="mt-2 text-base font-black text-[var(--mg-ink)]">
+                          {toChf(product.price_cents * product.quantity)}
+                          {product.is_merch && product.quantity > 1 ? <span className="ml-2 text-xs font-semibold text-[var(--mg-ink)]/55">{toChf(product.price_cents)} / unité</span> : null}
+                        </p>
                       ) : (
-                        <p className="mt-1 text-xs font-black leading-5 text-[#8a5300]">{unavailableLabel(product.status)}</p>
+                        <p className="mt-1 text-xs font-black leading-5 text-[#8a5300]">
+                          {product.is_merch && product.quantity > (product.stock_quantity ?? 0)
+                            ? `Quantité insuffisante : ${product.stock_quantity ?? 0} restante(s).`
+                            : unavailableLabel(product.status)}
+                        </p>
                       )}
+                      {product.is_merch ? <p className="mt-1 text-xs font-semibold text-[var(--mg-ink)]/55">Quantité restante : {product.stock_quantity ?? 0}</p> : null}
                     </div>
                   </div>
-                  <button type="button" onClick={() => removeItem(product.id)} className="shrink-0 text-xs font-black text-[var(--mg-accent)] underline">
-                    Retirer
-                  </button>
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    {product.is_merch ? (
+                      <div className="inline-flex h-9 items-center overflow-hidden rounded-full border border-black/15 bg-white">
+                        <button type="button" onClick={() => setItemQuantity(product.id, product.quantity - 1)} disabled={product.quantity <= 1} className="h-full w-9 text-base font-black disabled:opacity-30" aria-label="Diminuer la quantité">−</button>
+                        <span className="min-w-7 text-center text-sm font-black">{product.quantity}</span>
+                        <button type="button" onClick={() => setItemQuantity(product.id, product.quantity + 1)} disabled={product.quantity >= (product.stock_quantity ?? 0)} className="h-full w-9 text-base font-black disabled:opacity-30" aria-label="Augmenter la quantité">+</button>
+                      </div>
+                    ) : null}
+                    <button type="button" onClick={() => removeItem(product.id)} className="text-xs font-black text-[var(--mg-accent)] underline">Retirer</button>
+                  </div>
                 </article>
               );
             })}

@@ -41,7 +41,7 @@ function CartIcon() {
 }
 
 function CartLink({ className = "" }: { className?: string }) {
-  const count = useCartStore((state) => state.items.length);
+  const count = useCartStore((state) => state.items.reduce((total, item) => total + (item.quantity ?? 1), 0));
 
   return (
     <Link

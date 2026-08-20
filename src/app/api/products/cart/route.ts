@@ -5,7 +5,7 @@ import { getCartProductsByIds } from "@/lib/products";
 import { getSiteContentSettings } from "@/lib/site-content-settings";
 
 const cartProductsSchema = z.object({
-  items: z.array(z.object({ productId: z.string().uuid() })).max(50),
+  items: z.array(z.object({ productId: z.string().uuid(), quantity: z.number().int().min(1).max(99).default(1) })).max(50),
 });
 
 export async function POST(request: Request) {

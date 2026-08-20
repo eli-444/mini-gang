@@ -48,10 +48,10 @@ export default async function AccountOrderDetailPage({ params }: { params: Promi
         <article>
           <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">Articles</h3>
           <ul className="mt-4 space-y-3 text-base md:text-lg">
-            {(order.articles_commande ?? []).map((item: { id: string; nom_vetement: string; taille: string; prix_centimes: number }) => (
+            {(order.articles_commande ?? []).map((item: { id: string; nom_vetement: string; taille: string; prix_centimes: number; quantite?: number | null }) => (
               <li key={item.id} className="flex justify-between gap-4 border-b border-[var(--mg-ring)] pb-3">
-                <span>{item.nom_vetement} {item.taille ? `- ${item.taille}` : ""}</span>
-                <strong>{toChf(item.prix_centimes)}</strong>
+                <span>{item.nom_vetement} {item.taille ? `- ${item.taille}` : ""}{(item.quantite ?? 1) > 1 ? ` Ã— ${item.quantite}` : ""}</span>
+                <strong>{toChf(item.prix_centimes * (item.quantite ?? 1))}</strong>
               </li>
             ))}
           </ul>

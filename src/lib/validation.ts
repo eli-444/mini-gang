@@ -35,6 +35,7 @@ export const productFiltersSchema = z.object({
 
 export const checkoutItemSchema = z.object({
   productId: z.string().uuid(),
+  quantity: z.coerce.number().int().min(1).max(99).default(1),
 });
 
 export const checkoutCreateSchema = z.object({

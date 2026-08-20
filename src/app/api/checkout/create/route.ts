@@ -11,6 +11,7 @@ import {
 } from "@/lib/checkout";
 import { log } from "@/lib/logger";
 import { getProviderInstance } from "@/lib/payments";
+import { isMerchCategory } from "@/lib/product-categories";
 import { getProductsByIds } from "@/lib/products";
 import {
   applyDiscountToCheckoutItems,
@@ -74,8 +75,17 @@ export async function POST(request: Request) {
   if (products.length !== ids.length) {
     return NextResponse.json({ error: "One or more products are unavailable" }, { status: 409 });
   }
+  const quantityById = new Map(parsed.data.items.map((item) => [item.productId, item.quantity]));
+  const reservationItems = products.map((product) => ({
+    productId: product.id,
+    quantity: quantityById.get(product.id) ?? 1,
+  }));
 
-  let reservedIds: string[] = [];
+  if (products.some((product) => !isMerchCategory(product.category) && (quantityById.get(product.id) ?? 1) !== 1)) {
+    return NextResponse.json({ error: "Les vêtements de la boutique sont des pièces uniques." }, { status: 400 });
+  }
+
+  let reservedItems: typeof reservationItems = [];
   let orderId: string | null = null;
   try {
     const supabase = await createSupabaseServerClient();
@@ -87,9 +97,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Connectez-vous pour finaliser la commande." }, { status: 401 });
     }
 
-    await reserveProductsOrThrow(ids);
-    reservedIds = ids;
-    const itemsTotalCents = products.reduce((sum, product) => sum + product.price_cents, 0);
+    await reserveProductsOrThrow(reservationItems);
+    reservedItems = reservationItems;
+    const itemsTotalCents = products.reduce(
+      (sum, product) => sum + product.price_cents * (quantityById.get(product.id) ?? 1),
+      0,
+    );
     const shippingFeeCents = itemsTotalCents >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : paymentSettings.shipping_fee_cents;
     const promoCode = parsed.data.promoCode
       ? await validatePromoCodeForUser({
@@ -100,7 +113,7 @@ export async function POST(request: Request) {
     const productLineItems = products.map((product) => ({
       title: product.title,
       unitAmountCents: product.price_cents,
-      quantity: 1,
+      quantity: quantityById.get(product.id) ?? 1,
     }));
     const { items: discountedLineItems, appliedDiscountCents } = applyDiscountToCheckoutItems(
       productLineItems,
@@ -120,6 +133,7 @@ export async function POST(request: Request) {
         price_cents: product.price_cents,
         reference_code: product.reference_code,
         stock_location: product.stock_location,
+        quantity: quantityById.get(product.id) ?? 1,
       })),
       shipping: parsed.data.shipping,
     });
@@ -166,18 +180,20 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ redirectUrl: session.redirectUrl, orderId: order.id });
   } catch (error) {
+    let releasedByCancellation = false;
     if (orderId) {
       try {
         await markOrderCancelled(orderId);
+        releasedByCancellation = true;
       } catch (cancelError) {
         log.warn("checkout.cancel_failed", {
           message: cancelError instanceof Error ? cancelError.message : "Unknown cancel error",
         });
       }
     }
-    if (reservedIds.length > 0) {
+    if (reservedItems.length > 0 && !releasedByCancellation) {
       try {
-        await releaseProductReservations(reservedIds);
+        await releaseProductReservations(reservedItems);
       } catch (releaseError) {
         log.warn("checkout.release_failed", {
           message: releaseError instanceof Error ? releaseError.message : "Unknown release error",

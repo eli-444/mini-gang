@@ -20,6 +20,7 @@ type OrderItem = {
   nom_vetement: string;
   taille: string;
   prix_centimes: number;
+  quantite?: number | null;
 };
 
 type AccountOrder = {
@@ -56,9 +57,9 @@ function OrderList({ orders, emptyLabel }: { orders: AccountOrder[]; emptyLabel:
             {(order.articles_commande ?? []).map((item) => (
               <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 border-l-2 border-[var(--mg-ring)] pl-3">
                 <span>
-                  {item.nom_vetement} - {item.taille}
+                  {item.nom_vetement}{item.taille ? ` - ${item.taille}` : ""}{(item.quantite ?? 1) > 1 ? ` Ã— ${item.quantite}` : ""}
                 </span>
-                <span className="font-semibold">{toChf(item.prix_centimes)}</span>
+                <span className="font-semibold">{toChf(item.prix_centimes * (item.quantite ?? 1))}</span>
               </li>
             ))}
           </ul>
@@ -84,7 +85,7 @@ export default async function MonCompteCommandesPage() {
 
   const { data } = await supabase
     .from("commandes")
-    .select("id,statut,total_centimes,cree_le,articles_commande(id,nom_vetement,taille,prix_centimes),shipments(id,carrier,status,tracking_number,tracking_url)")
+    .select("id,statut,total_centimes,cree_le,articles_commande(id,nom_vetement,taille,prix_centimes,quantite),shipments(id,carrier,status,tracking_number,tracking_url)")
     .eq("utilisateur_id", user.id)
     .order("cree_le", { ascending: false });
 

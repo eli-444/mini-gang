@@ -30,6 +30,7 @@ export interface OrderShippingLabelInput {
     nom_vetement?: string | null;
     taille?: string | null;
     prix_centimes?: number | null;
+    quantite?: number | null;
     vetement_id?: string | null;
   }>;
 }
@@ -123,9 +124,10 @@ async function createInternalOrderLabel(input: OrderShippingLabelInput) {
 
   let y = 548;
   input.items.slice(0, 18).forEach((item, index) => {
-    const label = `${index + 1}. ${item.nom_vetement ?? item.vetement_id ?? "Article"}${item.taille ? ` - ${item.taille}` : ""}`;
+    const quantity = item.quantite ?? 1;
+    const label = `${index + 1}. ${item.nom_vetement ?? item.vetement_id ?? "Article"}${item.taille ? ` - ${item.taille}` : ""}${quantity > 1 ? ` x ${quantity}` : ""}`;
     line(page, bodyFont, label, 52, y, 9.5);
-    line(page, bodyFont, formatShopMoney(item.prix_centimes ?? 0), 460, y, 9.5);
+    line(page, bodyFont, formatShopMoney((item.prix_centimes ?? 0) * quantity), 460, y, 9.5);
     y -= 17;
   });
 

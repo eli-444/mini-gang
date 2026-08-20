@@ -293,7 +293,8 @@ export function EditProductForm({ product }: { product: AdminProductEditInput })
             step={1}
             value={form.stock_quantity}
             onChange={(event) => setForm((prev) => ({ ...prev, stock_quantity: Number(event.target.value) }))}
-            placeholder="Quantité merch"
+            placeholder="Quantité en stock"
+            required
             className="rounded-md border border-slate-200 px-3 py-2 text-sm"
           />
         ) : null}

@@ -13,71 +13,106 @@ type ReservableProductRow = {
   quantite_stock?: number | null;
 };
 
+export type ProductReservation = {
+  productId: string;
+  quantity: number;
+};
+
+function groupReservations(items: ProductReservation[]) {
+  const grouped = new Map<string, number>();
+  for (const item of items) {
+    grouped.set(item.productId, (grouped.get(item.productId) ?? 0) + Math.max(1, Math.floor(item.quantity)));
+  }
+  return [...grouped].map(([productId, quantity]) => ({ productId, quantity }));
+}
+
 function isMissingMerchStockColumn(error: { message?: string } | null) {
   const message = error?.message?.toLowerCase() ?? "";
   return message.includes("quantite_stock") || message.includes("categorie");
 }
 
-export async function reserveProductsOrThrow(productIds: string[]) {
+export async function reserveProductsOrThrow(items: ProductReservation[]) {
   const supabase = createSupabaseAdminClient();
   const reservedUntil = new Date(Date.now() + RESERVATION_TTL_MINUTES * 60_000).toISOString();
+  const completedReservations: ProductReservation[] = [];
 
-  for (const productId of productIds) {
-    const { data: stockRow, error: stockError } = await supabase
-      .from("vetements")
-      .select("id,categorie,statut,quantite_stock")
-      .eq("id", productId)
-      .eq("statut", "disponible")
-      .maybeSingle();
-
-    if (stockError && !isMissingMerchStockColumn(stockError)) {
-      throw new Error(stockError.message);
-    }
-
-    const row = stockRow as ReservableProductRow | null;
-    if (row && isMerchCategory(row.categorie)) {
-      const currentStock = typeof row.quantite_stock === "number" ? row.quantite_stock : 1;
-      if (currentStock <= 0) {
-        throw new Error(`Product ${productId} is unavailable.`);
-      }
-
-      const nextStock = currentStock - 1;
-      const { data: reserved, error } = await supabase
+  try {
+    for (const { productId, quantity } of groupReservations(items)) {
+      const { data: stockRow, error: stockError } = await supabase
         .from("vetements")
-        .update({
-          quantite_stock: nextStock,
-          statut: nextStock > 0 ? "disponible" : "reserve",
-          reserved_until: reservedUntil,
-        })
+        .select("id,categorie,statut,quantite_stock")
         .eq("id", productId)
         .eq("statut", "disponible")
-        .eq("quantite_stock", currentStock)
+        .maybeSingle();
+
+      if (stockError && !isMissingMerchStockColumn(stockError)) {
+        throw new Error(stockError.message);
+      }
+
+      const row = stockRow as ReservableProductRow | null;
+      if (row && isMerchCategory(row.categorie)) {
+        const currentStock = typeof row.quantite_stock === "number" ? row.quantite_stock : 1;
+        if (currentStock < quantity) {
+          throw new Error(`Product ${productId} is unavailable.`);
+        }
+
+        const nextStock = currentStock - quantity;
+        const { data: reserved, error } = await supabase
+          .from("vetements")
+          .update({
+            quantite_stock: nextStock,
+            statut: nextStock > 0 ? "disponible" : "reserve",
+            reserved_until: nextStock > 0 ? null : reservedUntil,
+          })
+          .eq("id", productId)
+          .eq("statut", "disponible")
+          .eq("quantite_stock", currentStock)
+          .select("id")
+          .maybeSingle();
+
+        if (error || !reserved) {
+          throw new Error(`Product ${productId} is unavailable.`);
+        }
+        completedReservations.push({ productId, quantity });
+        continue;
+      }
+
+      if (quantity !== 1) {
+        throw new Error(`Product ${productId} is a unique item.`);
+      }
+
+      const { data: reserved, error } = await supabase
+        .from("vetements")
+        .update({ statut: "reserve", reserved_until: reservedUntil })
+        .eq("id", productId)
+        .eq("statut", "disponible")
         .select("id")
         .maybeSingle();
 
       if (error || !reserved) {
         throw new Error(`Product ${productId} is unavailable.`);
       }
-      continue;
+      completedReservations.push({ productId, quantity });
     }
-
-    const { data: reserved, error } = await supabase
-      .from("vetements")
-      .update({ statut: "reserve", reserved_until: reservedUntil })
-      .eq("id", productId)
-      .eq("statut", "disponible")
-      .select("id")
-      .maybeSingle();
-
-    if (error || !reserved) {
-      throw new Error(`Product ${productId} is unavailable.`);
-    }
+  } catch (error) {
+    await releaseProductReservations(completedReservations);
+    throw error;
   }
 }
 
 export async function releaseExpiredReservations() {
   const supabase = createSupabaseAdminClient();
   const now = new Date().toISOString();
+  const expiredOrderDate = new Date(Date.now() - RESERVATION_TTL_MINUTES * 60_000).toISOString();
+  const { data: expiredOrders } = await supabase
+    .from("commandes")
+    .select("id")
+    .eq("statut", "en_attente")
+    .lt("cree_le", expiredOrderDate);
+
+  for (const order of expiredOrders ?? []) {
+    await markOrderCancelled(order.id);
+  }
   const { data: expiredRows, error: listError } = await supabase
     .from("vetements")
     .select("id,categorie,quantite_stock")
@@ -131,9 +166,12 @@ export async function releaseExpiredReservations() {
   return { ok: true, released: (data?.length ?? 0) + merchRows.length };
 }
 
-export async function releaseProductReservations(productIds: string[]) {
-  if (productIds.length === 0) return;
+export async function releaseProductReservations(items: ProductReservation[]) {
+  const reservations = groupReservations(items);
+  if (reservations.length === 0) return;
   const supabase = createSupabaseAdminClient();
+  const productIds = reservations.map((item) => item.productId);
+  const quantityById = new Map(reservations.map((item) => [item.productId, item.quantity]));
   const { data: rows, error: rowsError } = await supabase
     .from("vetements")
     .select("id,categorie,quantite_stock")
@@ -147,7 +185,7 @@ export async function releaseProductReservations(productIds: string[]) {
         .update({
           statut: "disponible",
           reserved_until: null,
-          quantite_stock: (row.quantite_stock ?? 0) + 1,
+          quantite_stock: (row.quantite_stock ?? 0) + (quantityById.get(row.id) ?? 1),
         })
         .eq("id", row.id);
     }
@@ -173,6 +211,7 @@ export async function createOrderDraft(input: {
     price_cents: number;
     reference_code?: string | null;
     stock_location?: string | null;
+    quantity: number;
   }>;
   shippingFeeCents: number;
   discountCents?: number;
@@ -192,7 +231,7 @@ export async function createOrderDraft(input: {
   }
 
   const supabase = createSupabaseAdminClient();
-  const itemsTotalCents = input.items.reduce((sum, item) => sum + item.price_cents, 0);
+  const itemsTotalCents = input.items.reduce((sum, item) => sum + item.price_cents * item.quantity, 0);
   const discountCents = Math.min(Math.max(0, input.discountCents ?? 0), itemsTotalCents);
   const amountTotalCents = Math.max(0, itemsTotalCents - discountCents) + input.shippingFeeCents;
   const [prenom = input.shipping.name, ...nomParts] = input.shipping.name.trim().split(/\s+/);
@@ -264,21 +303,29 @@ export async function createOrderDraft(input: {
       prix_centimes: item.price_cents,
       reference_vetement: item.reference_code ?? null,
       emplacement_stock: item.stock_location ?? null,
+      quantite: item.quantity,
     })),
   );
   if (itemsError) {
     const message = itemsError.message.toLowerCase();
-    if (!message.includes("reference_vetement") && !message.includes("emplacement_stock")) {
+    if (!message.includes("reference_vetement") && !message.includes("emplacement_stock") && !message.includes("quantite")) {
       throw new Error(`Cannot create order items: ${itemsError.message}`);
     }
+    const includeSnapshots = !message.includes("reference_vetement") && !message.includes("emplacement_stock");
+    const includeQuantity = !message.includes("quantite");
     const { error: fallbackItemsError } = await supabase.from("articles_commande").insert(
-      input.items.map((item) => ({
-        commande_id: order.id,
-        vetement_id: item.id,
-        nom_vetement: item.title,
-        taille: "",
-        prix_centimes: item.price_cents,
-      })),
+      input.items.flatMap((item) => {
+        const base = {
+          commande_id: order.id,
+          vetement_id: item.id,
+          nom_vetement: item.title,
+          taille: "",
+          prix_centimes: item.price_cents,
+          ...(includeSnapshots ? { reference_vetement: item.reference_code ?? null, emplacement_stock: item.stock_location ?? null } : {}),
+          ...(includeQuantity ? { quantite: item.quantity } : {}),
+        };
+        return includeQuantity ? [base] : Array.from({ length: item.quantity }, () => base);
+      }),
     );
     if (fallbackItemsError) throw new Error(`Cannot create order items: ${fallbackItemsError.message}`);
   }
@@ -304,6 +351,34 @@ export async function saveProviderSession(
   }
 
   if (error) throw new Error(`Cannot store provider session: ${error.message}`);
+}
+
+async function getOrderReservations(orderId: string): Promise<ProductReservation[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("articles_commande")
+    .select("vetement_id,quantite")
+    .eq("commande_id", orderId);
+
+  if (error?.message?.toLowerCase().includes("quantite")) {
+    const { data: fallbackData, error: fallbackError } = await supabase
+      .from("articles_commande")
+      .select("vetement_id")
+      .eq("commande_id", orderId);
+    if (fallbackError) throw new Error(fallbackError.message);
+    return groupReservations(
+      (fallbackData ?? [])
+        .filter((item) => Boolean(item.vetement_id))
+        .map((item) => ({ productId: item.vetement_id as string, quantity: 1 })),
+    );
+  }
+  if (error) throw new Error(error.message);
+
+  return groupReservations(
+    (data ?? [])
+      .filter((item) => Boolean(item.vetement_id))
+      .map((item) => ({ productId: item.vetement_id as string, quantity: Number(item.quantite ?? 1) })),
+  );
 }
 
 export async function markOrderPaid(input: { orderId: string; providerPaymentId?: string | null }) {
@@ -345,13 +420,8 @@ export async function markOrderPaid(input: { orderId: string; providerPaymentId?
     if (!existingOrder) return;
   }
 
-  const { data: orderItems, error: itemsError } = await supabase
-    .from("articles_commande")
-    .select("vetement_id")
-    .eq("commande_id", input.orderId);
-  if (itemsError) throw new Error(itemsError.message);
-
-  const productIds = (orderItems ?? []).map((item) => item.vetement_id).filter(Boolean);
+  const reservations = await getOrderReservations(input.orderId);
+  const productIds = reservations.map((item) => item.productId);
   if (productIds.length > 0) {
     const { data: products, error: productListError } = await supabase
       .from("vetements")
@@ -405,11 +475,8 @@ export async function markOrderCancelled(orderId: string) {
   if (error) throw new Error(error.message);
   if (!updated) return;
 
-  const { data: orderItems } = await supabase.from("articles_commande").select("vetement_id").eq("commande_id", orderId);
-  const productIds = (orderItems ?? []).map((item) => item.vetement_id).filter(Boolean);
-  if (productIds.length > 0) {
-    await supabase.from("vetements").update({ statut: "disponible", reserved_until: null }).in("id", productIds).eq("statut", "reserve");
-  }
+  const reservations = await getOrderReservations(orderId);
+  await releaseProductReservations(reservations);
 }
 
 export async function registerPaymentEvent(provider: PaymentProviderName, eventId: string) {
@@ -429,7 +496,7 @@ export async function loadOrderForEmail(orderId: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("commandes")
-    .select("id,email,prenom,nom,telephone,adresse_ligne_1,adresse_ligne_2,code_postal,ville,pays,sous_total_centimes,frais_livraison_centimes,total_centimes,statut,cree_le,articles_commande(vetement_id,nom_vetement,taille,prix_centimes)")
+    .select("id,email,prenom,nom,telephone,adresse_ligne_1,adresse_ligne_2,code_postal,ville,pays,sous_total_centimes,frais_livraison_centimes,total_centimes,statut,cree_le,articles_commande(vetement_id,nom_vetement,taille,prix_centimes,quantite)")
     .eq("id", orderId)
     .single();
   if (error || !data) {

@@ -322,14 +322,15 @@ export function NewProductForm({ defaultCategory = "tee_shirts" }: { defaultCate
             />
           </Field>
           {isMerch ? (
-            <Field label="Quantité merch">
+            <Field label="Quantité en stock">
               <input
                 type="number"
-                min={0}
+                min={1}
                 step={1}
                 value={form.stock_quantity}
                 onChange={(event) => setForm((prev) => ({ ...prev, stock_quantity: Number(event.target.value) }))}
                 placeholder="50"
+                required
                 className={inputClass}
               />
             </Field>

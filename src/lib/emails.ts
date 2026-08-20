@@ -50,12 +50,12 @@ export async function sendOrderPaidEmails(input: {
     city: string;
     country: string;
   };
-  items: Array<{ nom_vetement?: string | null; taille?: string | null; prix_centimes: number }>;
+  items: Array<{ nom_vetement?: string | null; taille?: string | null; prix_centimes: number; quantite?: number | null }>;
 }) {
   const itemRows = input.items
     .map(
       (item) =>
-        `<li>${escapeHtml(item.nom_vetement)}${item.taille ? `, ${escapeHtml(item.taille)}` : ""} - <strong>${formatShopMoney(item.prix_centimes)}</strong></li>`,
+        `<li>${escapeHtml(item.nom_vetement)}${item.taille ? `, ${escapeHtml(item.taille)}` : ""}${(item.quantite ?? 1) > 1 ? ` x ${item.quantite}` : ""} - <strong>${formatShopMoney(item.prix_centimes * (item.quantite ?? 1))}</strong></li>`,
     )
     .join("");
   const address = [

@@ -1,6 +1,6 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { env } from "@/lib/env";
-import { productCategoryOptions } from "@/lib/product-categories";
+import { isMerchCategory, productCategoryOptions } from "@/lib/product-categories";
 import { SHOP_CURRENCY } from "@/lib/shop-config";
 import type { Product } from "@/lib/types";
 
@@ -400,6 +400,8 @@ export interface CartProductAvailability {
   image_url?: string | null;
   status: Product["status"] | "introuvable";
   available: boolean;
+  is_merch: boolean;
+  stock_quantity: number | null;
   reserved_until?: string | null;
 }
 
@@ -411,6 +413,7 @@ type CartVetementRow = {
   taille?: string | null;
   age?: string | null;
   statut: Product["status"];
+  categorie?: string | null;
   quantite_stock?: number | null;
   reserved_until?: string | null;
   photos_vetements?: Array<{
@@ -449,6 +452,7 @@ export async function getCartProductsByIds(ids: string[]) {
       "taille",
       includeAge ? "age" : null,
       "statut",
+      "categorie",
       includeStock ? "quantite_stock" : null,
       includeReservation ? "reserved_until" : null,
       "photos_vetements(id,url,position,principale)",
@@ -487,6 +491,8 @@ export async function getCartProductsByIds(ids: string[]) {
         image_url: null,
         status: "introuvable" as const,
         available: false,
+        is_merch: false,
+        stock_quantity: 0,
         reserved_until: null,
       };
     }
@@ -501,6 +507,8 @@ export async function getCartProductsByIds(ids: string[]) {
       image_url: getPrimaryCartImage(row),
       status: row.statut,
       available: row.statut === "disponible" && (typeof row.quantite_stock !== "number" || row.quantite_stock > 0),
+      is_merch: isMerchCategory(row.categorie),
+      stock_quantity: row.quantite_stock ?? null,
       reserved_until: row.reserved_until ?? null,
     };
   });

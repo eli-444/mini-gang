@@ -31,15 +31,19 @@ export async function POST(request: Request) {
   if (products.length !== ids.length) {
     return NextResponse.json({ error: "Un article du panier n'est plus disponible." }, { status: 409 });
   }
+  const quantityById = new Map(parsed.data.items.map((item) => [item.productId, item.quantity]));
 
   try {
     const promoCode = await validatePromoCodeForUser({ code: parsed.data.code, userId: user.id });
-    const subtotalCents = products.reduce((sum, product) => sum + product.price_cents, 0);
+    const subtotalCents = products.reduce(
+      (sum, product) => sum + product.price_cents * (quantityById.get(product.id) ?? 1),
+      0,
+    );
     const { appliedDiscountCents } = applyDiscountToCheckoutItems(
       products.map((product) => ({
         title: product.title,
         unitAmountCents: product.price_cents,
-        quantity: 1,
+        quantity: quantityById.get(product.id) ?? 1,
       })),
       calculatePromoDiscountCents(subtotalCents, promoCode.percentage),
     );
