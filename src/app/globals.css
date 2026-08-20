@@ -175,11 +175,11 @@ textarea {
 .mg-footer-line::after {
   content: "";
   position: absolute;
-  right: 0;
-  top: 0;
+  right: -0.7rem;
+  top: 0.03rem;
   width: 24rem;
   height: 2rem;
-  background: url("data:image/svg+xml,%3Csvg width='430' height='40' viewBox='0 0 430 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 22 C35 22 35 22 70 22 C88 22 88 8 106 8 C124 8 124 32 142 32 C160 32 160 6 182 6 C204 6 204 28 230 28 C258 28 258 22 286 22 C324 22 324 34 362 34 C394 34 402 31 430 28' stroke='%23FFC533' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+  background: url("data:image/svg+xml,%3Csvg width='430' height='40' viewBox='0 0 430 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 C35 20 35 20 70 20 C88 20 88 8 106 8 C124 8 124 32 142 32 C160 32 160 6 182 6 C204 6 204 28 230 28 C258 28 258 22 286 22 C324 22 324 34 362 34 C394 34 402 31 430 28' stroke='%23FFC533' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;
 }
 
 .mg-shell {
