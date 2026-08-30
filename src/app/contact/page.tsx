@@ -51,8 +51,8 @@ export default function ContactPage() {
           <section className="pt-1">
             <h2 className="text-[1.15rem] font-black leading-tight md:text-4xl">
               <span className="block md:inline">Email:</span>{" "}
-              <a href="mailto:contact@leminigang.com" className="break-normal underline">
-                contact@leminigang.com
+              <a href="mailto:contact@minigang.ch" className="break-normal underline">
+                contact@minigang.ch
               </a>
             </h2>
             <p className="mt-2 text-[1.05rem] font-black leading-tight md:text-2xl">Réponse moyenne sous 24/48 heures ouvrables.</p>

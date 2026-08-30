@@ -23,6 +23,16 @@ function shippingLabelErrorResponse(message: string) {
   );
 }
 
+function clickCollectResponse() {
+  return new Response(
+    `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Aucun bordereau nécessaire</title><style>body{font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a;padding:32px}main{max-width:720px;margin:auto;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:24px}h1{font-size:24px;margin:0 0 12px}</style></head><body><main><h1>Click &amp; Collect</h1><p>Cette commande sera retirée à Vevey. Aucun bordereau La Poste n’est nécessaire.</p></main></body></html>`,
+    {
+      status: 400,
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    },
+  );
+}
+
 function existingLabelResponse(orderId: string, shipment: { tracking_number?: string | null; tracking_url?: string | null }) {
   const tracking = shipment.tracking_number ?? "Sans numéro";
   const trackingLink = shipment.tracking_url
@@ -53,6 +63,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!order) return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
+  if (order.mode_livraison === "click_collect") return clickCollectResponse();
 
   if (!force) {
     const { data: existingShipment } = await supabase

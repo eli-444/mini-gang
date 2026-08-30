@@ -5,6 +5,7 @@ import { RESERVATION_TTL_MINUTES, SHOP_COUNTRY_LABEL, SHOP_CURRENCY } from "@/li
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { registerPromoUsageForPaidOrder, type PromoCodeValidation } from "@/lib/promo-codes";
 import type { PaymentProviderName } from "@/lib/types";
+import type { FulfillmentMethod } from "@/lib/fulfillment";
 
 type ReservableProductRow = {
   id: string;
@@ -214,6 +215,7 @@ export async function createOrderDraft(input: {
     quantity: number;
   }>;
   shippingFeeCents: number;
+  fulfillmentMethod: FulfillmentMethod;
   discountCents?: number;
   promoCode?: PromoCodeValidation | null;
   shipping: {
@@ -257,6 +259,7 @@ export async function createOrderDraft(input: {
     pays: input.shipping.country === "CH" ? SHOP_COUNTRY_LABEL : input.shipping.country,
     sous_total_centimes: itemsTotalCents,
     frais_livraison_centimes: input.shippingFeeCents,
+    mode_livraison: input.fulfillmentMethod === "click_collect" ? "click_collect" : "livraison",
     total_centimes: amountTotalCents,
     statut: "en_attente",
     accepted_terms_at: new Date().toISOString(),
@@ -279,6 +282,9 @@ export async function createOrderDraft(input: {
   if (orderError) {
     const message = orderError.message.toLowerCase();
     const fallbackDraft: Record<string, unknown> = { ...orderDraft };
+    if (message.includes("mode_livraison")) {
+      delete fallbackDraft.mode_livraison;
+    }
     if (!message.includes("payment_provider")) {
       fallbackDraft.payment_provider = input.provider;
     }
@@ -494,33 +500,45 @@ export function providerUrls() {
 
 export async function loadOrderForEmail(orderId: string) {
   const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("commandes")
-    .select("id,email,prenom,nom,telephone,adresse_ligne_1,adresse_ligne_2,code_postal,ville,pays,sous_total_centimes,frais_livraison_centimes,total_centimes,statut,cree_le,articles_commande(vetement_id,nom_vetement,taille,prix_centimes,quantite)")
+    .select("id,email,prenom,nom,telephone,adresse_ligne_1,adresse_ligne_2,code_postal,ville,pays,sous_total_centimes,frais_livraison_centimes,mode_livraison,total_centimes,statut,cree_le,articles_commande(vetement_id,nom_vetement,taille,prix_centimes,quantite)")
     .eq("id", orderId)
     .single();
+
+  if (error?.message.toLowerCase().includes("mode_livraison")) {
+    ({ data, error } = await supabase
+      .from("commandes")
+      .select("id,email,prenom,nom,telephone,adresse_ligne_1,adresse_ligne_2,code_postal,ville,pays,sous_total_centimes,frais_livraison_centimes,total_centimes,statut,cree_le,articles_commande(vetement_id,nom_vetement,taille,prix_centimes,quantite)")
+      .eq("id", orderId)
+      .single());
+  }
+
   if (error || !data) {
     log.warn("Failed to load order for email", { orderId, error: error?.message });
     return null;
   }
+  const order = data as typeof data & { mode_livraison?: string | null };
+  const fulfillmentMethod: FulfillmentMethod = order.mode_livraison === "click_collect" ? "click_collect" : "shipping";
   return {
-    id: data.id,
-    email: data.email,
-    customer_name: `${data.prenom} ${data.nom}`.trim(),
-    phone: data.telephone,
+    id: order.id,
+    email: order.email,
+    customer_name: `${order.prenom} ${order.nom}`.trim(),
+    phone: order.telephone,
+    fulfillment_method: fulfillmentMethod,
     shipping_address: {
-      line1: data.adresse_ligne_1,
-      line2: data.adresse_ligne_2,
-      postalCode: data.code_postal,
-      city: data.ville,
-      country: data.pays,
+      line1: order.adresse_ligne_1,
+      line2: order.adresse_ligne_2,
+      postalCode: order.code_postal,
+      city: order.ville,
+      country: order.pays,
     },
-    subtotal_cents: data.sous_total_centimes ?? Math.max(0, data.total_centimes - (data.frais_livraison_centimes ?? 0)),
-    shipping_cents: data.frais_livraison_centimes ?? 0,
-    amount_total_cents: data.total_centimes,
-    status: data.statut,
+    subtotal_cents: order.sous_total_centimes ?? Math.max(0, order.total_centimes - (order.frais_livraison_centimes ?? 0)),
+    shipping_cents: order.frais_livraison_centimes ?? 0,
+    amount_total_cents: order.total_centimes,
+    status: order.statut,
     currency: SHOP_CURRENCY,
-    created_at: data.cree_le,
-    order_items: data.articles_commande,
+    created_at: order.cree_le,
+    order_items: order.articles_commande,
   };
 }

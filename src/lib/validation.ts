@@ -38,22 +38,36 @@ export const checkoutItemSchema = z.object({
   quantity: z.coerce.number().int().min(1).max(99).default(1),
 });
 
-export const checkoutCreateSchema = z.object({
-  provider: z.enum(["stripe", "twint"]),
-  email: z.string().email(),
-  items: z.array(checkoutItemSchema).min(1).max(20),
-  promoCode: z.string().trim().max(40).optional().or(z.literal("")),
-  shipping: z.object({
-    name: z.string().trim().min(2).max(120),
-    phone: z.string().trim().min(6).max(40),
-    line1: z.string().trim().min(2).max(200),
-    line2: z.string().trim().max(200).optional().or(z.literal("")),
-    postalCode: z.string().trim().min(2).max(20),
-    city: z.string().trim().min(2).max(100),
-    country: z.string().trim().length(2).default("CH"),
-  }),
-  acceptTerms: z.literal(true),
-});
+export const checkoutCreateSchema = z
+  .object({
+    provider: z.enum(["stripe", "twint"]),
+    email: z.string().email(),
+    items: z.array(checkoutItemSchema).min(1).max(20),
+    promoCode: z.string().trim().max(40).optional().or(z.literal("")),
+    fulfillmentMethod: z.enum(["shipping", "click_collect"]).default("shipping"),
+    shipping: z.object({
+      name: z.string().trim().min(2).max(120),
+      phone: z.string().trim().min(6).max(40),
+      line1: z.string().trim().max(200).optional().or(z.literal("")),
+      line2: z.string().trim().max(200).optional().or(z.literal("")),
+      postalCode: z.string().trim().max(20).optional().or(z.literal("")),
+      city: z.string().trim().max(100).optional().or(z.literal("")),
+      country: z.string().trim().length(2).default("CH"),
+    }),
+    acceptTerms: z.literal(true),
+  })
+  .superRefine((data, context) => {
+    if (data.fulfillmentMethod !== "shipping") return;
+    if (!data.shipping.line1 || data.shipping.line1.length < 2) {
+      context.addIssue({ code: "custom", path: ["shipping", "line1"], message: "Adresse requise" });
+    }
+    if (!data.shipping.postalCode || data.shipping.postalCode.length < 2) {
+      context.addIssue({ code: "custom", path: ["shipping", "postalCode"], message: "NPA requis" });
+    }
+    if (!data.shipping.city || data.shipping.city.length < 2) {
+      context.addIssue({ code: "custom", path: ["shipping", "city"], message: "Ville requise" });
+    }
+  });
 
 export const promoCodeValidateSchema = z.object({
   code: z.string().trim().min(2).max(40),

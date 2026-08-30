@@ -19,6 +19,7 @@ import {
   validatePromoCodeForUser,
 } from "@/lib/promo-codes";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { CLICK_COLLECT_CITY, CLICK_COLLECT_POSTAL_CODE } from "@/lib/fulfillment";
 import { FREE_SHIPPING_THRESHOLD_CENTS } from "@/lib/shop-config";
 import { getSiteContentSettings } from "@/lib/site-content-settings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -103,7 +104,12 @@ export async function POST(request: Request) {
       (sum, product) => sum + product.price_cents * (quantityById.get(product.id) ?? 1),
       0,
     );
-    const shippingFeeCents = itemsTotalCents >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : paymentSettings.shipping_fee_cents;
+    const isClickCollect = parsed.data.fulfillmentMethod === "click_collect";
+    const shippingFeeCents = isClickCollect
+      ? 0
+      : itemsTotalCents >= FREE_SHIPPING_THRESHOLD_CENTS
+        ? 0
+        : paymentSettings.shipping_fee_cents;
     const promoCode = parsed.data.promoCode
       ? await validatePromoCodeForUser({
           code: parsed.data.promoCode,
@@ -127,6 +133,7 @@ export async function POST(request: Request) {
       shippingFeeCents,
       discountCents: appliedDiscountCents,
       promoCode,
+      fulfillmentMethod: parsed.data.fulfillmentMethod,
       items: products.map((product) => ({
         id: product.id,
         title: product.title,
@@ -135,7 +142,21 @@ export async function POST(request: Request) {
         stock_location: product.stock_location,
         quantity: quantityById.get(product.id) ?? 1,
       })),
-      shipping: parsed.data.shipping,
+      shipping: isClickCollect
+        ? {
+            ...parsed.data.shipping,
+            line1: "Adresse communiquée après confirmation",
+            line2: "",
+            postalCode: CLICK_COLLECT_POSTAL_CODE,
+            city: CLICK_COLLECT_CITY,
+            country: "CH",
+          }
+        : {
+            ...parsed.data.shipping,
+            line1: parsed.data.shipping.line1 ?? "",
+            postalCode: parsed.data.shipping.postalCode ?? "",
+            city: parsed.data.shipping.city ?? "",
+          },
     });
     orderId = order.id;
 

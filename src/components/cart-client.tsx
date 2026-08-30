@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useCartStore } from "@/lib/cart-store";
 import { FREE_SHIPPING_THRESHOLD_CENTS, SHOP_COUNTRY_CODE, SHOP_COUNTRY_LABEL } from "@/lib/shop-config";
+import type { FulfillmentMethod } from "@/lib/fulfillment";
 import type { PaymentProviderName } from "@/lib/types";
 import { toChf } from "@/lib/utils";
 
@@ -146,6 +147,7 @@ export function CartClient({
   const setItemQuantity = useCartStore((state) => state.setItemQuantity);
   const [products, setProducts] = useState<ProductLite[]>([]);
   const [email, setEmail] = useState("");
+  const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>("shipping");
   const provider = defaultProvider;
   const [shipping, setShipping] = useState({
     name: "",
@@ -188,7 +190,7 @@ export function CartClient({
     setCheckoutError(null);
     setAppliedPromo(null);
     setPromoError(null);
-  }, [items, provider]);
+  }, [fulfillmentMethod, items, provider]);
 
   useEffect(() => {
     if (!checkoutClientSecret) return;
@@ -243,18 +245,17 @@ export function CartClient({
     () => availableProducts.reduce((sum, item) => sum + item.price_cents * item.quantity, 0),
     [availableProducts],
   );
-  const effectiveShippingFeeCents = subtotal >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : shippingFeeCents;
+  const effectiveShippingFeeCents =
+    fulfillmentMethod === "click_collect" || subtotal >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : shippingFeeCents;
   const promoDiscountCents = Math.min(appliedPromo?.discountCents ?? 0, subtotal);
   const discountedSubtotal = Math.max(0, subtotal - promoDiscountCents);
   const total = discountedSubtotal + effectiveShippingFeeCents;
   const selectedProvider = providers.find((item) => item.name === provider);
+  const contactFieldsComplete = email.length > 0 && shipping.name.length > 1 && shipping.phone.length > 5;
+  const addressFieldsComplete =
+    shipping.line1.length > 1 && shipping.postalCode.length > 1 && shipping.city.length > 1;
   const requiredFieldsComplete =
-    email.length > 0 &&
-    shipping.name.length > 1 &&
-    shipping.phone.length > 5 &&
-    shipping.line1.length > 1 &&
-    shipping.postalCode.length > 1 &&
-    shipping.city.length > 1;
+    contactFieldsComplete && (fulfillmentMethod === "click_collect" || addressFieldsComplete);
   const canCheckout =
     cartProducts.length > 0 &&
     unavailableProducts.length === 0 &&
@@ -323,6 +324,7 @@ export function CartClient({
         email,
         items: items.map((item) => ({ productId: item.productId, quantity: item.quantity ?? 1 })),
         promoCode: appliedPromo?.code ?? "",
+        fulfillmentMethod,
         shipping,
         acceptTerms,
       }),
@@ -352,6 +354,19 @@ export function CartClient({
           <h1 className="text-3xl font-black leading-tight text-[var(--mg-on-dark)] md:text-5xl">Panier</h1>
         </div>
       </div>
+
+      <section className="mb-7 max-w-4xl border-l-4 border-[var(--mg-pop-sun)] pl-4 text-sm font-semibold leading-6 text-[var(--mg-on-dark)]/88 md:pl-5 md:text-base md:leading-7">
+        <h2 className="text-base font-black text-[var(--mg-pop-sun)] md:text-lg">À savoir</h2>
+        <p className="mt-2">
+          Tous nos vêtements sont de seconde main. L&apos;état et les éventuels défauts sont indiqués dans chaque fiche produit.
+        </p>
+        <p className="mt-2">
+          Certains vêtements peuvent tailler légèrement plus petit en raison des lavages précédents.
+        </p>
+        <p className="mt-2">
+          Nous vous conseillons de réimperméabiliser les vestes et combinaisons de ski avant leur première utilisation.
+        </p>
+      </section>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_430px]">
         <div className="space-y-5">
@@ -443,11 +458,47 @@ export function CartClient({
         <aside className="space-y-4">
           <section className="rounded-xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
             <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--mg-pop-rose)]">Étape 2</p>
-            <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Livraison</h2>
+            <h2 className="mt-1 text-xl font-black text-[var(--mg-ink)]">Remise de la commande</h2>
             {!ordersEnabled ? (
               <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
                 <p>{ordersClosedMessage || "Les commandes sont temporairement suspendues."}</p>
                 {ordersReopenDate ? <p className="mt-1 text-xs">Réouverture prévue: {ordersReopenDate}</p> : null}
+              </div>
+            ) : null}
+
+            <div className="mt-4 grid grid-cols-2 overflow-hidden rounded-lg border border-black/12 bg-black/[0.02] p-1">
+              <button
+                type="button"
+                onClick={() => setFulfillmentMethod("shipping")}
+                disabled={Boolean(checkoutClientSecret)}
+                className={`min-h-11 rounded-md px-3 py-2 text-sm font-black transition ${
+                  fulfillmentMethod === "shipping"
+                    ? "bg-[var(--mg-ink)] text-white shadow-sm"
+                    : "text-[var(--mg-ink)]/65 hover:bg-white"
+                }`}
+              >
+                Livraison
+              </button>
+              <button
+                type="button"
+                onClick={() => setFulfillmentMethod("click_collect")}
+                disabled={Boolean(checkoutClientSecret)}
+                className={`min-h-11 rounded-md px-3 py-2 text-sm font-black transition ${
+                  fulfillmentMethod === "click_collect"
+                    ? "bg-[var(--mg-ink)] text-white shadow-sm"
+                    : "text-[var(--mg-ink)]/65 hover:bg-white"
+                }`}
+              >
+                Click &amp; Collect
+              </button>
+            </div>
+
+            {fulfillmentMethod === "click_collect" ? (
+              <div className="mt-4 border-l-4 border-[var(--mg-pop-rose)] pl-3 text-sm font-semibold leading-6 text-[var(--mg-ink)]/75">
+                <p>Retrait au local Mini Gang à Vevey, le vendredi de 9 h à 11 h, sur rendez-vous.</p>
+                <p className="mt-2">
+                  Renseignez vos coordonnées afin que nous puissions vous contacter et vous transmettre l&apos;adresse exacte du local.
+                </p>
               </div>
             ) : null}
 
@@ -484,27 +535,29 @@ export function CartClient({
                   className={inputClass(shipping.phone.length > 5)}
                 />
               </label>
-              <label>
-                <FieldLabel required>Adresse</FieldLabel>
-                <input
-                  value={shipping.line1}
-                  onChange={(event) => setShipping((prev) => ({ ...prev, line1: event.target.value }))}
-                  autoComplete="address-line1"
-                  placeholder="Rue et numéro"
-                  className={inputClass(shipping.line1.length > 1)}
-                />
-              </label>
-              <label>
-                <FieldLabel>Complément</FieldLabel>
-                <input
-                  value={shipping.line2}
-                  onChange={(event) => setShipping((prev) => ({ ...prev, line2: event.target.value }))}
-                  autoComplete="address-line2"
-                  placeholder="Appartement, étage..."
-                  className={inputClass(true)}
-                />
-              </label>
-              <div className="grid grid-cols-[120px_minmax(0,1fr)] gap-2">
+              {fulfillmentMethod === "shipping" ? (
+                <>
+                  <label>
+                    <FieldLabel required>Adresse</FieldLabel>
+                    <input
+                      value={shipping.line1}
+                      onChange={(event) => setShipping((prev) => ({ ...prev, line1: event.target.value }))}
+                      autoComplete="address-line1"
+                      placeholder="Rue et numéro"
+                      className={inputClass(shipping.line1.length > 1)}
+                    />
+                  </label>
+                  <label>
+                    <FieldLabel>Complément</FieldLabel>
+                    <input
+                      value={shipping.line2}
+                      onChange={(event) => setShipping((prev) => ({ ...prev, line2: event.target.value }))}
+                      autoComplete="address-line2"
+                      placeholder="Appartement, étage..."
+                      className={inputClass(true)}
+                    />
+                  </label>
+                  <div className="grid grid-cols-[120px_minmax(0,1fr)] gap-2">
                 <label>
                   <FieldLabel required>NPA</FieldLabel>
                   <input
@@ -525,17 +578,19 @@ export function CartClient({
                     className={inputClass(shipping.city.length > 1)}
                   />
                 </label>
-              </div>
-              <label>
-                <FieldLabel required>Pays</FieldLabel>
-                <select
-                  value={shipping.country}
-                  onChange={(event) => setShipping((prev) => ({ ...prev, country: event.target.value }))}
-                  className={inputClass(true)}
-                >
-                  <option value={SHOP_COUNTRY_CODE}>{SHOP_COUNTRY_LABEL}</option>
-                </select>
-              </label>
+                  </div>
+                  <label>
+                    <FieldLabel required>Pays</FieldLabel>
+                    <select
+                      value={shipping.country}
+                      onChange={(event) => setShipping((prev) => ({ ...prev, country: event.target.value }))}
+                      className={inputClass(true)}
+                    >
+                      <option value={SHOP_COUNTRY_CODE}>{SHOP_COUNTRY_LABEL}</option>
+                    </select>
+                  </label>
+                </>
+              ) : null}
             </div>
           </section>
 
@@ -592,10 +647,10 @@ export function CartClient({
                 </div>
               ) : null}
               <div className="mt-2 flex justify-between">
-                <span>Livraison Suisse</span>
-                <strong>{effectiveShippingFeeCents === 0 && subtotal > 0 ? "Offerte" : toChf(effectiveShippingFeeCents)}</strong>
+                <span>{fulfillmentMethod === "click_collect" ? "Click & Collect" : "Livraison Suisse"}</span>
+                <strong>{fulfillmentMethod === "click_collect" ? "Gratuit" : effectiveShippingFeeCents === 0 && subtotal > 0 ? "Offerte" : toChf(effectiveShippingFeeCents)}</strong>
               </div>
-              {subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD_CENTS ? (
+              {fulfillmentMethod === "shipping" && subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD_CENTS ? (
                 <p className="mt-1 text-xs text-[var(--mg-ink)]/55">
                   Livraison offerte dès {toChf(FREE_SHIPPING_THRESHOLD_CENTS)} d&apos;achat.
                 </p>

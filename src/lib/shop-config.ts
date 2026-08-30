@@ -5,7 +5,7 @@ export const SHOP_COUNTRY_LABEL = "Suisse";
 export const SHIPPING_FEE_CENTS_DEFAULT = 790;
 export const FREE_SHIPPING_THRESHOLD_CENTS = 8000;
 export const RESERVATION_TTL_MINUTES = 20;
-export const SUPPORT_EMAIL = "contact@leminigang.com";
+export const SUPPORT_EMAIL = "contact@minigang.ch";
 
 export function formatShopMoney(cents: number) {
   return (cents / 100).toLocaleString("fr-CH", {

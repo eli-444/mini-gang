@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import type { FulfillmentMethod } from "@/lib/fulfillment";
 import { log } from "@/lib/logger";
 import { SUPPORT_EMAIL, formatShopMoney } from "@/lib/shop-config";
 
@@ -43,6 +44,7 @@ export async function sendOrderPaidEmails(input: {
   shippingCents: number;
   totalCents: number;
   status: string;
+  fulfillmentMethod: FulfillmentMethod;
   shippingAddress: {
     line1: string;
     line2?: string | null;
@@ -68,6 +70,11 @@ export async function sendOrderPaidEmails(input: {
     .map(escapeHtml)
     .join("<br />");
   const orderUrl = `${env.publicSiteUrl}/mon-compte/commandes/${input.orderId}`;
+  const isClickCollect = input.fulfillmentMethod === "click_collect";
+  const fulfillmentLabel = isClickCollect ? "Click & Collect" : "Livraison en Suisse";
+  const fulfillmentDetails = isClickCollect
+    ? "<p>Retrait au local Mini Gang à Vevey, le vendredi de 9 h à 11 h, sur rendez-vous. L’adresse exacte vous sera transmise séparément.</p>"
+    : `<p>Adresse de livraison:<br />${address}</p>`;
 
   const customerPromise = sendEmail({
     to: input.customerEmail,
@@ -76,9 +83,9 @@ export async function sendOrderPaidEmails(input: {
       <p>Merci${input.customerName ? ` ${escapeHtml(input.customerName)}` : ""}, votre commande <strong>${input.orderId}</strong> est bien payée.</p>
       <ul>${itemRows}</ul>
       <p>Sous-total: <strong>${formatShopMoney(input.subtotalCents)}</strong><br />
-      Livraison: <strong>${formatShopMoney(input.shippingCents)}</strong><br />
+      ${fulfillmentLabel}: <strong>${isClickCollect ? "Gratuit" : formatShopMoney(input.shippingCents)}</strong><br />
       Total: <strong>${formatShopMoney(input.totalCents)}</strong></p>
-      <p>Adresse de livraison:<br />${address}</p>
+      ${fulfillmentDetails}
       <p>Statut: <strong>${escapeHtml(input.status)}</strong></p>
       <p><a href="${orderUrl}">Suivre ma commande</a></p>
       <p>Besoin d'aide: ${SUPPORT_EMAIL}</p>
@@ -94,7 +101,8 @@ export async function sendOrderPaidEmails(input: {
           <p>Client: ${escapeHtml(input.customerEmail)}</p>
           <ul>${itemRows}</ul>
           <p>Total: <strong>${formatShopMoney(input.totalCents)}</strong></p>
-          <p>Adresse:<br />${address}</p>
+          <p>Mode de remise: <strong>${fulfillmentLabel}</strong></p>
+          ${fulfillmentDetails}
           <p><a href="${env.publicSiteUrl}/admin/orders/${input.orderId}">Ouvrir dans l'admin</a></p>
         `,
       })

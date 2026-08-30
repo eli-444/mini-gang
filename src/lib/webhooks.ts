@@ -43,6 +43,7 @@ export async function handlePaymentWebhook(provider: PaymentProvider, request: R
         shippingCents: order.shipping_cents,
         totalCents: order.amount_total_cents,
         status: order.status,
+        fulfillmentMethod: order.fulfillment_method,
         shippingAddress: order.shipping_address,
         items: order.order_items ?? [],
       });

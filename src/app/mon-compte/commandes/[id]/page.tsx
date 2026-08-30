@@ -28,6 +28,7 @@ export default async function AccountOrderDetailPage({ params }: { params: Promi
     .maybeSingle();
 
   if (!order) notFound();
+  const isClickCollect = order.mode_livraison === "click_collect";
 
   return (
     <section className="bg-[var(--mg-surface)] px-5 py-6 text-[var(--mg-ink)] md:px-8 md:py-8">
@@ -50,7 +51,7 @@ export default async function AccountOrderDetailPage({ params }: { params: Promi
           <ul className="mt-4 space-y-3 text-base md:text-lg">
             {(order.articles_commande ?? []).map((item: { id: string; nom_vetement: string; taille: string; prix_centimes: number; quantite?: number | null }) => (
               <li key={item.id} className="flex justify-between gap-4 border-b border-[var(--mg-ring)] pb-3">
-                <span>{item.nom_vetement} {item.taille ? `- ${item.taille}` : ""}{(item.quantite ?? 1) > 1 ? ` Ã— ${item.quantite}` : ""}</span>
+                <span>{item.nom_vetement} {item.taille ? `- ${item.taille}` : ""}{(item.quantite ?? 1) > 1 ? ` × ${item.quantite}` : ""}</span>
                 <strong>{toChf(item.prix_centimes * (item.quantite ?? 1))}</strong>
               </li>
             ))}
@@ -61,33 +62,46 @@ export default async function AccountOrderDetailPage({ params }: { params: Promi
           <div>
             <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">Total</h3>
             <p className="mt-4 flex justify-between border-b border-[var(--mg-ring)] pb-2"><span>Sous-total</span><strong>{toChf(order.sous_total_centimes ?? Math.max(0, order.total_centimes - (order.frais_livraison_centimes ?? 0)))}</strong></p>
-            <p className="mt-2 flex justify-between border-b border-[var(--mg-ring)] pb-2"><span>Livraison</span><strong>{toChf(order.frais_livraison_centimes ?? 0)}</strong></p>
+            <p className="mt-2 flex justify-between border-b border-[var(--mg-ring)] pb-2"><span>{isClickCollect ? "Click & Collect" : "Livraison"}</span><strong>{isClickCollect ? "Gratuit" : toChf(order.frais_livraison_centimes ?? 0)}</strong></p>
             <p className="mt-3 flex justify-between text-xl font-black"><span>Total</span><strong>{toChf(order.total_centimes)}</strong></p>
           </div>
 
           <div>
-            <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">Livraison</h3>
-            <p className="mt-4">{order.adresse_ligne_1}</p>
-            {order.adresse_ligne_2 ? <p>{order.adresse_ligne_2}</p> : null}
-            <p>{order.code_postal} {order.ville}</p>
-            <p>{order.pays}</p>
+            <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">{isClickCollect ? "Click & Collect" : "Livraison"}</h3>
+            {isClickCollect ? (
+              <div className="mt-4 border-l-4 border-[var(--mg-pop-rose)] py-1 pl-4 font-semibold leading-7 text-[var(--mg-ink)]/72">
+                <p>Retrait au local Mini Gang à Vevey, le vendredi de 9 h à 11 h, sur rendez-vous.</p>
+                <p className="mt-2">L&apos;adresse exacte vous sera transmise séparément.</p>
+              </div>
+            ) : (
+              <div className="mt-4">
+                <p>{order.adresse_ligne_1}</p>
+                {order.adresse_ligne_2 ? <p>{order.adresse_ligne_2}</p> : null}
+                <p>{order.code_postal} {order.ville}</p>
+                <p>{order.pays}</p>
+              </div>
+            )}
           </div>
         </article>
       </div>
 
       <div className="mt-10 grid gap-9 border-t-2 border-[var(--mg-ring)] pt-8 lg:grid-cols-2">
         <article>
-          <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">Tracking</h3>
-          <div className="mt-4 space-y-4">
-            {(order.shipments ?? []).length === 0 ? <p className="border-l-4 border-[var(--mg-pop-rose)] py-2 pl-4 text-base font-semibold leading-7 text-[var(--mg-ink)]/68">Le suivi apparaîtra ici dès que la commande sera expédiée.</p> : null}
-            {(order.shipments ?? []).map((shipment: { id: string; carrier: string; status: string; tracking_number: string | null; tracking_url: string | null }) => (
-              <div key={shipment.id} className="border-l-4 border-[var(--mg-ring)] py-1 pl-4 text-base">
-                <p className="font-black">{shipment.carrier} - {shipment.status}</p>
-                <p>{shipment.tracking_number ?? "Numéro à venir"}</p>
-                {shipment.tracking_url ? <a href={shipment.tracking_url} className="font-semibold underline">Ouvrir le suivi</a> : null}
-              </div>
-            ))}
-          </div>
+          <h3 className="text-base font-black uppercase tracking-[0.1em] text-[var(--mg-pop-rose)]">{isClickCollect ? "Retrait" : "Suivi"}</h3>
+          {isClickCollect ? (
+            <p className="mt-4 border-l-4 border-[var(--mg-pop-rose)] py-2 pl-4 text-base font-semibold leading-7 text-[var(--mg-ink)]/68">Mini Gang vous contactera pour confirmer le rendez-vous.</p>
+          ) : (
+            <div className="mt-4 space-y-4">
+              {(order.shipments ?? []).length === 0 ? <p className="border-l-4 border-[var(--mg-pop-rose)] py-2 pl-4 text-base font-semibold leading-7 text-[var(--mg-ink)]/68">Le suivi apparaîtra ici dès que la commande sera expédiée.</p> : null}
+              {(order.shipments ?? []).map((shipment: { id: string; carrier: string; status: string; tracking_number: string | null; tracking_url: string | null }) => (
+                <div key={shipment.id} className="border-l-4 border-[var(--mg-ring)] py-1 pl-4 text-base">
+                  <p className="font-black">{shipment.carrier} - {shipment.status}</p>
+                  <p>{shipment.tracking_number ?? "Numéro à venir"}</p>
+                  {shipment.tracking_url ? <a href={shipment.tracking_url} className="font-semibold underline">Ouvrir le suivi</a> : null}
+                </div>
+              ))}
+            </div>
+          )}
         </article>
 
         <article>

@@ -39,7 +39,7 @@ export function ProductCard({ product, isFavorite = false, variant = "shop" }: P
       </div>
       <div className={`relative bg-[var(--mg-rose-soft)] px-4 py-2.5 text-[0.82rem] font-medium leading-[1.15] md:px-5 md:py-3 md:text-[0.96rem] ${variant === "merch" ? "min-h-[6rem] md:min-h-[6.6rem]" : "min-h-[4.35rem] md:min-h-[5.05rem]"}`}>
         <Link href={`/boutique/${product.id}`} className="line-clamp-2 max-w-[82%]">
-          {product.brand ? `${product.brand} ` : ""}
+          {product.brand ? <span className="font-black">{product.brand} </span> : null}
           {product.title}
         </Link>
         <p className="max-w-[82%] line-clamp-1">
