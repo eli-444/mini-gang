@@ -235,8 +235,24 @@ export async function listReturns() {
     .from("returns")
     .select("id,order_id,status,reason,message,admin_notes,created_at,updated_at")
     .order("created_at", { ascending: false });
-  if (error) return [];
-  return data ?? [];
+  if (error) throw new Error(error.message);
+
+  const returns = data ?? [];
+  const orderIds = [...new Set(returns.map((item) => item.order_id).filter(Boolean))];
+  if (orderIds.length === 0) {
+    return returns.map((item) => ({ ...item, customer_email: null as string | null }));
+  }
+
+  const { data: orders } = await supabase
+    .from("commandes")
+    .select("id,email")
+    .in("id", orderIds);
+  const emailByOrderId = new Map((orders ?? []).map((order) => [order.id, order.email]));
+
+  return returns.map((item) => ({
+    ...item,
+    customer_email: emailByOrderId.get(item.order_id) ?? null,
+  }));
 }
 
 export async function listCustomers() {
