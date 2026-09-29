@@ -148,7 +148,7 @@ export function CartClient({
   const [products, setProducts] = useState<ProductLite[]>([]);
   const [email, setEmail] = useState("");
   const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>("shipping");
-  const provider = defaultProvider;
+  const [provider, setProvider] = useState<PaymentProviderName>(defaultProvider);
   const [shipping, setShipping] = useState({
     name: "",
     phone: "",
@@ -604,6 +604,37 @@ export function CartClient({
               </div>
             ) : null}
 
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {providers.map((item) => (
+                <label
+                  key={item.name}
+                  className={`flex items-start gap-3 rounded-lg border px-3 py-3 text-sm transition ${
+                    provider === item.name && item.enabled
+                      ? "border-[var(--mg-ink)] bg-[var(--mg-accent-soft)]"
+                      : item.enabled
+                        ? "cursor-pointer border-black/10 bg-white"
+                        : "border-black/5 bg-black/[0.03] opacity-55"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="payment-provider"
+                    className="mt-1"
+                    disabled={!item.enabled || Boolean(checkoutClientSecret)}
+                    checked={provider === item.name}
+                    onChange={() => setProvider(item.name)}
+                  />
+                  <span>
+                    <span className="block font-black">{item.label}</span>
+                    <span className="block text-xs leading-5 text-[var(--mg-ink)]/60">
+                      {item.name === "stripe" ? "Paiement sécurisé par carte sur cette page." : item.description}
+                      {!item.enabled ? " Indisponible actuellement." : ""}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+
             <div className="mt-4 rounded-lg border border-black/10 p-3">
               <FieldLabel>Code promo</FieldLabel>
               <div className="flex gap-2">
@@ -685,7 +716,11 @@ export function CartClient({
                 onClick={createCheckout}
                 className="mt-4 w-full rounded-full bg-[var(--mg-accent)] px-4 py-3 text-sm font-black text-white transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isCreatingCheckout ? "Préparation du paiement..." : "Afficher le formulaire de paiement"}
+                {isCreatingCheckout
+                  ? "Préparation du paiement..."
+                  : provider === "twint"
+                    ? "Continuer avec TWINT"
+                    : "Afficher le paiement par carte"}
               </button>
             ) : null}
           </section>

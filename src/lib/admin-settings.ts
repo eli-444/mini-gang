@@ -90,8 +90,9 @@ export async function getTwintRuntimeSettings(): Promise<TwintRuntimeSettings> {
   const apiKey = referencedApiKey ?? env.twintApiKey ?? "";
   const enabled =
     settings.twint_payments_enabled &&
-    env.enableTwint &&
-    (env.twintProviderMode === "stripe" ? Boolean(env.stripeSecretKey) : Boolean(apiBaseUrl && merchantId && apiKey));
+    (env.twintProviderMode === "stripe"
+      ? Boolean(env.stripeSecretKey)
+      : env.enableTwint && Boolean(apiBaseUrl && merchantId && apiKey));
 
   return {
     enabled,

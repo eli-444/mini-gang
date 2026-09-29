@@ -81,7 +81,7 @@ export async function createStripeCheckoutSession(
     formData.append("ui_mode", "embedded_page");
     formData.append("return_url", `${input.successUrl}?order_id=${input.orderId}&session_id={CHECKOUT_SESSION_ID}`);
   } else {
-    formData.append("success_url", `${input.successUrl}?order_id=${input.orderId}`);
+    formData.append("success_url", `${input.successUrl}?order_id=${input.orderId}&session_id={CHECKOUT_SESSION_ID}`);
     formData.append("cancel_url", `${input.cancelUrl}?order_id=${input.orderId}`);
   }
 

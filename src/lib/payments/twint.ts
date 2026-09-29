@@ -7,9 +7,8 @@ export class TwintProvider implements PaymentProvider {
   name = "twint" as const;
 
   isEnabled() {
-    if (!env.enableTwint) return false;
     if (env.twintProviderMode === "stripe") return Boolean(env.stripeSecretKey);
-    return Boolean(env.twintApiBaseUrl && env.twintMerchantId && env.twintApiKey);
+    return env.enableTwint && Boolean(env.twintApiBaseUrl && env.twintMerchantId && env.twintApiKey);
   }
 
   async createCheckout(input: CreateCheckoutInput): Promise<CheckoutSessionResult> {

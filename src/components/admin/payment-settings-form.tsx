@@ -5,7 +5,15 @@ import type { MerchantPaymentSettings } from "@/lib/admin-settings";
 
 type PaymentSettingsFormState = Pick<
   MerchantPaymentSettings,
-  "merchant_bank_holder" | "merchant_bank_name" | "merchant_iban" | "shipping_fee_cents" | "card_payments_enabled"
+  | "merchant_bank_holder"
+  | "merchant_bank_name"
+  | "merchant_iban"
+  | "shipping_fee_cents"
+  | "card_payments_enabled"
+  | "twint_payments_enabled"
+  | "twint_merchant_id"
+  | "twint_api_base_url"
+  | "twint_api_key_reference"
 >;
 
 interface ApiErrorPayload {
@@ -31,6 +39,10 @@ function toFormState(settings: MerchantPaymentSettings): PaymentSettingsFormStat
     merchant_iban: settings.merchant_iban,
     shipping_fee_cents: settings.shipping_fee_cents,
     card_payments_enabled: settings.card_payments_enabled,
+    twint_payments_enabled: settings.twint_payments_enabled,
+    twint_merchant_id: settings.twint_merchant_id,
+    twint_api_base_url: settings.twint_api_base_url,
+    twint_api_key_reference: settings.twint_api_key_reference,
   };
 }
 
@@ -118,7 +130,15 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Merc
             checked={form.card_payments_enabled}
             onChange={(event) => setForm((prev) => ({ ...prev, card_payments_enabled: event.target.checked }))}
           />
-          Stripe actif
+          Carte bancaire via Stripe
+        </label>
+        <label className="flex items-center gap-2 rounded-md border border-slate-200 p-3 text-sm font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            checked={form.twint_payments_enabled}
+            onChange={(event) => setForm((prev) => ({ ...prev, twint_payments_enabled: event.target.checked }))}
+          />
+          TWINT via Stripe
         </label>
       </div>
 

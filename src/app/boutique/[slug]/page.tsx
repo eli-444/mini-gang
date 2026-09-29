@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               <strong className="text-2xl text-[var(--mg-accent-strong)] md:text-3xl">{toChf(product.price_cents)}</strong>
               {product.compare_at_price_cents ? (
                 <span className="text-sm font-semibold text-[var(--mg-ink)]/45 line-through">
-                  Neuf {toChf(product.compare_at_price_cents)}
+                  Prix neuf estimé {toChf(product.compare_at_price_cents)}
                 </span>
               ) : null}
             </div>

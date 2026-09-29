@@ -32,7 +32,7 @@ export const env = {
   klarnaUsername: normalizeEnv(process.env.KLARNA_USERNAME),
   klarnaPassword: normalizeEnv(process.env.KLARNA_PASSWORD),
   klarnaWebhookSecret: normalizeEnv(process.env.KLARNA_WEBHOOK_SECRET),
-  twintProviderMode: normalizeEnv(process.env.TWINT_PROVIDER_MODE) ?? "external",
+  twintProviderMode: normalizeEnv(process.env.TWINT_PROVIDER_MODE) ?? "stripe",
   twintApiBaseUrl: normalizeEnv(process.env.TWINT_API_BASE_URL),
   twintMerchantId: normalizeEnv(process.env.TWINT_MERCHANT_ID),
   twintApiKey: normalizeEnv(process.env.TWINT_API_KEY),
