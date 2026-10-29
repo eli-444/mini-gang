@@ -8,6 +8,7 @@ import { FREE_SHIPPING_THRESHOLD_CENTS, SHOP_COUNTRY_CODE, SHOP_COUNTRY_LABEL } 
 import type { FulfillmentMethod } from "@/lib/fulfillment";
 import type { PaymentProviderName } from "@/lib/types";
 import { toChf } from "@/lib/utils";
+import { checkoutEmailSchema } from "@/lib/validation";
 
 type StripeEmbeddedCheckout = {
   mount: (selector: string) => void;
@@ -42,6 +43,7 @@ type CheckoutPayload = {
   redirectUrl?: string;
   clientSecret?: string;
   error?: string;
+  issues?: Array<{ path: string; message: string }>;
 };
 
 type PromoValidationPayload = {
@@ -97,6 +99,29 @@ function inputClass(hasValue: boolean) {
   return `w-full rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-[var(--mg-ink)] focus:ring-2 focus:ring-[var(--mg-pop-sun)]/35 ${
     hasValue ? "border-black/12 bg-white" : "border-[var(--mg-pop-rose)]/45 bg-[var(--mg-rose-soft)]/45"
   }`;
+}
+
+function isValidEmail(value: string) {
+  return checkoutEmailSchema.safeParse(value).success;
+}
+
+function formatCheckoutError(payload: CheckoutPayload) {
+  const issue = payload.issues?.[0];
+  if (!issue) return payload.error ?? "Paiement impossible.";
+
+  const fieldLabels: Record<string, string> = {
+    email: "Adresse email",
+    items: "Panier",
+    "shipping.name": "Nom complet",
+    "shipping.phone": "Téléphone",
+    "shipping.line1": "Adresse",
+    "shipping.postalCode": "NPA",
+    "shipping.city": "Ville",
+    "shipping.country": "Pays",
+    acceptTerms: "Conditions générales",
+  };
+  const field = fieldLabels[issue.path];
+  return field ? `${field} : ${issue.message}` : issue.message || payload.error || "Paiement impossible.";
 }
 
 function loadStripeScript() {
@@ -251,9 +276,23 @@ export function CartClient({
   const discountedSubtotal = Math.max(0, subtotal - promoDiscountCents);
   const total = discountedSubtotal + effectiveShippingFeeCents;
   const selectedProvider = providers.find((item) => item.name === provider);
-  const contactFieldsComplete = email.length > 0 && shipping.name.length > 1 && shipping.phone.length > 5;
+  const normalizedEmail = email.trim();
+  const normalizedShipping = {
+    name: shipping.name.trim(),
+    phone: shipping.phone.trim(),
+    line1: shipping.line1.trim(),
+    line2: shipping.line2.trim(),
+    postalCode: shipping.postalCode.trim(),
+    city: shipping.city.trim(),
+    country: shipping.country.trim().toUpperCase(),
+  };
+  const emailIsValid = isValidEmail(normalizedEmail);
+  const contactFieldsComplete =
+    emailIsValid && normalizedShipping.name.length > 1 && normalizedShipping.phone.length > 5;
   const addressFieldsComplete =
-    shipping.line1.length > 1 && shipping.postalCode.length > 1 && shipping.city.length > 1;
+    normalizedShipping.line1.length > 1 &&
+    normalizedShipping.postalCode.length > 1 &&
+    normalizedShipping.city.length > 1;
   const requiredFieldsComplete =
     contactFieldsComplete && (fulfillmentMethod === "click_collect" || addressFieldsComplete);
   const canCheckout =
@@ -321,11 +360,11 @@ export function CartClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         provider,
-        email,
+        email: normalizedEmail,
         items: items.map((item) => ({ productId: item.productId, quantity: item.quantity ?? 1 })),
         promoCode: appliedPromo?.code ?? "",
         fulfillmentMethod,
-        shipping,
+        shipping: normalizedShipping,
         acceptTerms,
       }),
     });
@@ -333,7 +372,7 @@ export function CartClient({
     setIsCreatingCheckout(false);
 
     if (!response.ok) {
-      setCheckoutError(payload.error ?? "Checkout impossible");
+      setCheckoutError(formatCheckoutError(payload));
       return;
     }
     if (provider === "stripe" && payload.clientSecret) {
@@ -511,8 +550,11 @@ export function CartClient({
                   type="email"
                   autoComplete="email"
                   placeholder="hello@exemple.ch"
-                  className={inputClass(email.length > 0)}
+                  className={inputClass(emailIsValid)}
                 />
+                {email.length > 0 && !emailIsValid ? (
+                  <p className="mt-1 text-xs font-bold text-red-700">Saisissez une adresse email valide.</p>
+                ) : null}
               </label>
               <label>
                 <FieldLabel required>Nom complet</FieldLabel>
@@ -521,7 +563,7 @@ export function CartClient({
                   onChange={(event) => setShipping((prev) => ({ ...prev, name: event.target.value }))}
                   autoComplete="name"
                   placeholder="Prénom Nom"
-                  className={inputClass(shipping.name.length > 1)}
+                  className={inputClass(normalizedShipping.name.length > 1)}
                 />
               </label>
               <label>
@@ -532,7 +574,7 @@ export function CartClient({
                   type="tel"
                   autoComplete="tel"
                   placeholder="+41 ..."
-                  className={inputClass(shipping.phone.length > 5)}
+                  className={inputClass(normalizedShipping.phone.length > 5)}
                 />
               </label>
               {fulfillmentMethod === "shipping" ? (
@@ -544,7 +586,7 @@ export function CartClient({
                       onChange={(event) => setShipping((prev) => ({ ...prev, line1: event.target.value }))}
                       autoComplete="address-line1"
                       placeholder="Rue et numéro"
-                      className={inputClass(shipping.line1.length > 1)}
+                      className={inputClass(normalizedShipping.line1.length > 1)}
                     />
                   </label>
                   <label>
@@ -565,7 +607,7 @@ export function CartClient({
                     onChange={(event) => setShipping((prev) => ({ ...prev, postalCode: event.target.value }))}
                     autoComplete="postal-code"
                     placeholder="1000"
-                    className={inputClass(shipping.postalCode.length > 1)}
+                    className={inputClass(normalizedShipping.postalCode.length > 1)}
                   />
                 </label>
                 <label>
@@ -575,7 +617,7 @@ export function CartClient({
                     onChange={(event) => setShipping((prev) => ({ ...prev, city: event.target.value }))}
                     autoComplete="address-level2"
                     placeholder="Lausanne"
-                    className={inputClass(shipping.city.length > 1)}
+                    className={inputClass(normalizedShipping.city.length > 1)}
                   />
                 </label>
                   </div>

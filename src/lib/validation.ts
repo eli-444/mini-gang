@@ -38,16 +38,18 @@ export const checkoutItemSchema = z.object({
   quantity: z.coerce.number().int().min(1).max(99).default(1),
 });
 
+export const checkoutEmailSchema = z.string().trim().email("Adresse email invalide");
+
 export const checkoutCreateSchema = z
   .object({
     provider: z.enum(["stripe", "twint"]),
-    email: z.string().email(),
+    email: checkoutEmailSchema,
     items: z.array(checkoutItemSchema).min(1).max(20),
     promoCode: z.string().trim().max(40).optional().or(z.literal("")),
     fulfillmentMethod: z.enum(["shipping", "click_collect"]).default("shipping"),
     shipping: z.object({
-      name: z.string().trim().min(2).max(120),
-      phone: z.string().trim().min(6).max(40),
+      name: z.string().trim().min(2, "Nom complet requis").max(120),
+      phone: z.string().trim().min(6, "Numéro de téléphone invalide").max(40),
       line1: z.string().trim().max(200).optional().or(z.literal("")),
       line2: z.string().trim().max(200).optional().or(z.literal("")),
       postalCode: z.string().trim().max(20).optional().or(z.literal("")),

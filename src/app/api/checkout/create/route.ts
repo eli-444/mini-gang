@@ -34,10 +34,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
-  const json = await request.json();
+  const json = await request.json().catch(() => null);
   const parsed = checkoutCreateSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid payload", details: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: "Informations de paiement invalides.",
+        details: parsed.error.flatten(),
+        issues: parsed.error.issues.map((issue) => ({
+          path: issue.path.map(String).join("."),
+          message: issue.message,
+        })),
+      },
+      { status: 400 },
+    );
   }
 
   const [paymentSettings, siteSettings] = await Promise.all([getMerchantPaymentSettings(), getSiteContentSettings()]);
