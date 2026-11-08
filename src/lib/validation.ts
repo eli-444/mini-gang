@@ -6,7 +6,7 @@ const ageRangeSchema = z.enum(ageRangeOptions);
 const productCategorySchema = z.enum(productCategoryValues);
 export const productConditionSchema = z.enum(["beaucoup_aime", "bon", "tres_bon", "comme_neuf", "neuf_etiquettes", "neuf", "correct"]);
 export const productStatusSchema = z.enum(["brouillon", "disponible", "hors_ligne", "reserve", "vendu", "archive"]);
-export const productSeasonSchema = z.enum(["printemps_ete", "automne_hiver", "toutes_saisons"]);
+export const productSeasonSchema = z.enum(["printemps_ete", "automne_hiver", "noel", "toutes_saisons"]);
 const emptyStringToUndefined = (value: unknown) => (value === "" ? undefined : value);
 const urlOrAbsolutePathSchema = z
   .string()

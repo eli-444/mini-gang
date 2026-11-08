@@ -24,6 +24,7 @@ export const adminProductStatusOptions: Array<{ value: ProductStatus; label: str
 export const productSeasonOptions = [
   { value: "printemps_ete", label: "Printemps-Été" },
   { value: "automne_hiver", label: "Automne-Hiver" },
+  { value: "noel", label: "Noël" },
   { value: "toutes_saisons", label: "Toutes saisons" },
 ] as const;
 
