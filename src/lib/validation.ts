@@ -21,7 +21,7 @@ export const productFiltersSchema = z.object({
     productCategorySchema.optional(),
   ),
   age_range: z.preprocess(emptyStringToUndefined, ageRangeSchema.optional()),
-  genre: z.preprocess(emptyStringToUndefined, z.enum(["femme", "homme"]).optional()),
+  genre: z.preprocess(emptyStringToUndefined, z.enum(["femme", "homme", "mixte"]).optional()),
   brand: z.preprocess(emptyStringToUndefined, z.string().trim().max(80).optional()),
   condition: z.preprocess(emptyStringToUndefined, productConditionSchema.optional()),
   saison: z.preprocess(emptyStringToUndefined, productSeasonSchema.optional()),
