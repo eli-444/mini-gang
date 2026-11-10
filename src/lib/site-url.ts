@@ -1,3 +1,5 @@
+const PRODUCTION_SITE_URL = "https://www.minigang.ch";
+
 function normalizeSiteUrl(value: string | undefined) {
   const trimmed = value?.trim();
   if (!trimmed) return null;
@@ -23,11 +25,11 @@ export function getSiteUrl() {
     .filter((url): url is string => Boolean(url));
 
   if (process.env.NODE_ENV === "production") {
-    const publicUrl = configuredUrls.find((url) => {
+    const customDomain = configuredUrls.find((url) => {
       const hostname = new URL(url).hostname;
-      return hostname !== "localhost" && hostname !== "127.0.0.1";
+      return hostname !== "localhost" && hostname !== "127.0.0.1" && !hostname.endsWith(".vercel.app");
     });
-    if (publicUrl) return publicUrl;
+    return customDomain ?? PRODUCTION_SITE_URL;
   }
 
   return configuredUrls[0] ?? "http://localhost:3000";
