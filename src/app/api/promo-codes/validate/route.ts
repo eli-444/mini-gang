@@ -3,7 +3,7 @@ import { getProductsByIds } from "@/lib/products";
 import {
   applyDiscountToCheckoutItems,
   calculatePromoDiscountCents,
-  validatePromoCodeForUser,
+  validatePromoCodeForCustomer,
 } from "@/lib/promo-codes";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { promoCodeValidateSchema } from "@/lib/validation";
@@ -22,10 +22,6 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Connectez-vous pour utiliser un code promo." }, { status: 401 });
-  }
-
   const ids = [...new Set(parsed.data.items.map((item) => item.productId))];
   const products = await getProductsByIds(ids);
   if (products.length !== ids.length) {
@@ -34,7 +30,11 @@ export async function POST(request: Request) {
   const quantityById = new Map(parsed.data.items.map((item) => [item.productId, item.quantity]));
 
   try {
-    const promoCode = await validatePromoCodeForUser({ code: parsed.data.code, userId: user.id });
+    const promoCode = await validatePromoCodeForCustomer({
+      code: parsed.data.code,
+      userId: user?.id,
+      email: parsed.data.email,
+    });
     const subtotalCents = products.reduce(
       (sum, product) => sum + product.price_cents * (quantityById.get(product.id) ?? 1),
       0,

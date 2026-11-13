@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ClearCartOnSuccess } from "@/components/clear-cart-on-success";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { markOrderPaid } from "@/lib/checkout";
 import { retrieveStripeCheckoutSession } from "@/lib/payments/stripe";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -12,6 +13,7 @@ export default async function CheckoutSuccessPage({
   const params = await searchParams;
   const orderId = Array.isArray(params.order_id) ? params.order_id[0] : params.order_id;
   const sessionId = Array.isArray(params.session_id) ? params.session_id[0] : params.session_id;
+  const authenticatedUser = await getAuthenticatedUser();
   let status: string | null = null;
 
   if (orderId) {
@@ -51,9 +53,15 @@ export default async function CheckoutSuccessPage({
           : "Merci. Le paiement a été lancé et la confirmation finale peut prendre quelques instants via le webhook."}
       </p>
       {orderId ? <p className="text-xs text-[var(--mg-ink)]/60">Commande {orderId.slice(0, 8)}</p> : null}
-      <Link href="/mon-compte/commandes" className="inline-flex rounded-full border border-black/15 px-5 py-2 text-sm font-semibold">
-        Voir mes commandes
-      </Link>
+      {authenticatedUser ? (
+        <Link href="/mon-compte/commandes" className="inline-flex rounded-full border border-black/15 px-5 py-2 text-sm font-semibold">
+          Voir mes commandes
+        </Link>
+      ) : (
+        <p className="text-sm font-semibold text-[var(--mg-ink)]/70">
+          La confirmation et le suivi de votre commande seront envoyés par email.
+        </p>
+      )}
       <Link href="/boutique" className="inline-flex rounded-full bg-[var(--mg-accent)] px-5 py-2 text-sm font-semibold text-white">
         Retour à la boutique
       </Link>

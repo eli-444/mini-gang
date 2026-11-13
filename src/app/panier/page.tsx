@@ -27,6 +27,7 @@ export default async function PanierPage() {
       providers={providers}
       defaultProvider={defaultProvider}
       shippingFeeCents={paymentSettings.shipping_fee_cents}
+      freeShippingPromoEnabled={paymentSettings.free_shipping_promo_enabled}
       ordersEnabled={siteSettings.orders_enabled}
       ordersClosedMessage={siteSettings.orders_closed_message}
       ordersReopenDate={siteSettings.orders_reopen_date}

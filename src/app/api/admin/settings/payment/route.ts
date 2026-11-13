@@ -29,6 +29,7 @@ export async function PATCH(request: Request) {
     twint_api_base_url: parsed.data.twint_api_base_url || "",
     twint_api_key_reference: parsed.data.twint_api_key_reference || "",
     shipping_fee_cents: parsed.data.shipping_fee_cents,
+    free_shipping_promo_enabled: parsed.data.free_shipping_promo_enabled,
     updated_by: auth.user.id,
     updated_at: new Date().toISOString(),
   };
@@ -38,7 +39,7 @@ export async function PATCH(request: Request) {
     .from("admin_settings")
     .upsert(settings, { onConflict: "id" })
     .select(
-      "merchant_bank_holder,merchant_bank_name,merchant_iban,merchant_iban_last4,card_payments_enabled,twint_payments_enabled,twint_merchant_id,twint_api_base_url,twint_api_key_reference,shipping_fee_cents",
+      "merchant_bank_holder,merchant_bank_name,merchant_iban,merchant_iban_last4,card_payments_enabled,twint_payments_enabled,twint_merchant_id,twint_api_base_url,twint_api_key_reference,shipping_fee_cents,free_shipping_promo_enabled",
     )
     .single();
 

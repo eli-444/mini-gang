@@ -149,6 +149,7 @@ export function CartClient({
   providers,
   defaultProvider,
   shippingFeeCents,
+  freeShippingPromoEnabled = false,
   ordersEnabled = true,
   ordersClosedMessage,
   ordersReopenDate,
@@ -162,6 +163,7 @@ export function CartClient({
   }>;
   defaultProvider: PaymentProviderName;
   shippingFeeCents: number;
+  freeShippingPromoEnabled?: boolean;
   ordersEnabled?: boolean;
   ordersClosedMessage?: string;
   ordersReopenDate?: string;
@@ -271,7 +273,9 @@ export function CartClient({
     [availableProducts],
   );
   const effectiveShippingFeeCents =
-    fulfillmentMethod === "click_collect" || subtotal >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : shippingFeeCents;
+    fulfillmentMethod === "click_collect" || freeShippingPromoEnabled || subtotal >= FREE_SHIPPING_THRESHOLD_CENTS
+      ? 0
+      : shippingFeeCents;
   const promoDiscountCents = Math.min(appliedPromo?.discountCents ?? 0, subtotal);
   const discountedSubtotal = Math.max(0, subtotal - promoDiscountCents);
   const total = discountedSubtotal + effectiveShippingFeeCents;
@@ -316,6 +320,7 @@ export function CartClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         code,
+        email: normalizedEmail,
         items: items.map((item) => ({ productId: item.productId, quantity: item.quantity ?? 1 })),
       }),
     });
@@ -723,7 +728,12 @@ export function CartClient({
                 <span>{fulfillmentMethod === "click_collect" ? "Click & Collect" : "Livraison Suisse"}</span>
                 <strong>{fulfillmentMethod === "click_collect" ? "Gratuit" : effectiveShippingFeeCents === 0 && subtotal > 0 ? "Offerte" : toChf(effectiveShippingFeeCents)}</strong>
               </div>
-              {fulfillmentMethod === "shipping" && subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD_CENTS ? (
+              {fulfillmentMethod === "shipping" && freeShippingPromoEnabled && subtotal > 0 ? (
+                <p className="mt-1 text-xs font-semibold text-emerald-700">
+                  Promo livraison offerte appliquée.
+                </p>
+              ) : null}
+              {fulfillmentMethod === "shipping" && !freeShippingPromoEnabled && subtotal > 0 && subtotal < FREE_SHIPPING_THRESHOLD_CENTS ? (
                 <p className="mt-1 text-xs text-[var(--mg-ink)]/55">
                   Livraison offerte dès {toChf(FREE_SHIPPING_THRESHOLD_CENTS)} d&apos;achat.
                 </p>

@@ -13,6 +13,7 @@ export interface MerchantPaymentSettings {
   twint_api_base_url: string;
   twint_api_key_reference: string;
   shipping_fee_cents: number;
+  free_shipping_promo_enabled: boolean;
 }
 
 export interface TwintRuntimeSettings {
@@ -34,6 +35,7 @@ const emptySettings: MerchantPaymentSettings = {
   twint_api_base_url: "",
   twint_api_key_reference: "",
   shipping_fee_cents: SHIPPING_FEE_CENTS_DEFAULT,
+  free_shipping_promo_enabled: false,
 };
 
 export function normalizeIban(value: string) {
@@ -58,13 +60,23 @@ function getReferencedSecret(reference: string) {
 
 export async function getMerchantPaymentSettings(): Promise<MerchantPaymentSettings> {
   const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("admin_settings")
     .select(
-      "merchant_bank_holder,merchant_bank_name,merchant_iban,merchant_iban_last4,card_payments_enabled,twint_payments_enabled,twint_merchant_id,twint_api_base_url,twint_api_key_reference,shipping_fee_cents",
+      "merchant_bank_holder,merchant_bank_name,merchant_iban,merchant_iban_last4,card_payments_enabled,twint_payments_enabled,twint_merchant_id,twint_api_base_url,twint_api_key_reference,shipping_fee_cents,free_shipping_promo_enabled",
     )
     .eq("id", "main")
     .maybeSingle();
+
+  if (error?.message.toLowerCase().includes("free_shipping_promo_enabled")) {
+    ({ data, error } = await supabase
+      .from("admin_settings")
+      .select(
+        "merchant_bank_holder,merchant_bank_name,merchant_iban,merchant_iban_last4,card_payments_enabled,twint_payments_enabled,twint_merchant_id,twint_api_base_url,twint_api_key_reference,shipping_fee_cents",
+      )
+      .eq("id", "main")
+      .maybeSingle());
+  }
 
   if (error || !data) return emptySettings;
 
@@ -79,6 +91,7 @@ export async function getMerchantPaymentSettings(): Promise<MerchantPaymentSetti
     twint_api_base_url: data.twint_api_base_url ?? "",
     twint_api_key_reference: data.twint_api_key_reference ?? "",
     shipping_fee_cents: data.shipping_fee_cents ?? SHIPPING_FEE_CENTS_DEFAULT,
+    free_shipping_promo_enabled: data.free_shipping_promo_enabled ?? false,
   };
 }
 

@@ -228,10 +228,6 @@ export async function createOrderDraft(input: {
     country: string;
   };
 }) {
-  if (!input.userId) {
-    throw new Error("Connectez-vous pour finaliser la commande.");
-  }
-
   const supabase = createSupabaseAdminClient();
   const itemsTotalCents = input.items.reduce((sum, item) => sum + item.price_cents * item.quantity, 0);
   const discountCents = Math.min(Math.max(0, input.discountCents ?? 0), itemsTotalCents);
@@ -239,15 +235,17 @@ export async function createOrderDraft(input: {
   const [prenom = input.shipping.name, ...nomParts] = input.shipping.name.trim().split(/\s+/);
   const nom = nomParts.join(" ") || "-";
 
-  const { error: userError } = await supabase
-    .from("utilisateurs")
-    .upsert({ id: input.userId, email: input.email }, { onConflict: "id" });
-  if (userError) {
-    throw new Error(`Cannot ensure user profile: ${userError.message}`);
+  if (input.userId) {
+    const { error: userError } = await supabase
+      .from("utilisateurs")
+      .upsert({ id: input.userId, email: input.email }, { onConflict: "id" });
+    if (userError) {
+      throw new Error(`Cannot ensure user profile: ${userError.message}`);
+    }
   }
 
   const orderDraft = {
-    utilisateur_id: input.userId,
+    utilisateur_id: input.userId ?? null,
     email: input.email,
     prenom,
     nom,

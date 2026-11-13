@@ -9,6 +9,7 @@ type PaymentSettingsFormState = Pick<
   | "merchant_bank_name"
   | "merchant_iban"
   | "shipping_fee_cents"
+  | "free_shipping_promo_enabled"
   | "card_payments_enabled"
   | "twint_payments_enabled"
   | "twint_merchant_id"
@@ -38,6 +39,7 @@ function toFormState(settings: MerchantPaymentSettings): PaymentSettingsFormStat
     merchant_bank_name: settings.merchant_bank_name,
     merchant_iban: settings.merchant_iban,
     shipping_fee_cents: settings.shipping_fee_cents,
+    free_shipping_promo_enabled: settings.free_shipping_promo_enabled,
     card_payments_enabled: settings.card_payments_enabled,
     twint_payments_enabled: settings.twint_payments_enabled,
     twint_merchant_id: settings.twint_merchant_id,
@@ -70,7 +72,7 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Merc
       }
 
       if (payload.settings) setForm(toFormState(payload.settings));
-      setStatus("Paramètres de paiement enregistrés.");
+      setStatus("Paramètres de la boutique enregistrés.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Erreur inconnue");
     } finally {
@@ -113,6 +115,25 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Merc
         />
       </label>
 
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Promotion</p>
+        <h3 className="mt-1 text-base font-bold text-slate-950">Promo livraison offerte</h3>
+        <label className="mt-3 flex items-start gap-3 text-sm font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            checked={form.free_shipping_promo_enabled}
+            onChange={(event) => setForm((prev) => ({ ...prev, free_shipping_promo_enabled: event.target.checked }))}
+            className="mt-0.5"
+          />
+          <span>
+            Oui, offrir les frais de livraison à toutes les commandes livrées.
+            <span className="mt-1 block text-xs font-normal text-slate-500">
+              Laissez décoché pour conserver le tarif de livraison habituel.
+            </span>
+          </span>
+        </label>
+      </div>
+
       <label className="grid gap-1 text-sm font-semibold text-slate-700">
         IBAN de versement
         <input
@@ -148,7 +169,7 @@ export function PaymentSettingsForm({ initialSettings }: { initialSettings: Merc
           disabled={isSubmitting}
           className="rounded-md bg-slate-900 px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
         >
-          {isSubmitting ? "Enregistrement..." : "Enregistrer les paiements"}
+          {isSubmitting ? "Enregistrement..." : "Enregistrer les réglages"}
         </button>
         {status ? <p className="text-xs text-slate-500">{status}</p> : null}
       </div>

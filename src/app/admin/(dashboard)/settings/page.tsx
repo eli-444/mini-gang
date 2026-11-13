@@ -18,7 +18,12 @@ export default async function AdminSettingsPage() {
   const statusCards = [
     { label: "Stripe", value: cardStatus },
     { label: "IBAN", value: paymentSettings.merchant_iban_last4 ? `**** ${paymentSettings.merchant_iban_last4}` : "Non renseigne" },
-    { label: "Livraison Suisse", value: `${toChf(paymentSettings.shipping_fee_cents)} puis offerte des CHF 80` },
+    {
+      label: "Livraison Suisse",
+      value: paymentSettings.free_shipping_promo_enabled
+        ? "Offerte (promotion active)"
+        : `${toChf(paymentSettings.shipping_fee_cents)} puis offerte des CHF 80`,
+    },
     { label: "Boutique", value: siteContentSettings.shop_enabled ? "Ouverte" : "Fermee" },
     { label: "Commandes", value: siteContentSettings.orders_enabled ? "Ouvertes" : "Fermees" },
     { label: "Rachat", value: siteContentSettings.sell_service_enabled ? "Ouvert" : "Ferme" },

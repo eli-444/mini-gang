@@ -73,6 +73,7 @@ export const checkoutCreateSchema = z
 
 export const promoCodeValidateSchema = z.object({
   code: z.string().trim().min(2).max(40),
+  email: checkoutEmailSchema.optional(),
   items: z.array(checkoutItemSchema).min(1).max(20),
 });
 
@@ -112,6 +113,7 @@ export const adminPaymentSettingsSchema = z.object({
   twint_api_base_url: z.string().trim().url().optional().or(z.literal("")),
   twint_api_key_reference: z.string().trim().max(160).optional().or(z.literal("")),
   shipping_fee_cents: z.coerce.number().int().min(0).max(5000).default(790),
+  free_shipping_promo_enabled: z.boolean().default(false),
 });
 
 export const siteContentSettingsSchema = z.object({

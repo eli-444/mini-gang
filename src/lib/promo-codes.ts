@@ -70,9 +70,10 @@ export function applyDiscountToCheckoutItems(items: DiscountableCheckoutItem[], 
   };
 }
 
-export async function validatePromoCodeForUser(input: {
+export async function validatePromoCodeForCustomer(input: {
   code: string;
-  userId: string;
+  userId?: string;
+  email?: string;
 }) {
   const code = normalizePromoCode(input.code);
   if (!code) throw new Error("Code promo invalide.");
@@ -95,12 +96,20 @@ export async function validatePromoCodeForUser(input: {
   }
 
   if (promo.usage_unique) {
-    const { data: usage, error: usageError } = await supabase
+    let usageQuery = supabase
       .from("codes_promo_utilisations")
       .select("id")
-      .eq("code_promo_id", promo.id)
-      .eq("utilisateur_id", input.userId)
-      .maybeSingle();
+      .eq("code_promo_id", promo.id);
+
+    if (input.userId) {
+      usageQuery = usageQuery.eq("utilisateur_id", input.userId);
+    } else if (input.email) {
+      usageQuery = usageQuery.ilike("email", input.email.trim());
+    } else {
+      throw new Error("Renseignez votre email pour utiliser ce code promo.");
+    }
+
+    const { data: usage, error: usageError } = await usageQuery.limit(1).maybeSingle();
 
     if (usageError) throw new Error(usageError.message);
     if (usage) throw new Error("Ce code promo a déjà été utilisé.");
@@ -128,18 +137,36 @@ export async function registerPromoUsageForPaidOrder(orderId: string) {
     throw new Error(error.message);
   }
 
-  if (!order?.code_promo_id || !order.utilisateur_id || !order.remise_centimes) return;
+  if (!order?.code_promo_id || !order.remise_centimes) return;
 
-  const { error: insertError } = await supabase.from("codes_promo_utilisations").upsert(
-    {
-      code_promo_id: order.code_promo_id,
-      utilisateur_id: order.utilisateur_id,
-      commande_id: order.id,
-      email: order.email,
-      remise_centimes: order.remise_centimes,
-    },
-    { onConflict: "code_promo_id,utilisateur_id", ignoreDuplicates: true },
-  );
+  const usage = {
+    code_promo_id: order.code_promo_id,
+    utilisateur_id: order.utilisateur_id ?? null,
+    commande_id: order.id,
+    email: order.email,
+    remise_centimes: order.remise_centimes,
+  };
+
+  if (!order.utilisateur_id) {
+    const { data: existingUsage, error: existingUsageError } = await supabase
+      .from("codes_promo_utilisations")
+      .select("id")
+      .eq("code_promo_id", order.code_promo_id)
+      .ilike("email", order.email)
+      .limit(1)
+      .maybeSingle();
+    if (existingUsageError) throw new Error(existingUsageError.message);
+    if (existingUsage) return;
+
+    const { error: insertError } = await supabase.from("codes_promo_utilisations").insert(usage);
+    if (insertError && insertError.code !== "23505") throw new Error(insertError.message);
+    return;
+  }
+
+  const { error: insertError } = await supabase.from("codes_promo_utilisations").upsert(usage, {
+    onConflict: "code_promo_id,utilisateur_id",
+    ignoreDuplicates: true,
+  });
 
   if (insertError) throw new Error(insertError.message);
 }

@@ -16,7 +16,7 @@ import { getProductsByIds } from "@/lib/products";
 import {
   applyDiscountToCheckoutItems,
   calculatePromoDiscountCents,
-  validatePromoCodeForUser,
+  validatePromoCodeForCustomer,
 } from "@/lib/promo-codes";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { CLICK_COLLECT_CITY, CLICK_COLLECT_POSTAL_CODE } from "@/lib/fulfillment";
@@ -104,10 +104,6 @@ export async function POST(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) {
-      return NextResponse.json({ error: "Connectez-vous pour finaliser la commande." }, { status: 401 });
-    }
-
     await reserveProductsOrThrow(reservationItems);
     reservedItems = reservationItems;
     const itemsTotalCents = products.reduce(
@@ -115,15 +111,16 @@ export async function POST(request: Request) {
       0,
     );
     const isClickCollect = parsed.data.fulfillmentMethod === "click_collect";
-    const shippingFeeCents = isClickCollect
+    const shippingFeeCents = isClickCollect || paymentSettings.free_shipping_promo_enabled
       ? 0
       : itemsTotalCents >= FREE_SHIPPING_THRESHOLD_CENTS
         ? 0
         : paymentSettings.shipping_fee_cents;
     const promoCode = parsed.data.promoCode
-      ? await validatePromoCodeForUser({
+      ? await validatePromoCodeForCustomer({
           code: parsed.data.promoCode,
-          userId: user.id,
+          userId: user?.id,
+          email: parsed.data.email,
         })
       : null;
     const productLineItems = products.map((product) => ({
@@ -137,7 +134,7 @@ export async function POST(request: Request) {
     );
 
     const order = await createOrderDraft({
-      userId: user.id,
+      userId: user?.id,
       email: parsed.data.email,
       provider: provider.name,
       shippingFeeCents,
